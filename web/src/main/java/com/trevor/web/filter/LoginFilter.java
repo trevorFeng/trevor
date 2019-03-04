@@ -1,7 +1,7 @@
 package com.trevor.web.filter;
 
-import com.trevor.web.bo.UserInfo;
-import com.trevor.web.bo.WebKeys;
+import com.trevor.bo.UserInfo;
+import com.trevor.bo.WebKeys;
 
 import javax.servlet.*;
 import javax.servlet.annotation.WebFilter;

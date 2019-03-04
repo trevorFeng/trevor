@@ -1,4 +1,4 @@
-package com.trevor.web.bo;
+package com.trevor.bo;
 
 /**
  * 一句话描述该类作用:【】
@@ -59,6 +59,18 @@ public class WebKeys {
      * appId
      */
     public static final String APPID = "";
+
+    /**
+     * APP_SECRET
+     */
+    public static final String APP_SECRET = "";
+
+    /**
+     * grant_type
+     */
+    public static final String GRANT_TYPE = "";
+
+
 
 
 }

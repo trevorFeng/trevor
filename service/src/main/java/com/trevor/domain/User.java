@@ -1,4 +1,4 @@
-package com.trevor.service.domain;
+package com.trevor.domain;
 
 import lombok.Data;
 

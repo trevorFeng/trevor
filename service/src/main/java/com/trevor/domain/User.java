@@ -19,6 +19,6 @@ public class User {
 
     private String phoneNumber;
 
-
+    private Integer roomCardNumber;
 
 }

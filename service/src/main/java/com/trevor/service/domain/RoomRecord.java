@@ -3,7 +3,7 @@ package com.trevor.service.domain;
 import lombok.Data;
 
 /**
- * 开房记录表
+ * 开房记录表(开房基本信息)
  * @author trevor
  * @date 2019/3/4 14:24
  */
@@ -24,16 +24,6 @@ public class RoomRecord {
      * 房间名字
      */
     private String roomName;
-
-    /**
-     * 开房人的id
-     */
-    private Integer roomAuth;
-
-    /**
-     * 消耗房卡数量
-     */
-    private Integer consumeRoomCardNum;
 
     /**
      * 开房时间

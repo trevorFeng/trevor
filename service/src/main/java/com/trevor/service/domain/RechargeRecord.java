@@ -16,7 +16,7 @@ public class RechargeRecord {
     /**
      * 主键id
      */
-    private Integer id;
+    private Long id;
 
     /**
      * 充值的微信号

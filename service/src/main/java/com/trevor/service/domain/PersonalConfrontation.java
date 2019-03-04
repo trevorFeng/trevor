@@ -3,7 +3,7 @@ package com.trevor.service.domain;
 import lombok.Data;
 
 /**
- * 一句话描述该类作用:【个人对局情况】
+ * 一句话描述该类作用:【玩家在一间房的对局情况】
  *
  * @author: trevor
  * @create: 2019-03-04 23:21
@@ -14,12 +14,17 @@ public class PersonalConfrontation {
     /**
      * 主键id
      */
-    private Integer id;
+    private Long id;
 
     /**
      * 玩家的id
      */
-    private Integer userId;
+    private Long userId;
+
+    /**
+     * 开房记录id
+     */
+    private Long roomRecordId;
 
     /**
      * 结束时间

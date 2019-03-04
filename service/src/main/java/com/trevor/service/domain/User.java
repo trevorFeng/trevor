@@ -41,9 +41,4 @@ public class User {
      */
     private String phoneNumber;
 
-    /**
-     * 房卡数量
-     */
-    private Integer roomCardNumber;
-
 }

@@ -13,7 +13,7 @@ public class RoomCardTrans {
     /**
      * 主键id
      */
-    private Integer id;
+    private Long id;
 
     /**
      * 交易关闭的标志，1表示是，0表示否
@@ -38,7 +38,7 @@ public class RoomCardTrans {
     /**
      * 全局唯一的交易号
      */
-    private Integer transNum;
+    private String transNum;
 
     /**
      * 转出时间
@@ -48,7 +48,7 @@ public class RoomCardTrans {
     /**
      * 转入玩家的微信号
      */
-    private Integer turnInWinxinId;
+    private String turnInWinxinId;
 
     /**
      * 转入玩家的闲聊号

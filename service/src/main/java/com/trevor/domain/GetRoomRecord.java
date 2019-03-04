@@ -11,6 +11,7 @@ public class GetRoomRecord {
 
     private Long id;
 
+    protected Integer roomNum;
 
 
     private String roomName;

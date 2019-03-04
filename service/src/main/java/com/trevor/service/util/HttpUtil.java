@@ -1,4 +1,4 @@
-package com.trevor.util;
+package com.trevor.service.util;
 
 import com.alibaba.fastjson.JSON;
 import okhttp3.Call;

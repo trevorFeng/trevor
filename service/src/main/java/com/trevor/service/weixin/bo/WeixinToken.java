@@ -1,4 +1,4 @@
-package com.trevor.bo;
+package com.trevor.service.weixin.bo;
 
 import lombok.Data;
 

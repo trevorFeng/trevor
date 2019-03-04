@@ -1,4 +1,4 @@
-package com.trevor.dao;
+package com.trevor.service.dao;
 
 import org.springframework.stereotype.Repository;
 

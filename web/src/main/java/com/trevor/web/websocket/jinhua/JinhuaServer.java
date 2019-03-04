@@ -1,6 +1,6 @@
 package com.trevor.web.websocket.jinhua;
 
-import com.trevor.web.bo.UserInfo;
+import com.trevor.service.bo.UserInfo;
 import org.springframework.stereotype.Component;
 
 import javax.websocket.server.ServerEndpoint;

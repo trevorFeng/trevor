@@ -1,7 +1,7 @@
-package com.trevor.service;
+package com.trevor.service.weixin;
 
-import com.trevor.bo.JsonEntity;
-import com.trevor.bo.SimpleUser;
+import com.trevor.service.bo.JsonEntity;
+import com.trevor.service.bo.SimpleUser;
 
 import java.io.IOException;
 

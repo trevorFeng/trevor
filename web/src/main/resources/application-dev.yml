@@ -58,17 +58,7 @@ spring:
       url: jdbc:mysql://192.168.2.209:3306/ceping_zjut?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true
       username: root
       password: root
-#zhutao
-#      url: jdbc:mysql://192.168.2.68:3306/ZjutSubsidize?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&useSSL=false
-#      username: root
-#      password: 123456
-#      url: jdbc:mysql://127.0.0.1:3306/zgd_subsidize?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&useSSL=false
-#      username: root
-#      password: root
-#lanxuebin
-#      url: jdbc:mysql://192.168.2.209:3306/zgd_subsidize?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&useSSL=false
-#      username: root
-#      password: root
+
       driver-class-name: com.mysql.jdbc.Driver
       type: com.alibaba.druid.pool.DruidDataSource
       filters: stat

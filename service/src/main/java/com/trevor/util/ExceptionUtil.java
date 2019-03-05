@@ -1,6 +1,6 @@
-package com.trevor.service.util;
+package com.trevor.util;
 
-import com.trevor.service.bo.JsonEntity;
+import com.trevor.bo.JsonEntity;
 
 /**
  * @author trevor

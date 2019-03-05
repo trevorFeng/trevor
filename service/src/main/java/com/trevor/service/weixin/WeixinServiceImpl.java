@@ -1,10 +1,10 @@
 package com.trevor.service.weixin;
 
-import com.trevor.service.bo.JsonEntity;
-import com.trevor.service.bo.SimpleUser;
-import com.trevor.service.weixin.bo.WebKeys;
+import com.trevor.common.WebKeys;
+import com.trevor.bo.JsonEntity;
+import com.trevor.bo.SimpleUser;
 import com.trevor.service.weixin.bo.WeixinToken;
-import com.trevor.service.util.HttpUtil;
+import com.trevor.util.HttpUtil;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;

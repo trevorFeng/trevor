@@ -1,7 +1,7 @@
 package com.trevor.web.controller.weixin;
 
-import com.trevor.service.bo.JsonEntity;
-import com.trevor.service.bo.SimpleUser;
+import com.trevor.bo.JsonEntity;
+import com.trevor.bo.SimpleUser;
 import com.trevor.service.weixin.WeixinService;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;

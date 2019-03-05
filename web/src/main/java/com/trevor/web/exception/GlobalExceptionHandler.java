@@ -1,6 +1,6 @@
 package com.trevor.web.exception;
 
-import com.trevor.service.bo.JsonEntity;
+import com.trevor.bo.JsonEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 

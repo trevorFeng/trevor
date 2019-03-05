@@ -1,4 +1,4 @@
-package com.trevor.service.bo;
+package com.trevor.bo;
 
 import lombok.Data;
 

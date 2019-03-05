@@ -1,4 +1,4 @@
-package com.trevor.service.weixin.bo;
+package com.trevor.common;
 
 /**
  * 一句话描述该类作用:【】

@@ -23,4 +23,9 @@ public class JsonEntity<T> {
      * 数据
      */
     private T data;
+
+    public JsonEntity(T data) {
+        this.data = data;
+    }
+
 }

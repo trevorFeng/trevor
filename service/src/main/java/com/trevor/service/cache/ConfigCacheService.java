@@ -11,6 +11,6 @@ import java.util.List;
  * @create: 2019-03-06 22:26
  **/
 
-public interface CacheService {
+public interface ConfigCacheService {
     List<Config> getConfigsByConfigName(String configName);
 }

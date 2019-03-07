@@ -10,7 +10,24 @@ import lombok.Data;
 @Data
 public class SimpleUser {
 
+    /**
+     * 名字
+     */
     private String name;
 
+    /**
+     * 头像
+     */
     private String picture;
+
+    /**
+     * 是否在线
+     */
+    private Integer isOnLine;
+
+    public SimpleUser(UserInfo userInfo) {
+        this.name = userInfo.getWeixinName();
+        this.picture = userInfo.getWeixinName();
+        this.isOnLine = 1;
+    }
 }

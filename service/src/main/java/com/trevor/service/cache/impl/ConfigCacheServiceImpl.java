@@ -1,6 +1,7 @@
-package com.trevor.service.cache;
+package com.trevor.service.cache.impl;
 
 import com.trevor.domain.Config;
+import com.trevor.service.cache.ConfigCacheService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,7 +13,7 @@ import java.util.List;
  * @create: 2019-03-06 22:27
  **/
 @Service
-public class CacheServiceImpl implements CacheService{
+public class ConfigCacheServiceImpl implements ConfigCacheService {
 
     @Override
     public List<Config> getConfigsByConfigName(String configName) {

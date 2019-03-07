@@ -1,5 +1,7 @@
 package com.trevor.domain;
 
+import com.alibaba.fastjson.JSON;
+import com.trevor.service.niuniu.bo.NiuniuRoomParameter;
 import lombok.Data;
 
 /**
@@ -11,19 +13,9 @@ import lombok.Data;
 public class RoomRecord {
 
     /**
-     * 主键id
+     * 主键id,房间编号,从10000开始
      */
     private Long id;
-
-    /**
-     * 房间编号
-     */
-    protected Integer roomNum;
-
-    /**
-     * 房间名字
-     */
-    private String roomName;
 
     /**
      * 开房时间
@@ -31,7 +23,12 @@ public class RoomRecord {
     private Long getRoomTime;
 
     /**
-     * 房间类型 1为牛牛，2为金花
+     * 房间状态，
+     */
+    private Integer state;
+
+    /**
+     * 房间类型 1为13人牛牛，2为10人牛牛，3为6人牛牛 ，4为金花
      */
     private Integer roomType;
 
@@ -39,5 +36,16 @@ public class RoomRecord {
      * 房间属性配置，为json字符串
      */
     private String roomConfig;
+
+    /**
+     * 生成一个房间的基本信息
+     * @param roomType
+     * @return
+     */
+    public void generateRoomRecordBase(Integer roomType , NiuniuRoomParameter niuniuRoomParameter){
+        this.setRoomType(roomType);
+        this.setGetRoomTime(System.currentTimeMillis());
+        this.setRoomConfig(JSON.toJSONString(niuniuRoomParameter));
+    }
 
 }

@@ -15,5 +15,11 @@ public class UserInfo {
 
     private String weixinId;
 
+    private String weixinName;
+
     private String xianliaoId;
+
+    private String xianliaoName;
+
+
 }

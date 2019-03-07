@@ -1,6 +1,8 @@
-package com.trevor.web.websocket.niuniu.bo;
+package com.trevor.service.niuniu.bo;
 
 import lombok.Data;
+
+import java.util.Set;
 
 /**
  * 一句话描述该类作用:【】
@@ -10,6 +12,11 @@ import lombok.Data;
  **/
 @Data
 public class NiuniuRoomParameter {
+
+    /**
+     * 1为13人牛牛，2为10人牛牛，3为6人牛牛
+     */
+    private Integer roomType;
 
     /**
      * 1位明牌抢庄，2为通比开船，3为固定抢庄，4为牛牛上庄
@@ -42,7 +49,7 @@ public class NiuniuRoomParameter {
      * 3---癞子牛牛
      * 4---允许搓牌
      */
-    private Integer special;
+    private Set<Integer> special;
 
     /**
      * 1---顺子牛，5倍
@@ -52,7 +59,7 @@ public class NiuniuRoomParameter {
      * 5---炸弹牛，8倍
      * 6---五小牛，10倍
      */
-    private Integer paiXing;
+    private Set<Integer> paiXing;
 
     /**
      * 局数

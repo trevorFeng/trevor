@@ -7,6 +7,6 @@ package com.trevor.service.niuniu;
  * @create: 2019-03-04 22:42
  **/
 
-public class NiuniuService {
+public interface NiuniuService {
 
 }

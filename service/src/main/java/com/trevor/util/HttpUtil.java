@@ -14,6 +14,14 @@ import java.io.IOException;
  */
 public class HttpUtil {
 
+    /**
+     * 发送get请求，并将返回的json字符串转化为对象
+     * @param url 请求的url
+     * @param clazz json字符串对应的Class
+     * @param <T>
+     * @return
+     * @throws IOException
+     */
     public static <T> T httpGet(String url ,Class<T> clazz) throws IOException {
         OkHttpClient okHttpClient = new OkHttpClient();
         Request request = new Request.Builder()

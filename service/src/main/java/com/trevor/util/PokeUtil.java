@@ -1,6 +1,7 @@
 package com.trevor.util;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -12,16 +13,53 @@ import java.util.List;
 
 public class PokeUtil {
 
-    private static List<String> poke = new ArrayList<>(2<<7);
-
-
+    /**
+     * 5个花色
+     */
+    private final static List<String> poke5 = new ArrayList<>(2<<7);
 
     /**
-     * 生成一副牌
-     * @return
+     * 4个花色
      */
-    public static List<String> generatePoke(){
-        return null;
+    private final static List<String> poke4 = new ArrayList<>(2<<6);
+
+    static {
+        int tmp;
+        for (int i = 1; i <6 ; i++) {
+            for (int j = 1; j <14 ; j++) {
+                tmp = ((byte)i) << 4 | (byte)j;
+                poke5.add(Integer.toHexString(tmp));
+            }
+        }
+        for (int i = 1; i <5 ; i++) {
+            for (int j = 1; j <14 ; j++) {
+                tmp = ((byte)i) << 4 | (byte)j;
+                poke4.add(Integer.toHexString(tmp));
+            }
+        }
+
+    }
+
+    /**
+     * 生成一副随机牌，5个花色
+     * @return list
+     */
+    public static List<String> generatePoke5(){
+        List<String> tmpList = new ArrayList<>(2<<7);
+        tmpList.addAll(poke5);
+        Collections.shuffle(tmpList);
+        return tmpList;
+    }
+
+    /**
+     * 生成一副随机牌，4个花色
+     * @return list
+     */
+    public static List<String> generatePoke4(){
+        List<String> tmpList = new ArrayList<>(2<<6);
+        tmpList.addAll(poke4);
+        Collections.shuffle(tmpList);
+        return tmpList;
     }
 
 }

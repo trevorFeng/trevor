@@ -1,7 +1,7 @@
 package com.trevor.domain;
 
 import com.alibaba.fastjson.JSON;
-import com.trevor.service.niuniu.bo.NiuniuRoomParameter;
+import com.trevor.service.createRoom.bo.NiuniuRoomParameter;
 import lombok.Data;
 
 /**

@@ -9,12 +9,19 @@ import org.springframework.stereotype.Repository;
  * @create: 2019-03-08 0:14
  **/
 @Repository
-public interface PersonalRoomCardMapper {
+public interface PersonalCardMapper {
 
     /**
      * 根据玩家查询玩家拥有的房卡数量
      * @param userId
      * @return
      */
-    Integer findRoomCardNumByUserId(Long userId);
+    Integer findCardNumByUserId(Long userId);
+
+    /**
+     * 根据玩家id更新房卡数量
+     * @param userId
+     * @param card
+     */
+    void updatePersonalCardNum(Long userId ,Integer card);
 }

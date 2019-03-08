@@ -1,4 +1,4 @@
-package com.trevor.service.niuniu.bo;
+package com.trevor.service.createRoom.bo;
 
 import lombok.Data;
 
@@ -66,5 +66,5 @@ public class NiuniuRoomParameter {
      * 1---12局，房卡x3
      * 2---24局，房卡x6
      */
-    private Integer consumRoomCardNum;
+    private Integer consumCardNum;
 }

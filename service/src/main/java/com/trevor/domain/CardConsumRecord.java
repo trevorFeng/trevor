@@ -9,7 +9,7 @@ import lombok.Data;
  * @create: 2019-03-05 0:20
  **/
 @Data
-public class RoomCardConsumRecord {
+public class CardConsumRecord {
 
     /**
      * 主键id
@@ -30,5 +30,17 @@ public class RoomCardConsumRecord {
      * 消费房卡数量
      */
     private Integer consumNum;
+
+    /**
+     * 生成一个房间房卡消费的基本信息
+     * @param roomRecordId
+     * @param roomAuth
+     * @param consumNum
+     */
+    public void generateCardConsumRecordBase(Long roomRecordId , Long roomAuth ,Integer consumNum){
+        this.setRoomRecordId(roomRecordId);
+        this.setRoomAuth(roomAuth);
+        this.setConsumNum(consumNum);
+    }
 
 }

@@ -1,8 +1,6 @@
 package com.trevor.service.niuniu;
 
 import com.trevor.bo.JsonEntity;
-import com.trevor.bo.UserInfo;
-import com.trevor.service.niuniu.bo.NiuniuRoomParameter;
 
 /**
  * 一句话描述该类作用:【】
@@ -21,11 +19,6 @@ public interface NiuniuService {
     JsonEntity<Object> onOpenCheck(String roomId);
 
 
-    /**
-     * 创建房间
-     * @param niuniuRoomParameter
-     * @return
-     */
-    JsonEntity createRoom(NiuniuRoomParameter niuniuRoomParameter , UserInfo userInfo);
+
 
 }

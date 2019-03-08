@@ -21,5 +21,7 @@ public class UserInfo {
 
     private String xianliaoName;
 
+    private String phoneNum;
+
 
 }

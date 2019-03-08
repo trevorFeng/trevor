@@ -7,7 +7,7 @@ package com.trevor.common;
  * @create: 2019-03-08 0:24
  **/
 
-public enum MessageCode {
+public enum MessageCodeEnum {
 
     USER_ROOMCARD_NOT_ENOUGH(-1 ,"您的房卡数量不足"),
 
@@ -17,7 +17,7 @@ public enum MessageCode {
 
     private String message;
 
-    MessageCode(Integer code ,String message){
+    MessageCodeEnum(Integer code , String message){
         this.code = code;
         this.message = message;
     }

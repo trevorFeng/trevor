@@ -9,7 +9,7 @@ import lombok.Data;
  * @create: 2019-03-05 0:20
  **/
 @Data
-public class PersonalRoomCard {
+public class PersonalCard {
     /**
      * 主键id
      */

@@ -9,9 +9,25 @@ package com.trevor.common;
 
 public enum MessageCodeEnum {
 
+    /**
+     * 您的房卡数量不足
+     */
     USER_ROOMCARD_NOT_ENOUGH(-1 ,"您的房卡数量不足"),
 
-    CREATE_SUCCESS(1 ,"创建成功");
+    /**
+     * 交易已关闭
+     */
+    TRANS_CLOSE(-2 ,"交易已关闭"),
+
+    /**
+     * 创建成功
+     */
+    CREATE_SUCCESS(1 ,"创建成功"),
+
+    /**
+     * 领取成功
+     */
+    RECEIVE_SUCCESS(1 ,"领取成功");
 
     private Integer code;
 

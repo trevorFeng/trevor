@@ -8,5 +8,10 @@ public class BizKeys {
     /**
      * 房间的过期时间
      */
-    public static Long ROOM_EXPIRATION_DATE = 1000 * 30L;
+    public final static Long ROOM_EXPIRATION_DATE = 1000 * 30L;
+
+    /**
+     * 更新的条目数时1
+     */
+    public final static Long ONE_UPDATE = 1L;
 }

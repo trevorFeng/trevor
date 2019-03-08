@@ -3,6 +3,7 @@ package com.trevor.service.cardTrans;
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.ResponseHelper;
 import com.trevor.bo.UserInfo;
+import com.trevor.common.BizKeys;
 import com.trevor.common.MessageCodeEnum;
 import com.trevor.dao.CardTransMapper;
 import com.trevor.dao.PersonalCardMapper;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.Objects;
 
 /**
  * @author trevor
@@ -53,16 +55,17 @@ public class CardTransServiceImpl implements CardTransService{
      * @return
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public JsonEntity<Object> receiveCardPackage(String transNum ,UserInfo userInfo) {
         //将交易关闭
-
+        Long termNum = cardTransMapper.closeTrans(System.currentTimeMillis(), userInfo.getId());
+        if (!Objects.equals(BizKeys.ONE_UPDATE ,termNum)) {
+            return ResponseHelper.withErrorInstance(MessageCodeEnum.TRANS_CLOSE);
+        }
         //更新玩家房卡
         CardTrans oneByTransNo = cardTransMapper.findOneByTransNo(transNum);
         Integer cardNumByUserId = personalCardMapper.findCardNumByUserId(userInfo.getId());
         personalCardMapper.updatePersonalCardNum(userInfo.getId() ,cardNumByUserId + oneByTransNo.getCardNum());
-
-
-        return null;
+        return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.RECEIVE_SUCCESS);
     }
 }

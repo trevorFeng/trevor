@@ -23,5 +23,11 @@ public interface CardTransMapper {
      */
     CardTrans findOneByTransNo(String transNo);
 
-    void updateVersion(Long id ,Integer version);
+    /**
+     * 根据版本号关闭交易
+     * @param turnInTime
+     * @param turnInUserId
+     * @return 更新条数
+     */
+    Long closeTrans(Long turnInTime ,Long turnInUserId);
 }

@@ -6,10 +6,7 @@ import com.trevor.service.niuniu.NiuniuService;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpSession;
-import javax.websocket.EndpointConfig;
-import javax.websocket.OnMessage;
-import javax.websocket.OnOpen;
-import javax.websocket.Session;
+import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.util.Map;
@@ -51,14 +48,20 @@ public class NiuniuServer {
         this.session = session;
     }
 
-    /**
-     * 收到客户端消息后调用的方法
-     *
-     * @param action 客户端发送过来的消息*/
     @OnMessage
-    public void onMessage(String action, Session session) {
+    public void receiveMsg(@PathParam("roomName") String roomName,
+                           String msg, Session session) throws Exception {
+        // 此处应该有html过滤
+        //session.getUserProperties()
+        msg = session.getId() + ":" + msg;
+        System.out.println(msg);
+        // 接收到信息后进行广播
+    }
 
-
+    @OnClose
+    public void disConnect(String roomName, Session session) {
+        rooms.get(roomName).remove(session);
+        System.out.println("a client has disconnected!");
     }
 
 }

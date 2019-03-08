@@ -66,5 +66,5 @@ public class NiuniuRoomParameter {
      * 1---12局，房卡x3
      * 2---24局，房卡x6
      */
-    private Integer gameNum;
+    private Integer consumRoomCardNum;
 }

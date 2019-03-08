@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class UserInfo {
 
-    private Integer id;
+    private Long id;
 
     private String weixinId;
 

@@ -1,10 +1,13 @@
 package com.trevor.service.niuniu;
 
+import com.alibaba.fastjson.JSON;
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.ResponseHelper;
 import com.trevor.bo.SimpleUser;
 import com.trevor.bo.UserInfo;
 import com.trevor.common.BizKeys;
+import com.trevor.common.MessageCode;
+import com.trevor.dao.PersonalRoomCardMapper;
 import com.trevor.dao.RoomRecordMapper;
 import com.trevor.domain.RoomRecord;
 import com.trevor.service.cache.RoomRecordCacheService;
@@ -37,6 +40,9 @@ public class NiuniuServiceImpl implements NiuniuService{
     @Resource
     private RoomRecordMapper roomRecordMapper;
 
+    @Resource
+    private PersonalRoomCardMapper personalRoomCardMapper;
+
     /**
      * 在websocket连接时检查房间是否存在以及房间人数是否已满
      * @param roomId
@@ -44,7 +50,16 @@ public class NiuniuServiceImpl implements NiuniuService{
      */
     @Override
     public JsonEntity<Object> onOpenCheck(String roomId) {
+        //判断是否是房间主人的好友
+
         RoomRecord oneById = roomRecordCacheService.findOneById(Long.valueOf(roomId));
+        NiuniuRoomParameter niuniuRoomParameter = JSON.parseObject(oneById.getRoomConfig() ,NiuniuRoomParameter.class);
+        if (niuniuRoomParameter.getSpecial().contains(2)) {
+
+        }
+        if (rooms.containsKey(roomId)) {
+
+        }
         if (oneById == null) {
             return null;
         }
@@ -56,19 +71,28 @@ public class NiuniuServiceImpl implements NiuniuService{
     }
 
     /**
-     * 创建一个房间,返回主键
+     * 创建一个房间,返回主键,将房间放入Map中
      * @param niuniuRoomParameter
      * @return
      */
     @Override
     public JsonEntity<Long> createRoom(NiuniuRoomParameter niuniuRoomParameter ,UserInfo userInfo) {
+        //判断玩家拥有的房卡数量是否超过消耗的房卡数
+        Integer roomCardNumByUserId = personalRoomCardMapper.findRoomCardNumByUserId(userInfo.getId());
+        if (niuniuRoomParameter.getConsumRoomCardNum() == 1) {
+            if (roomCardNumByUserId < 3) {
+                return ResponseHelper.createErrorInstance(MessageCode.USER_ROOMCARD_NOT_ENOUGH);
+            }
+        }
         RoomRecord roomRecord = new RoomRecord();
-        roomRecord.generateRoomRecordBase(niuniuRoomParameter.getRoomType() ,niuniuRoomParameter);
+        roomRecord.generateRoomRecordBase(niuniuRoomParameter.getRoomType() ,niuniuRoomParameter ,userInfo.getId());
+        //将房间信息存入数据库
         Long roomRecordId = roomRecordMapper.insertOne(roomRecord);
         Set<SimpleUser> set = new HashSet<>(2<<4);
         SimpleUser simpleUser = new SimpleUser(userInfo);
         set.add(simpleUser);
+        //将房间放入map中
         rooms.put(roomRecordId ,set);
-        return ResponseHelper.insertSuccess(roomRecordId);
+        return ResponseHelper.createInstance(roomRecordId , MessageCode.CREATE_SUCCESS);
     }
 }

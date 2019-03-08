@@ -23,6 +23,11 @@ public class RoomRecord {
     private Long getRoomTime;
 
     /**
+     * 开房人的id（用户id）
+     */
+    private Long roomAuth;
+
+    /**
      * 房间状态，
      */
     private Integer state;
@@ -42,8 +47,9 @@ public class RoomRecord {
      * @param roomType
      * @return
      */
-    public void generateRoomRecordBase(Integer roomType , NiuniuRoomParameter niuniuRoomParameter){
+    public void generateRoomRecordBase(Integer roomType , NiuniuRoomParameter niuniuRoomParameter ,Long roomAuth){
         this.setRoomType(roomType);
+        this.setRoomAuth(roomAuth);
         this.setGetRoomTime(System.currentTimeMillis());
         this.setRoomConfig(JSON.toJSONString(niuniuRoomParameter));
     }

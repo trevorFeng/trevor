@@ -26,6 +26,6 @@ public interface NiuniuService {
      * @param niuniuRoomParameter
      * @return
      */
-    JsonEntity<Long> createRoom(NiuniuRoomParameter niuniuRoomParameter ,UserInfo userInfo);
+    JsonEntity createRoom(NiuniuRoomParameter niuniuRoomParameter , UserInfo userInfo);
 
 }

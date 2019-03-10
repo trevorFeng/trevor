@@ -41,4 +41,14 @@ public class User {
      */
     private String phoneNumber;
 
+    /**
+     * 用户头像
+     */
+    private String picture;
+
+    /**
+     * 是否开启好友管理，1为是，0为否
+     */
+    private Integer friendManageFlag;
+
 }

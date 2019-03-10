@@ -68,4 +68,15 @@ public class CardTransServiceImpl implements CardTransService{
         personalCardMapper.updatePersonalCardNum(userInfo.getId() ,cardNumByUserId + oneByTransNo.getCardNum());
         return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.RECEIVE_SUCCESS);
     }
+
+    /**
+     * 查询收到的房卡
+     * @param userInfo
+     * @return
+     */
+    @Override
+    public JsonEntity<Object> findSendCardRecord(UserInfo userInfo) {
+
+        return null;
+    }
 }

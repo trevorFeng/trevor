@@ -23,4 +23,10 @@ public interface CardTransService {
      * @return
      */
     JsonEntity<Object> receiveCardPackage(String transNum ,UserInfo userInfo);
+
+    /**
+     * 查询收到的房卡
+     * @return
+     */
+    JsonEntity<Object> findSendCardRecord(UserInfo userInfo);
 }

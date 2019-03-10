@@ -15,6 +15,10 @@ import java.util.concurrent.ConcurrentHashMap;
 @Configuration
 public class RoomConfig {
 
+    /**
+     * 注入牛牛的房间
+     * @return
+     */
     @Bean(name = "niuniuRooms")
     public Map<Long , Set<SimpleUser>> generateNiuNiuRoomMap(){
         Map<Long, Set<SimpleUser>> niuniuRooms = new ConcurrentHashMap(2<<15);

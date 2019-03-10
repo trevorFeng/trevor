@@ -14,7 +14,7 @@ import javax.annotation.Resource;
  * @author trevor
  * @date 2019/3/8 16:50
  */
-@RestController
+@RestController("/admin")
 public class CardTransController {
 
     @Resource
@@ -26,7 +26,7 @@ public class CardTransController {
      * @return
      */
     @RequestMapping(value = "/api/cardTrans/create/package", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public JsonEntity<String> createCardPackage(@RequestBody Integer cardNum ){
+    public JsonEntity<String> createCardPackage(Integer cardNum ){
        return cardTransService.createCardPackage(cardNum ,null);
     }
 
@@ -36,7 +36,7 @@ public class CardTransController {
      * @return
      */
     @RequestMapping(value = "/api/cardTrans/receive/package", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public JsonEntity<Object> createCardPackage(@RequestBody String transNo ){
+    public JsonEntity<Object> createCardPackage(String transNo ){
         return cardTransService.receiveCardPackage(transNo ,null);
     }
 
@@ -45,8 +45,8 @@ public class CardTransController {
      * @param transNo
      * @return
      */
-    @RequestMapping(value = "/api/cardTrans/receive/package", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public JsonEntity<Object> findSendCardRecord(@RequestBody String transNo ){
+    @RequestMapping(value = "/api/cardTrans/send/package", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public JsonEntity<Object> findSendCardRecord(String transNo){
         return cardTransService.receiveCardPackage(transNo ,null);
     }
 
@@ -57,7 +57,7 @@ public class CardTransController {
      * @return
      */
     @RequestMapping(value = "/api/cardTrans/receive/package", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public JsonEntity<Object> findSenRecevedCardRecord(@RequestBody String transNo ){
+    public JsonEntity<Object> findSenRecevedCardRecord(String transNo ){
         return cardTransService.receiveCardPackage(transNo ,null);
     }
 

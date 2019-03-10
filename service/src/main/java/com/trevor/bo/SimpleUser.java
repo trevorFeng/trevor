@@ -25,9 +25,14 @@ public class SimpleUser {
      */
     private Integer isOnLine;
 
-    public SimpleUser(UserInfo userInfo) {
+    /**
+     * 是否在观战 是  否
+     */
+    private Boolean isGuanZhan;
+
+    public SimpleUser(UserInfo userInfo ,String picture) {
         this.name = userInfo.getWeixinName();
-        this.picture = userInfo.getWeixinName();
+        this.picture = picture;
         this.isOnLine = 1;
     }
 }

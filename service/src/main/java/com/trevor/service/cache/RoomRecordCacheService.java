@@ -9,7 +9,7 @@ import com.trevor.domain.RoomRecord;
 public interface RoomRecordCacheService {
 
     /**
-     * 根据主键查询一条记录
+     * 根据主键查询一条记录(全部信息)
      * @param id
      * @return
      */

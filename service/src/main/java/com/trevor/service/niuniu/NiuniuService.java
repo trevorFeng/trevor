@@ -1,6 +1,10 @@
 package com.trevor.service.niuniu;
 
 import com.trevor.bo.JsonEntity;
+import com.trevor.bo.UserInfo;
+
+import javax.websocket.Session;
+import java.io.IOException;
 
 /**
  * 一句话描述该类作用:【】
@@ -16,7 +20,7 @@ public interface NiuniuService {
      * @param roomId
      * @return
      */
-    JsonEntity<Object> onOpenCheck(String roomId);
+    void onOpenCheck(Session session ,String roomId , UserInfo userInfo ,String userPicture) throws IOException;
 
 
 

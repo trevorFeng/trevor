@@ -28,7 +28,7 @@ public class RoomRecord {
     private Long roomAuth;
 
     /**
-     * 房间状态，
+     * 房间状态，1为在未进行，2为进行中，3-
      */
     private Integer state;
 

@@ -65,7 +65,7 @@ public class NiuniuServer {
 
     @OnClose
     public void disConnect(@PathParam("roomName") String roomName, Session session) {
-        rooms.get(roomName).remove(session);
+        niuniuRomms.get(roomName).remove(session);
         System.out.println("a client has disconnected!");
     }
 

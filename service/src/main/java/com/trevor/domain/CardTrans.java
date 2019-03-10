@@ -49,7 +49,7 @@ public class CardTrans {
     private Long turnInTime;
 
     /**
-     * 防止同时修改该条记录，房卡多次被领取的情况，初始值为0，每次修改版本号加1
+     * 防止同时修改该条记录，房卡多次被领取的情况，初始值为0，每次修改版本号加1,最大值为1
      */
     private Integer version;
 

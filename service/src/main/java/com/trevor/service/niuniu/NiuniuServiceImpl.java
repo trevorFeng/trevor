@@ -31,7 +31,7 @@ import java.util.Set;
 public class NiuniuServiceImpl implements NiuniuService{
 
     @Resource(name = "niuniuRooms")
-    private Map<Long ,Set<SimpleUser>> niuniuRooms;
+    private Map<Long ,Set<Session>> niuniuRooms;
 
     @Resource
     private RoomRecordCacheService roomRecordCacheService;
@@ -96,8 +96,7 @@ public class NiuniuServiceImpl implements NiuniuService{
                 //是房主的好友
             }else {
                 String tempRoomId = roomId.intern();
-                SimpleUser simpleUser = new SimpleUser(userInfo ,userPicture);
-                Set<SimpleUser> simpleUsers = niuniuRooms.get(Long.valueOf(roomId));
+                Set<Session> simpleUsers = niuniuRooms.get(Long.valueOf(roomId));
                 //允许观战
                 if (niuniuRoomParameter.getSpecial().contains(SpecialEnum.CAN_SEE.getCode())) {
                     synchronized (tempRoomId) {

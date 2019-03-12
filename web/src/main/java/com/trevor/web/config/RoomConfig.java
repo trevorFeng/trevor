@@ -4,6 +4,7 @@ import com.trevor.bo.SimpleUser;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import javax.websocket.Session;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,8 +21,8 @@ public class RoomConfig {
      * @return
      */
     @Bean(name = "niuniuRooms")
-    public Map<Long , Set<SimpleUser>> generateNiuNiuRoomMap(){
-        Map<Long, Set<SimpleUser>> niuniuRooms = new ConcurrentHashMap(2<<15);
+    public Map<Long , Set<Session>> generateNiuNiuRoomMap(){
+        Map<Long, Set<Session>> niuniuRooms = new ConcurrentHashMap(2<<15);
         return niuniuRooms;
     }
 }

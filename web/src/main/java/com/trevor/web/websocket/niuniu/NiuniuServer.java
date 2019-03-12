@@ -30,7 +30,7 @@ public class NiuniuServer {
     private  NiuniuService niuniuService;
 
     @Resource(name = "niuniuRooms")
-    private Map<Long ,Set<SimpleUser>> niuniuRomms;
+    private Map<Long ,Set<Session>> niuniuRomms;
 
     private Session session;
 
@@ -50,6 +50,7 @@ public class NiuniuServer {
         this.session = session;
         HttpSession httpSession = (HttpSession) config.getUserProperties().get(HttpSession.class.getName());
         UserInfo userInfo = (UserInfo) httpSession.getAttribute(WebKeys.SESSION_USER_KEY);
+        session.getUserProperties().put()
         niuniuService.onOpenCheck(session ,rooId ,userInfo ,userPicture);
     }
 

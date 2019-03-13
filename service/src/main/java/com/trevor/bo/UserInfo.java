@@ -11,17 +11,20 @@ import lombok.Data;
 @Data
 public class UserInfo {
 
+    /**
+     * 用户id
+     */
     private Long id;
 
-    private String weixinId;
+    /**
+     * 用户名字
+     */
+    private String name;
 
-    private String weixinName;
-
-    private String xianliaoId;
-
-    private String xianliaoName;
-
-    private String phoneNum;
+    /**
+     * 用户头像
+     */
+    private String picture;
 
 
 }

@@ -1,6 +1,7 @@
 package com.trevor.bo;
 
 import lombok.Data;
+import org.omg.CORBA.PRIVATE_MEMBER;
 
 /**
  * 一句话描述该类作用:【返回给前端得用户信息】
@@ -9,6 +10,11 @@ import lombok.Data;
  */
 @Data
 public class SimpleUser {
+
+    /**
+     * id
+     */
+    private Long id;
 
     /**
      * 名字
@@ -21,18 +27,25 @@ public class SimpleUser {
     private String picture;
 
     /**
+     * 是否准备
+     */
+    private Boolean isReady;
+
+    /**
      * 是否在线
      */
-    private Integer isOnLine;
+    private Boolean isOnLine;
 
     /**
      * 是否在观战 是  否
      */
     private Boolean isGuanZhan;
 
-    public SimpleUser(UserInfo userInfo ,String picture) {
-        this.name = userInfo.getWeixinName();
-        this.picture = picture;
-        this.isOnLine = 1;
+    public SimpleUser(UserInfo userInfo) {
+        this.id = userInfo.getId();
+        this.name = userInfo.getName();
+        this.picture = userInfo.getPicture();
+        this.isOnLine = Boolean.TRUE;
+        this.isReady = Boolean.FALSE;
     }
 }

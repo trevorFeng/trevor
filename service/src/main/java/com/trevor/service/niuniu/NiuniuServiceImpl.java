@@ -2,16 +2,19 @@ package com.trevor.service.niuniu;
 
 import com.alibaba.fastjson.JSON;
 import com.trevor.bo.JsonEntity;
+import com.trevor.bo.ResponseHelper;
 import com.trevor.bo.SimpleUser;
 import com.trevor.bo.UserInfo;
-import com.trevor.common.BizKeys;
 import com.trevor.common.FriendManageEnum;
+import com.trevor.common.MessageCodeEnum;
 import com.trevor.common.RoomTypeEnum;
 import com.trevor.common.SpecialEnum;
-import com.trevor.dao.*;
+import com.trevor.dao.FriendManageMapper;
+import com.trevor.dao.UserMapper;
 import com.trevor.domain.RoomRecord;
 import com.trevor.service.cache.RoomRecordCacheService;
 import com.trevor.service.createRoom.bo.NiuniuRoomParameter;
+import com.trevor.service.niuniu.bo.NiuniuAction;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -37,15 +40,6 @@ public class NiuniuServiceImpl implements NiuniuService{
     private RoomRecordCacheService roomRecordCacheService;
 
     @Resource
-    private RoomRecordMapper roomRecordMapper;
-
-    @Resource
-    private PersonalCardMapper personalCardMapper;
-
-    @Resource
-    private CardConsumRecordMapper cardConsumRecordMapper;
-
-    @Resource
     private FriendManageMapper friendManageMapper;
 
     @Resource
@@ -57,77 +51,115 @@ public class NiuniuServiceImpl implements NiuniuService{
      * @return
      */
     @Override
-    public void onOpenCheck(Session session , String roomId , UserInfo userInfo ,String userPicture) throws IOException {
+    public JsonEntity<SimpleUser> onOpenCheck(String roomId , UserInfo userInfo) throws IOException {
         //查出房间配置
         RoomRecord oneById = roomRecordCacheService.findOneById(Long.valueOf(roomId));
         if (oneById == null) {
-            session.close();
+            return ResponseHelper.withErrorInstance(MessageCodeEnum.ROOM_NOT_EXIST);
         }
-        //房间不存在
+        //房间已关闭
         if (niuniuRooms.get(Long.valueOf(roomId)) == null) {
-            session.close();
+            return ResponseHelper.withErrorInstance(MessageCodeEnum.ROOM_CLOSE);
         }
-        //房间是否已过期
-
         NiuniuRoomParameter niuniuRoomParameter = JSON.parseObject(oneById.getRoomConfig() ,NiuniuRoomParameter.class);
         //房主是否开启好友管理功能
         Boolean isFriendManage = Objects.equals(userMapper.findUserFriendManage(oneById.getRoomAuth()) , FriendManageEnum.YES.getCode());
         //开通
         if (isFriendManage) {
-            isFriendManage(niuniuRoomParameter ,oneById ,userInfo ,session ,roomId ,userPicture);
+            return this.isFriendManage(niuniuRoomParameter ,oneById ,userInfo ,roomId);
         // 未开通
         }else {
-
-        }
-        if (niuniuRooms.containsKey(roomId)) {
-
+            return this.dealCanSee(roomId ,userInfo ,niuniuRoomParameter);
         }
     }
 
+    /**
+     * 处理接受到的新消息
+     * @param message
+     * @param simpleUser
+     * @return
+     */
+    @Override
+    public JsonEntity<SimpleUser> dealReceiveMessage(String message, SimpleUser simpleUser) {
+        //接收到准备的消息
+        if (Objects.equals(Integer.valueOf(message) , NiuniuAction.READY.getCode())) {
+            simpleUser.setIsReady(Boolean.TRUE);
+            return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.READY_SUCCESS);
+        }else if (Objects.equals(Integer.valueOf(message) ,NiuniuAction.FAPAI.getCode())) {
 
-    private void isFriendManage(NiuniuRoomParameter niuniuRoomParameter ,RoomRecord oneById ,
-                                UserInfo userInfo ,Session session ,String roomId ,String userPicture) throws IOException {
+        }
+        return null;
+    }
+
+    /**
+     * 处理开通了好友管理
+     * @param niuniuRoomParameter
+     * @param oneById
+     * @param userInfo
+     * @param roomId
+     * @throws IOException
+     */
+    private JsonEntity<SimpleUser> isFriendManage(NiuniuRoomParameter niuniuRoomParameter ,RoomRecord oneById ,
+                                UserInfo userInfo ,String roomId) throws IOException {
         //配置仅限好友
         if (niuniuRoomParameter.getSpecial().contains(SpecialEnum.JUST_FRIENDS.getCode())) {
-            Long count = friendManageMapper.countRoomAuthFriendAllow(oneById.getRoomAuth(), userInfo.getId());
-            //不是房主的好友
-            if (Objects.equals(count ,0L)) {
-                session.close();
-                //是房主的好友
-            }else {
-                String tempRoomId = roomId.intern();
-                Set<Session> simpleUsers = niuniuRooms.get(Long.valueOf(roomId));
-                //允许观战
-                if (niuniuRoomParameter.getSpecial().contains(SpecialEnum.CAN_SEE.getCode())) {
-                    synchronized (tempRoomId) {
-                        if (simpleUsers.size() < RoomTypeEnum.getRoomNumByType(niuniuRoomParameter.getRoomType())) {
-                            simpleUser.setIsGuanZhan(Boolean.FALSE);
-                        }else {
-                            simpleUser.setIsGuanZhan(Boolean.TRUE);
-                        }
-                        simpleUsers.add(simpleUser);
-                        session.getAsyncRemote().sendText(JSON.toJSONString(simpleUser));
-                    }
-                    //不允许观战
-                }else {
-                    synchronized (tempRoomId) {
-                        if (simpleUsers.size() < RoomTypeEnum.getRoomNumByType(niuniuRoomParameter.getRoomType())) {
-                            simpleUsers.add(simpleUser);
-                            simpleUser.setIsGuanZhan(Boolean.FALSE);
-                            session.getAsyncRemote().sendText(JSON.toJSONString(simpleUser));
-                        }else {
-                            session.close();
-                        }
-                    }
-                }
-            }
+            return this.justFriends(niuniuRoomParameter ,oneById ,userInfo ,roomId);
+        }
+        //未配置仅限好友
+        else {
+            return this.dealCanSee(roomId ,userInfo ,niuniuRoomParameter);
         }
     }
 
-    private void isNotFriendManage(NiuniuRoomParameter niuniuRoomParameter ,RoomRecord oneById ,
-                                UserInfo userInfo ,Session session ,String roomId ,String userPicture) throws IOException {
 
+    /**
+     * 处理是否是好友
+     * @param niuniuRoomParameter
+     * @param oneById
+     * @param userInfo
+     * @param roomId
+     * @throws IOException
+     */
+    private JsonEntity<SimpleUser> justFriends(NiuniuRoomParameter niuniuRoomParameter ,RoomRecord oneById ,
+                             UserInfo userInfo ,String roomId) throws IOException {
+        Long count = friendManageMapper.countRoomAuthFriendAllow(oneById.getRoomAuth(), userInfo.getId());
+        //不是房主的好友
+        if (Objects.equals(count ,0L)) {
+            return ResponseHelper.withErrorInstance(MessageCodeEnum.NOT_FRIEND);
+        //是房主的好友
+        }else {
+            return this.dealCanSee(roomId ,userInfo ,niuniuRoomParameter);
+        }
     }
 
+    /**
+     * 处理是否可以观战
+     * @param roomId
+     * @param userInfo
+     * @param niuniuRoomParameter
+     * @throws IOException
+     */
+    private JsonEntity<SimpleUser> dealCanSee(String roomId ,UserInfo userInfo ,NiuniuRoomParameter niuniuRoomParameter) throws IOException {
+        String tempRoomId = roomId.intern();
+        SimpleUser simpleUser = new SimpleUser(userInfo);
+        Set<Session> sessions = niuniuRooms.get(Long.valueOf(roomId));
+        //允许观战
+        if (niuniuRoomParameter.getSpecial().contains(SpecialEnum.CAN_SEE.getCode())) {
+            if (sessions.size() < RoomTypeEnum.getRoomNumByType(niuniuRoomParameter.getRoomType())) {
+                simpleUser.setIsGuanZhan(Boolean.FALSE);
+            }else {
+                simpleUser.setIsGuanZhan(Boolean.TRUE);
+            }
+            return ResponseHelper.createInstance(simpleUser ,MessageCodeEnum.JOIN_ROOM);
+            //不允许观战
+        }else {
+            if (sessions.size() < RoomTypeEnum.getRoomNumByType(niuniuRoomParameter.getRoomType())) {
+                simpleUser.setIsGuanZhan(Boolean.FALSE);
+                return ResponseHelper.createInstance(simpleUser ,MessageCodeEnum.JOIN_ROOM);
+            }else {
+                return ResponseHelper.createInstance(simpleUser ,MessageCodeEnum.ROOM_FULL);
+            }
 
+        }
+    }
 }

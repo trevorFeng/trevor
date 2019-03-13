@@ -1,4 +1,4 @@
-package com.trevor.common;
+package com.trevor.bo;
 /**
  * @author trevor
  * @date 2019/3/1 11:40

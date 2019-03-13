@@ -1,6 +1,6 @@
 package com.trevor.service.weixin;
 
-import com.trevor.common.WebKeys;
+import com.trevor.bo.WebKeys;
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.SimpleUser;
 import com.trevor.service.weixin.bo.WeixinToken;

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -34,6 +35,7 @@ public class CardTransServiceImpl implements CardTransService{
      * @return
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public JsonEntity<String> createCardPackage(Integer cardNum ,UserInfo userInfo) {
         //判断玩家房卡数量是否大于交易的房卡数
         Integer cardNumByUserId = personalCardMapper.findCardNumByUserId(userInfo.getId());
@@ -58,25 +60,25 @@ public class CardTransServiceImpl implements CardTransService{
     @Transactional(rollbackFor = Exception.class)
     public JsonEntity<Object> receiveCardPackage(String transNum ,UserInfo userInfo) {
         //将交易关闭
-        Long termNum = cardTransMapper.closeTrans(System.currentTimeMillis(), userInfo.getId());
+        Long termNum = cardTransMapper.closeTrans(transNum ,System.currentTimeMillis() ,userInfo.getId() ,userInfo.getName());
         if (!Objects.equals(BizKeys.ONE_UPDATE ,termNum)) {
             return ResponseHelper.withErrorInstance(MessageCodeEnum.TRANS_CLOSE);
         }
         //更新玩家房卡
-        CardTrans oneByTransNo = cardTransMapper.findOneByTransNo(transNum);
+        Integer cardNum = cardTransMapper.findCardNumByTransNo(transNum);
         Integer cardNumByUserId = personalCardMapper.findCardNumByUserId(userInfo.getId());
-        personalCardMapper.updatePersonalCardNum(userInfo.getId() ,cardNumByUserId + oneByTransNo.getCardNum());
+        personalCardMapper.updatePersonalCardNum(userInfo.getId() ,cardNumByUserId + cardNum);
         return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.RECEIVE_SUCCESS);
     }
 
     /**
-     * 查询收到的房卡
+     * 查询发出的房卡
      * @param userInfo
      * @return
      */
     @Override
-    public JsonEntity<Object> findSendCardRecord(UserInfo userInfo) {
-
-        return null;
+    public JsonEntity<List<CardTrans>> findSendCardRecord(UserInfo userInfo) {
+        List<CardTrans> cardTrans = this.cardTransMapper.findSendCardRecord(userInfo.getId());
+        return ResponseHelper.createInstance(cardTrans ,MessageCodeEnum.QUERY_SUCCESS);
     }
 }

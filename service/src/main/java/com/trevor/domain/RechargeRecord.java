@@ -19,24 +19,14 @@ public class RechargeRecord {
     private Long id;
 
     /**
-     * 充值的微信号
+     * 玩家id
      */
-    private String rechargeWeixinId;
-
-    /**
-     * 充值的闲聊号
-     */
-    private String rechargeXianliaoId;
-
-    /**
-     * 充值的手机号
-     */
-    private String rechargePhoneNumId;
+    private Integer userId;
 
     /**
      * 充值房卡数量
      */
-    private Integer rechargeRoomCard;
+    private Integer rechargeCard;
 
     /**
      * 房卡单价
@@ -47,5 +37,10 @@ public class RechargeRecord {
      * 本次充值的总价
      */
     private BigDecimal totalPrice;
+
+    /**
+     * 充值时间
+     */
+    private Long time;
 
 }

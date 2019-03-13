@@ -1,6 +1,7 @@
 package com.trevor.dao;
 
 import com.trevor.domain.CardConsumRecord;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -15,5 +16,5 @@ public interface CardConsumRecordMapper {
      * @param cardConsumRecord
      * @return
      */
-    Long insertOne(CardConsumRecord cardConsumRecord);
+    Long insertOne(@Param("cardConsumRecord") CardConsumRecord cardConsumRecord);
 }

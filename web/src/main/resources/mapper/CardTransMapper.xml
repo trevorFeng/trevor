@@ -1,158 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.trevor.dao.CardTransMapper">
-
     <insert id="insertOne">
-        <foreach collection="studentInfoList" item="item" separator=";">
-            INSERT INTO t_student(
-            id,
-            sn,
-            name,
-            class_name,
-            grade_name,
-            college_name,
-            major_name)
-            VALUES (
-            #{item.id},#{item.sn},#{item.name},#{item.className},#{item.gradeName},
-            #{item.collegeName},#{item.majorName})
-        </foreach>
+        insert into card_trans
+        set
+        card_num=#{cardTrans.cardNum},
+        turn_out_user_name=#{cardTrans.turnOutUserName},
+        turn_out_user_id=#{cardTrans.turnOutUserId},
+        trans_num=#{cardTrans.transNum},
+        turn_out_time=#{cardTrans.turnOutTime},
+        turn_in_user_id=#{cardTrans.turnInUserId},
+        turn_in_time=#{cardTrans.turnInTime},
+        version=#{cardTrans.version}
     </insert>
 
-    <select id="findSnByQueryCondition" resultType="java.lang.String">
+    <select id="findCardNumByTransNo" resultType="java.lang.Integer">
         SELECT
-            sn
+        t.card_num cardNum
         FROM
-            t_student_info s
-        <where>
-            <if test="queryCondition.college != null and queryCondition.college.name != null">
-                AND s.college_name = #{queryCondition.college.name}
-            </if>
-            <if test="queryCondition.grade != null">
-                AND s.grade_name = #{queryCondition.grade}
-            </if>
-            <if test="queryCondition.major != null">
-                AND s.major_name = #{queryCondition.major}
-            </if>
-            <if test="queryCondition.clazz != null">
-                AND s.class_name = #{queryCondition.clazz}
-            </if>
-            <if test="queryCondition.keyword != null and queryCondition.keyword != ''">
-                AND (s.sn LIKE CONCAT('%', #{queryCondition.keyword}, '%') OR s.NAME LIKE CONCAT('%', #{queryCondition.keyword}, '%'))
-            </if>
-            <if test="sns != null and sns.size > 0">
-                  AND sn in
-                <foreach collection="sns" item="sn" index="index" open="(" separator="," close=")">
-                  #{sn}
-                </foreach>
-            </if>
-        </where>
+        card_trans t
+        WHERE
+        t.trans_num=#{transNo}
     </select>
 
-    <select id="findByQueryCondition" resultType="com.xdbigdata.ceping_zjut.common.dto.Student">
+    <update id="closeTrans">
+        update card_trans
+        set
+        turn_in_time=#{turnInTime},
+        turn_in_user_id=#{turnInUserId},
+        turn_in_user_name=#{turnInUserName},
+        version=1
+        WHERE
+        trans_num=#{transNo}
+        AND
+        version=0
+    </update>
+
+    <select id="findSendCardRecord" resultType="com.trevor.domain.CardTrans">
         SELECT
-          *
+        t.card_num cardNum,
+        t.turn_out_user_name turnOutUserName,
+        t.turn_in_time turnInTime
         FROM
-        t_student_info s
-        <where>
-            <if test="queryCondition.college != null and queryCondition.college.name != null">
-                AND s.college_name = #{queryCondition.college.name}
-            </if>
-            <if test="queryCondition.grade != null">
-                AND s.grade_name = #{queryCondition.grade}
-            </if>
-            <if test="queryCondition.major != null">
-                AND s.major_name = #{queryCondition.major}
-            </if>
-            <if test="queryCondition.clazz != null">
-                AND s.class_name = #{queryCondition.clazz}
-            </if>
-            <if test="queryCondition.keyword != null and queryCondition.keyword != ''">
-                AND (s.sn LIKE CONCAT('%', #{queryCondition.keyword}, '%') OR s.NAME LIKE CONCAT('%', #{queryCondition.keyword}, '%'))
-            </if>
-            <if test="sns != null and sns.size > 0">
-                AND sn in
-                <foreach collection="sns" item="sn" index="index" open="(" separator="," close=")">
-                    #{sn}
-                </foreach>
-            </if>
-        </where>
-    </select>
-
-    <select id="findSnsByCollegeNameInAndSnIn" resultType="java.lang.String">
-        SELECT
-            s.sn
-        FROM
-            t_student_info s
-        <where>
-            <if test="collegeNames != null and collegeNames.size > 0">
-                s.college_name IN
-                <foreach collection="collegeNames" index="index" item="collegeName" open="(" close=")" separator=",">
-                    #{collegeName}
-                </foreach>
-            </if>
-            <if test="sns != null and sns.size > 0">
-                and s.sn IN
-                <foreach collection="sns" index="index" item="sn" open="(" close=")" separator=",">
-                    #{sn}
-                </foreach>
-            </if>
-        </where>
-    </select>
-
-    <select id="findByCollegeNameInAndSnIn" resultType="com.xdbigdata.ceping_zjut.common.dto.Student">
-        SELECT
-        *
-        FROM
-        t_student_info s
-        <where>
-            <if test="collegeNames != null and collegeNames.size > 0">
-                s.college_name IN
-                <foreach collection="collegeNames" index="index" item="collegeName" open="(" close=")" separator=",">
-                    #{collegeName}
-                </foreach>
-            </if>
-            <if test="sns != null and sns.size > 0">
-                and s.sn IN
-                <foreach collection="sns" index="index" item="sn" open="(" close=")" separator=",">
-                    #{sn}
-                </foreach>
-            </if>
-        </where>
-    </select>
-
-    <select id="findByClassNameAndSnIn" resultType="com.xdbigdata.ceping_zjut.common.dto.Student">
-        SELECT
-        *
-        FROM
-        t_student_info s
-        <where>
-            <if test="className != null">
-                s.class_name = #{className}
-            </if>
-            <if test="sns != null and sns.size > 0">
-                and s.sn IN
-                <foreach collection="sns" index="index" item="sn" open="(" close=")" separator=",">
-                    #{sn}
-                </foreach>
-            </if>
-        </where>
-    </select>
-
-    <select id="findAll" resultType="java.lang.String">
-        select sn from t_student_info
-    </select>
-
-    <select id="findMajorAndNumByCollege" parameterType="java.lang.Long" resultType="com.xdbigdata.ceping_zjut.common.vo.MajorAndNumByCollegeVo">
-        SELECT grade_name grade,major_id majorId,major_name majorName,COUNT(*) studentNum FROM t_student_info
-        WHERE college_id = #{collegeId} AND major_id is not NULL GROUP BY grade_name,major_id ORDER BY major_name,grade_name ASC
-    </select>
-
-    <select id="findSnByMajorIdAndGrade" resultType="java.lang.String">
-        SELECT sn FROM t_student_info WHERE major_id = #{majorId} AND grade_name = #{grade}
-    </select>
-
-    <select id="findStudentInfoBySn" parameterType="java.lang.String" resultType="com.xdbigdata.ceping_zjut.domain.StudentInfo">
-        SELECT * FROM t_student_info WHERE sn = #{sn}
+        card_trans t
+        WHERE
+        t.turn_out_user_id=#{userId}
     </select>
 
 </mapper>

@@ -24,6 +24,11 @@ public class CardTrans {
     private Integer cardNum;
 
     /**
+     * 转出时登陆玩家名字
+     */
+    private String turnOutUserName;
+
+    /**
      * 转出玩家id
      */
     private Long turnOutUserId;
@@ -37,6 +42,11 @@ public class CardTrans {
      * 转出时间
      */
     private Long turnOutTime;
+
+    /**
+     * 转入时登陆玩家名字
+     */
+    private Long turnInUserName;
 
     /**
      * 转入玩家id
@@ -59,6 +69,7 @@ public class CardTrans {
      */
     public void generateCardTransBase(UserInfo userInfo ,Integer cardNum){
         this.cardNum = cardNum;
+        this.turnOutUserName = userInfo.getName();
         this.turnOutUserId = userInfo.getId();
         this.turnOutTime = System.currentTimeMillis();
         this.transNum = UUID.randomUUID().toString() + this.turnOutTime;

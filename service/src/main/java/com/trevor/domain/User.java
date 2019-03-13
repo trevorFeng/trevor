@@ -27,9 +27,19 @@ public class User {
     private String idCard;
 
     /**
+     * 微信名字
+     */
+    private String weixinName;
+
+    /**
      * 微信号
      */
     private String weixinId;
+
+    /**
+     * 闲聊名字
+     */
+    private String xianliaoName;
 
     /**
      * 闲聊号
@@ -42,9 +52,14 @@ public class User {
     private String phoneNumber;
 
     /**
-     * 用户头像
+     * 用户微信头像
      */
-    private String picture;
+    private String weixinPpicture;
+
+    /**
+     * 用户微信头像
+     */
+    private String xianliaoPicture;
 
     /**
      * 是否开启好友管理，1为是，0为否

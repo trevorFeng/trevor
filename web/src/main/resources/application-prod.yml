@@ -1,18 +1,14 @@
-#服务器相关配置
 server:
   port: 8080
   tomcat:
-    uri-encoding: UTF-8
-    max-threads: 600
+      uri-encoding: UTF-8
+      max-threads: 600
 
-
-#spring相关配置
 spring:
-  #数据库
   datasource:
-      url: jdbc:mysql://172.16.2.201:3306/ZjutSubsidize?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true
-      username: subsidize_zjut
-      password: q4lXPE8id27cke2gc4zn7+nujoWBQvOX+ficdQ==
+      url: jdbc:mysql://localhost:3306/ceping_zjut?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true
+      username: root
+      password: root
       driver-class-name: com.mysql.jdbc.Driver
       type: com.alibaba.druid.pool.DruidDataSource
       filters: stat
@@ -28,56 +24,16 @@ spring:
       testOnReturn: false
       poolPreparedStatements: true
       maxOpenPreparedStatements: 20
-
-  #处理404抛出异常(当出现404直接抛出异常)
-  mvc:
-    throw-exception-if-no-handler-found: true
-    static-path-pattern: /**
   resources:
     static-locations: classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/,classpath:/public/,file:${file.path}
-  http:
-    multipart:
-      max-file-size: 20MB
-      max-request-size: 20MB
-  application:
-    name: zjut-subsidize-webapp
-#  jackson:
-#    date-format: yyyy-MM-dd HH:mm:ss
-#开启调试模式 打印详细的日志
+
 debug: true
 
 mybatis:
-  mapper-locations: classpath:/com/xdbigdata/ceping_zjut/mapper/*.xml
-  type-aliases-package: com.xdbigdata.ceping_zjut.domain,com.xdbigdata.ceping_zjut.common.dto
+  mapper-locations: classpath:/mapper/*.xml
+  type-aliases-package: com.trevor.dao
   config-location: classpath:/mybatis-config.xml
 
-  #mapper
-  #mappers 多个接口时逗号隔开
-mapper:
-#  mappers:
-#    - com.xdbigdata.subsidize_zjut.mapper.UserMapper
-  not-empty: false
-  identity: MYSQL
-
-  #pagehelper
-pagehelper:
-  helperDialect: mysql
-  reasonable: true
-  supportMethodsArguments: true
-  params: count=countSql
-
 file:
-  path: /mnt/sdb/platform/data/subsidize_zjut/upload/
-eureka:
-  client:
-    serviceUrl:
-          defaultZone: http://hx-wb-101:8082/eureka/
-hystrix:
-  command:
-    default:
-      execution:
-        isolation:
-          thread:
-            timeoutInMilliseconds: 30000 #缺省为1000
-usercenter:
-  url: 172.16.2.101:8083
+  path: /mnt/sdb/platform/zjut/special-student/
+

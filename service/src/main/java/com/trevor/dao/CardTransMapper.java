@@ -1,7 +1,11 @@
 package com.trevor.dao;
 
 import com.trevor.domain.CardTrans;
+import org.apache.ibatis.annotations.Param;
+import org.hibernate.validator.constraints.EAN;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 /**
  * @author trevor
@@ -14,20 +18,29 @@ public interface CardTransMapper {
      * 插入一条记录
      * @param cardTrans
      */
-    void insertOne(CardTrans cardTrans);
+    void insertOne(@Param("cardTrans") CardTrans cardTrans);
 
     /**
-     * 根据交易号查询一条记录
+     * 根据交易号查询交易房卡的数量
      * @param transNo
      * @return
      */
-    CardTrans findOneByTransNo(String transNo);
+    Integer findCardNumByTransNo(@Param("transNo") String transNo);
 
     /**
-     * 根据版本号关闭交易
+     * 关闭交易,将版本号置为1
+     * @param transNo
      * @param turnInTime
      * @param turnInUserId
-     * @return 更新条数
+     * @return
      */
-    Long closeTrans(Long turnInTime ,Long turnInUserId);
+    Long closeTrans(@Param("transNo") String transNo ,@Param("turnInTime") Long turnInTime
+            ,@Param("turnInUserId") Long turnInUserId ,@Param("turnInUserName") String turnInUserName);
+
+    /**
+     * 查询发出的房卡
+     * @param userId
+     * @return
+     */
+    List<CardTrans> findSendCardRecord(@Param("userId") Long userId);
 }

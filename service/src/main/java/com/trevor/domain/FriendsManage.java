@@ -27,7 +27,7 @@ public class FriendsManage {
     private Long manageFriendId;
 
     /**
-     * 1未通过 ，2为未通过
+     * 1未通过 ，0为未通过
      */
     private Integer allowFlag;
 }

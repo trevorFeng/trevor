@@ -2,6 +2,9 @@ package com.trevor.service.cardTrans;
 
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.UserInfo;
+import com.trevor.domain.CardTrans;
+
+import java.util.List;
 
 /**
  * @author trevor
@@ -25,8 +28,8 @@ public interface CardTransService {
     JsonEntity<Object> receiveCardPackage(String transNum ,UserInfo userInfo);
 
     /**
-     * 查询收到的房卡
+     * 查询发出的房卡
      * @return
      */
-    JsonEntity<Object> findSendCardRecord(UserInfo userInfo);
+    JsonEntity<List<CardTrans>> findSendCardRecord(UserInfo userInfo);
 }

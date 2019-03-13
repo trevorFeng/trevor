@@ -2,6 +2,8 @@ package com.trevor.domain;
 
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * 一句话描述该类作用:【用户提议，异常举报】
  *
@@ -25,5 +27,10 @@ public class UserProposals {
      * 提议或异常信息
      */
     private String message;
+
+    /**
+     * 照片的url
+     */
+    private List<String> fileUrls;
 
 }

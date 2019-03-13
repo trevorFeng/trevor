@@ -68,7 +68,38 @@ public class WebKeys {
     /**
      * grant_type
      */
-    public static final String GRANT_TYPE = "";
+    public static final String GRANT_TYPE = "authorization_code";
+
+    /**
+     * code
+     */
+    public static final String CODE = "code";
+
+    /**
+     * refresh_token
+     */
+    public static final String REFRESH_TOKEN = "refresh_token";
+
+
+    /**
+     * access_token
+     */
+    public static final String ACCESS_TOKEN = "access_token";
+
+    /**
+     * openid
+     */
+    public static final String OPEN_ID = "openid";
+
+    /**
+     * errcode
+     */
+    public static final String ERRCODE = "errcode";
+
+    /**
+     * errmsg
+     */
+    public static final String ERRMSG = "errmsg";
 
 
 

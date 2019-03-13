@@ -18,7 +18,7 @@ import java.util.List;
  * @author trevor
  * @date 2019/3/8 16:50
  */
-@Api("房卡相关接口")
+@Api(value = "房卡相关接口" ,description = "房卡相关接口(领取，创建，查询收到或发出)")
 @RestController("/admin")
 public class CardTransController {
 
@@ -46,7 +46,7 @@ public class CardTransController {
     @ApiOperation(value = "领取房卡包")
     @ApiImplicitParam(name = "cardNum" ,value = "交易号" , required = true ,paramType = "body" ,dataType = "string")
     @RequestMapping(value = "/api/cardTrans/receive/package", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public JsonEntity<Object> createCardPackage(String transNo ){
+    public JsonEntity<Object> createCardPackage(String transNo){
         UserInfo userInfo = SessionUtil.getSessionUser();
         return cardTransService.receiveCardPackage(transNo ,userInfo);
     }

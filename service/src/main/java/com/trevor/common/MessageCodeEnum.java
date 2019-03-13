@@ -35,7 +35,7 @@ public enum MessageCodeEnum {
     /**
      * 查询成功
      */
-    QUERY_SUCCESS(2 ,"查询成功"),
+    QUERY_SUCCESS(3 ,"查询成功"),
 
 
     /*****************************************               websocket返回消息                    *********************/

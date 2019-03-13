@@ -1,8 +1,10 @@
 package com.trevor.web.controller.person;
 
 import com.trevor.bo.JsonEntity;
+import com.trevor.bo.UserInfo;
 import com.trevor.service.createRoom.CreateRoomService;
 import com.trevor.service.createRoom.bo.NiuniuRoomParameter;
+import com.trevor.util.SessionUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.MediaType;
@@ -17,7 +19,7 @@ import javax.annotation.Resource;
  * @author trevor
  * @date 2019/3/8 16:51
  */
-@Api("创建房间")
+@Api(value = "创建房间" ,description = "创建房间接口")
 @RestController
 public class CreateRoomController {
 
@@ -31,6 +33,7 @@ public class CreateRoomController {
     @ApiOperation("创建一个房间")
     @RequestMapping(value = "/api/room/create/niuniu", method = {RequestMethod.PUT}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public JsonEntity<Long> createRoom(@RequestBody NiuniuRoomParameter niuniuRoomParameter){
-        return createRoomService.createRoom(niuniuRoomParameter ,null);
+        UserInfo sessionUser = SessionUtil.getSessionUser();
+        return createRoomService.createRoom(niuniuRoomParameter ,sessionUser);
     }
 }

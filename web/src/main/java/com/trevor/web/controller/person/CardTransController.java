@@ -62,16 +62,15 @@ public class CardTransController {
         return cardTransService.findSendCardRecord(userInfo);
     }
 
-
     /**
      * 查询收到的房卡
      * @return
      */
     @ApiOperation(value = "查询收到的房卡")
     @RequestMapping(value = "/api/cardTrans/query/package", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public JsonEntity<Object> findSenRecevedCardRecord(){
-        return null;
+    public JsonEntity<List<CardTrans>> findRecevedCardRecord(){
+        UserInfo userInfo = SessionUtil.getSessionUser();
+        return cardTransService.findRecevedCardRecord(userInfo);
     }
-
 
 }

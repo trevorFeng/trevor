@@ -47,4 +47,15 @@
         t.turn_out_user_id=#{userId}
     </select>
 
+    <select id="findRecevedCardRecord" resultType="com.trevor.domain.CardTrans">
+        SELECT
+        t.card_num cardNum,
+        t.turn_out_user_name turnOutUserName,
+        t.turn_in_time turnInTime
+        FROM
+        card_trans t
+        WHERE
+        t.turn_in_user_id=#{turnInUserId}
+    </select>
+
 </mapper>

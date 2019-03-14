@@ -82,7 +82,7 @@ public class NiuniuServiceImpl implements NiuniuService{
     @Override
     public JsonEntity<SimpleUser> dealReceiveMessage(String message, SimpleUser simpleUser) {
         //接收到准备的消息
-        if (Objects.equals(Integer.valueOf(message) , NiuniuAction.READY.getCode())) {
+        if (Objects.equals(Integer.valueOf(message) ,NiuniuAction.READY.getCode())) {
             simpleUser.setIsReady(Boolean.TRUE);
             return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.READY_SUCCESS);
         }else if (Objects.equals(Integer.valueOf(message) ,NiuniuAction.FAPAI.getCode())) {
@@ -140,7 +140,6 @@ public class NiuniuServiceImpl implements NiuniuService{
      * @throws IOException
      */
     private JsonEntity<SimpleUser> dealCanSee(String roomId ,UserInfo userInfo ,NiuniuRoomParameter niuniuRoomParameter) throws IOException {
-        String tempRoomId = roomId.intern();
         SimpleUser simpleUser = new SimpleUser(userInfo);
         Set<Session> sessions = niuniuRooms.get(Long.valueOf(roomId));
         //允许观战

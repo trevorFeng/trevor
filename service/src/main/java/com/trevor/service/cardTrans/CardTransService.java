@@ -32,4 +32,11 @@ public interface CardTransService {
      * @return
      */
     JsonEntity<List<CardTrans>> findSendCardRecord(UserInfo userInfo);
+
+    /**
+     * 查询收到的房卡
+     * @param userInfo
+     * @return
+     */
+    JsonEntity<List<CardTrans>> findRecevedCardRecord(UserInfo userInfo);
 }

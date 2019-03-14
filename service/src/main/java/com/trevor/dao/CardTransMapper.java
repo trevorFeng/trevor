@@ -43,4 +43,11 @@ public interface CardTransMapper {
      * @return
      */
     List<CardTrans> findSendCardRecord(@Param("userId") Long userId);
+
+    /**
+     * 查询收到的房卡
+     * @param turnInUserId
+     * @return
+     */
+    List<CardTrans> findRecevedCardRecord(@Param("turnInUserId") Long turnInUserId);
 }

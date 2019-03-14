@@ -81,4 +81,15 @@ public class CardTransServiceImpl implements CardTransService{
         List<CardTrans> cardTrans = this.cardTransMapper.findSendCardRecord(userInfo.getId());
         return ResponseHelper.createInstance(cardTrans ,MessageCodeEnum.QUERY_SUCCESS);
     }
+
+    /**
+     * 查询收到的房卡
+     * @param userInfo
+     * @return
+     */
+    @Override
+    public JsonEntity<List<CardTrans>> findRecevedCardRecord(UserInfo userInfo) {
+        List<CardTrans> recevedCardRecord = this.cardTransMapper.findRecevedCardRecord(userInfo.getId());
+        return ResponseHelper.createInstance(recevedCardRecord ,MessageCodeEnum.QUERY_SUCCESS);
+    }
 }

@@ -39,8 +39,8 @@
     <select id="findSendCardRecord" resultType="com.trevor.domain.CardTrans">
         SELECT
         t.card_num cardNum,
-        t.turn_out_user_name turnOutUserName,
-        t.turn_in_time turnInTime
+        t.turn_in_user_id turnInUserId,
+        t.turn_out_time turnOutTime
         FROM
         card_trans t
         WHERE

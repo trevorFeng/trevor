@@ -1,5 +1,6 @@
 package com.trevor.domain;
 
+
 import lombok.Data;
 
 /**
@@ -9,7 +10,7 @@ import lombok.Data;
  * @create: 2019-03-03 23:14
  **/
 @Data
-public class User {
+public class WeixinUser {
 
     /**
      * id
@@ -17,24 +18,22 @@ public class User {
     private Long id;
 
     /**
-     * 名字
+     * 微信名字
      */
-    private String name;
+    private String weixinId;
 
     /**
-     * 身份证号
+     * 微信号
      */
-    private String idCard;
+    private String weixinName;
 
     /**
-     * 电话号码
+     * 用户微信头像
      */
-    private String phoneNumber;
-
+    private String weixinPicture;
 
     /**
      * 是否开启好友管理，1为是，0为否
      */
     private Integer friendManageFlag;
-
 }

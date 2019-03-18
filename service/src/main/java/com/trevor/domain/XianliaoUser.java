@@ -9,7 +9,7 @@ import lombok.Data;
  * @create: 2019-03-03 23:14
  **/
 @Data
-public class User {
+public class XianliaoUser {
 
     /**
      * id
@@ -17,24 +17,22 @@ public class User {
     private Long id;
 
     /**
-     * 名字
+     * 闲聊名字
      */
-    private String name;
+    private String xianliaoName;
 
     /**
-     * 身份证号
+     * 闲聊号
      */
-    private String idCard;
+    private String xianliaoId;
 
     /**
-     * 电话号码
+     * 闲聊头像
      */
-    private String phoneNumber;
-
+    private String xianliaoPicture;
 
     /**
      * 是否开启好友管理，1为是，0为否
      */
     private Integer friendManageFlag;
-
 }

@@ -22,5 +22,6 @@ public class WeixinAuthController {
     public void weixinAuth(HttpServletRequest request, HttpServletResponse response){
         String code = request.getParameter(WebKeys.CODE);
 
+
     }
 }

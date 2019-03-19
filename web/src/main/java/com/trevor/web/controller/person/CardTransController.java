@@ -35,7 +35,7 @@ public class CardTransController {
     @RequestMapping(value = "/api/cardTrans/create/package", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public JsonEntity<String> createCardPackage(Integer cardNum){
         UserInfo userInfo = SessionUtil.getSessionUser();
-       return cardTransService.createCardPackage(cardNum ,userInfo);
+        return cardTransService.createCardPackage(cardNum ,userInfo);
     }
 
     /**

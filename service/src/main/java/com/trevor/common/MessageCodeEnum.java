@@ -68,7 +68,17 @@ public enum MessageCodeEnum {
     /**
      * 准备成功
      */
-    READY_SUCCESS(102 ,"准备成功");
+    READY_SUCCESS(102 ,"准备成功"),
+
+    /**
+     * 正在倒计时
+     */
+    COUNT_DOWN(103 ,"正在倒计时"),
+
+    /**
+     * 准备抢庄
+     */
+    READY_QIANG_ZHUANG(104 ,"倒计时结束，准备抢庄");
 
 
     private Integer code;

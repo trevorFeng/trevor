@@ -31,6 +31,35 @@ public class User {
      */
     private String phoneNumber;
 
+    /**
+     * 微信名字
+     */
+    private String weixinId;
+
+    /**
+     * 微信号
+     */
+    private String weixinName;
+
+    /**
+     * 用户微信头像
+     */
+    private String weixinPicture;
+
+    /**
+     * 闲聊名字
+     */
+    private String xianliaoName;
+
+    /**
+     * 闲聊号
+     */
+    private String xianliaoId;
+
+    /**
+     * 闲聊头像
+     */
+    private String xianliaoPicture;
 
     /**
      * 是否开启好友管理，1为是，0为否

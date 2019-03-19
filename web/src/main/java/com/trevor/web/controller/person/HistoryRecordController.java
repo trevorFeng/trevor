@@ -1,5 +1,6 @@
 package com.trevor.web.controller.person;
 
+import io.swagger.annotations.Api;
 import org.springframework.stereotype.Controller;
 
 /**
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Controller;
  * @create: 2019-03-03 23:06
  **/
 @Controller
+@Api(value = "历史记录的查询" ,description = "历史记录的查询")
 public class HistoryRecordController {
 
 }

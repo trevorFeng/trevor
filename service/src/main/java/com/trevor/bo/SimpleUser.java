@@ -1,7 +1,6 @@
 package com.trevor.bo;
 
 import lombok.Data;
-import org.omg.CORBA.PRIVATE_MEMBER;
 
 /**
  * 一句话描述该类作用:【返回给前端得用户信息】
@@ -40,6 +39,11 @@ public class SimpleUser {
      * 是否在观战 是  否
      */
     private Boolean isGuanZhan;
+
+    /**
+     * 是否是吃瓜群众
+     */
+    private Boolean isChiGuaPeople;
 
     public SimpleUser(UserInfo userInfo) {
         this.id = userInfo.getId();

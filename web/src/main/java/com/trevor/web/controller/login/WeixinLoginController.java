@@ -54,7 +54,7 @@ public class WeixinLoginController{
         TempUser tempUser = (TempUser) request.getServletContext().getAttribute(uuid);
         if("1".equals(tempUser.getIsAuth())){
             User user = userMapper.findUserByWeiXinId(tempUser.getOpenid());
-            WebSessionUser webSessionUser = new WebSessionUser();
+            WebSessionUser webSessionUser = new WebSessionUser(user);
             webSessionUser.setId(user.getId());
             webSessionUser.setName(user.getWeixinName());
             webSessionUser.setPictureUrl(user.getWeixinPictureUrl());

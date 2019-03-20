@@ -27,4 +27,10 @@ public class WebSessionUser {
      */
     private String pictureUrl;
 
+    public WebSessionUser(User user){
+        this.id = user.getId();
+        this.name = user.getWeixinName();
+        this.pictureUrl = user.getWeixinPictureUrl();
+    }
+
 }

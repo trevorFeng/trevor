@@ -48,7 +48,7 @@ public class SocketSessionUser {
     public SocketSessionUser(WebSessionUser webSessionUser) {
         this.id = webSessionUser.getId();
         this.name = webSessionUser.getName();
-        this.picture = webSessionUser.getPicture();
+        this.picture = webSessionUser.getPictureUrl();
         this.isOnLine = Boolean.TRUE;
         this.isReady = Boolean.FALSE;
     }

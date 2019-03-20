@@ -14,6 +14,8 @@ public class WebKeys {
      */
     public static final String SESSION_USER_KEY = "sessionUser";
 
+    public static final String TOKEN = "token";
+
     /**
      * 微信浏览器标识
      */
@@ -36,19 +38,19 @@ public class WebKeys {
     public static final String IPONE_BROWSER = "micromessenger";
 
     /**
-     * 微信登陆页面
+     * 微信登陆
      */
-    public static final String WEIXIN_LOGIN_PAGE_PATH = "/view/login/weixinLogin.html";
+    public static final String WEIXIN_LOGIN_PAGE_PATH = "/front/weixin/login";
 
     /**
      * 闲聊登陆页面
      */
-    public static final String XIANLIAO_LOGIN_PAGE_PATH = "/view/login/xianliaoLogin.html";
+    public static final String XIANLIAO_LOGIN_PAGE_PATH = "/front/xianliao/login";
 
     /**
      * 手机浏览器登陆页面
      */
-    public static final String SHOUJI_LOGIN_PAGE_PATH = "/view/login/shoujiLogin.html";
+    public static final String SHOUJI_LOGIN_PAGE_PATH = "/front/phone/login";
 
     /**
      * 错误登陆页面，浏览器类型不满足
@@ -74,6 +76,8 @@ public class WebKeys {
      * code
      */
     public static final String CODE = "code";
+
+    public static final String UUID = "uuid";
 
     /**
      * refresh_token

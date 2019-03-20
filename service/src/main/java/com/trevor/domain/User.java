@@ -62,6 +62,16 @@ public class User {
     private String xianliaoPicture;
 
     /**
+     * 本表中关联的userId，实则为同一用户
+     */
+    private Long userId;
+
+    /**
+     * hash值
+     */
+    private String hash;
+
+    /**
      * 是否开启好友管理，1为是，0为否
      */
     private Integer friendManageFlag;

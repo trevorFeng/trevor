@@ -1,16 +1,22 @@
 package com.trevor.service.weixin;
 
-import com.trevor.bo.WebKeys;
-import com.trevor.bo.JsonEntity;
-import com.trevor.bo.SimpleUser;
+import com.trevor.bo.*;
+import com.trevor.common.MessageCodeEnum;
+import com.trevor.dao.UserMapper;
+import com.trevor.domain.User;
 import com.trevor.service.weixin.bo.WeixinToken;
 import com.trevor.util.HttpUtil;
+import com.trevor.util.RandomUtils;
+import com.trevor.util.TokenUtil;
 import com.trevor.util.WeixinAuthUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author trevor
@@ -20,23 +26,56 @@ import java.util.Map;
 @Slf4j
 public class WeixinServiceImpl implements WeixinService {
 
+    @Resource
+    private UserMapper userMapper;
+
     @Override
-    public JsonEntity<SimpleUser> queryWeixinUser(String code) throws IOException {
+    public JsonEntity<Map<String, Object>> weixinAuth(String code) throws IOException {
         //获取access_token
         Map<String, String> accessTokenMap = WeixinAuthUtils.getWeixinToken(code);
         //拉取用户信息
-        Map<String, String> userinfoMap = WeixinAuthUtils.getUserInfo(accessTokenMap.get(WebKeys.ACCESS_TOKEN)
+        Map<String, String> userInfoMap = WeixinAuthUtils.getUserInfo(accessTokenMap.get(WebKeys.ACCESS_TOKEN)
                 ,accessTokenMap.get(WebKeys.OPEN_ID));
         //有可能access token以被使用
-        if (userinfoMap.get(WebKeys.ERRCODE) != null) {
-            log.error("拉取用户信息 失败啦,快来围观:------------------------------" + userinfoMap.get(WebKeys.ERRMSG));
+        if (userInfoMap.get(WebKeys.ERRCODE) != null) {
+            log.error("拉取用户信息 失败啦,快来围观:-----------------" + userInfoMap.get(WebKeys.ERRMSG));
             //刷新access_token
             Map<String, String> accessTokenByRefreshTokenMap = WeixinAuthUtils.getWeixinTokenByRefreshToken(accessTokenMap.get(WebKeys.REFRESH_TOKEN));
             // 再次拉取用户信息
-            userinfoMap = WeixinAuthUtils.getUserInfo(accessTokenByRefreshTokenMap.get(WebKeys.ACCESS_TOKEN),
+            userInfoMap = WeixinAuthUtils.getUserInfo(accessTokenByRefreshTokenMap.get(WebKeys.ACCESS_TOKEN),
                     accessTokenByRefreshTokenMap.get(WebKeys.OPEN_ID));
         }
+        String openid = userInfoMap.get(WebKeys.OPEN_ID);
+        if (openid == null) {
+            return ResponseHelper.withErrorInstance(MessageCodeEnum.AUTH_FAILED);
+        } else {
+            //生成10位hash
+            String hash = RandomUtils.getRandomChars(10);
+            Map<String, Object> claims = new HashMap<>(2<<4);
+            claims.put("hash", hash);
+            claims.put("openid", openid);
+            claims.put("timestamp", System.currentTimeMillis());
+            //判断用户是否存在
+            Long isExist = userMapper.findByWeiXinId(openid);
+            if (Objects.equals(isExist ,0L)) {
+                //新增
+                userMapper.insertOne(generateUser(hash ,userInfoMap));
+            } else {
+                //更新hash
+                userMapper.updateHash(hash ,openid);
+            }
+            return ResponseHelper.createInstance(claims ,MessageCodeEnum.AUTH_SUCCESS);
+        }
+    }
 
-        return null;
+    /**
+     * 生成一个user
+     * @return
+     */
+    private User generateUser(String hash ,Map<String, String> userInfoMap){
+        User user = new User();
+        user.setWeixinId(userInfoMap.get("openid"));
+        user.setHash(hash);
+        return user;
     }
 }

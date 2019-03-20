@@ -1,4 +1,4 @@
-package com.trevor.web.controller.login;
+package com.trevor.web.controller.api;
 
 
 import io.swagger.annotations.Api;

@@ -1,9 +1,9 @@
 package com.trevor.service.weixin;
 
 import com.trevor.bo.JsonEntity;
-import com.trevor.bo.SimpleUser;
 
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * @author trevor
@@ -15,5 +15,5 @@ public interface WeixinService {
      * 根据code获取微信用户基本信息
      * @return
      */
-    JsonEntity<SimpleUser> queryWeixinUser(String code) throws IOException;
+    JsonEntity<Map<String, Object>> weixinAuth(String code) throws IOException;
 }

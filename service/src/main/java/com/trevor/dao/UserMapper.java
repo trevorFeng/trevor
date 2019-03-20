@@ -1,5 +1,7 @@
 package com.trevor.dao;
 
+import com.trevor.domain.User;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -17,4 +19,24 @@ public interface UserMapper {
      * @return
      */
     Integer findUserFriendManage(Long userId);
+
+    /**
+     * 根据微信id查找用户是否存在
+     * @param openid
+     * @return
+     */
+    Long findByWeiXinId(@Param("openid") String openid);
+
+    /**
+     * 新增一个用户
+     * @param user
+     */
+    void insertOne(@Param("user") User user);
+
+    /**
+     * 更新hash值
+     * @param hash
+     * @param openid
+     */
+    void updateHash(@Param("hash") String hash ,@Param("openid") String openid);
 }

@@ -23,6 +23,12 @@ public enum MessageCodeEnum {
 
 
     /**
+     * 授权失败
+     */
+    AUTH_FAILED(-3 ,"授权失败"),
+
+
+    /**
      * 创建成功
      */
     CREATE_SUCCESS(1 ,"创建成功"),
@@ -36,6 +42,11 @@ public enum MessageCodeEnum {
      * 查询成功
      */
     QUERY_SUCCESS(3 ,"查询成功"),
+
+    /**
+     * 授权成功
+     */
+    AUTH_SUCCESS(4 ,"授权成功"),
 
 
     /*****************************************               websocket返回消息                    *********************/

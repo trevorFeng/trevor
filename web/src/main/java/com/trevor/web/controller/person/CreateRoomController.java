@@ -1,7 +1,7 @@
 package com.trevor.web.controller.person;
 
 import com.trevor.bo.JsonEntity;
-import com.trevor.bo.UserInfo;
+import com.trevor.bo.WebSessionUser;
 import com.trevor.service.createRoom.CreateRoomService;
 import com.trevor.service.createRoom.bo.NiuniuRoomParameter;
 import com.trevor.util.SessionUtil;
@@ -34,7 +34,7 @@ public class CreateRoomController {
     @ApiOperation("创建一个房间")
     @RequestMapping(value = "/api/room/create/niuniu", method = {RequestMethod.PUT}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public JsonEntity<Long> createRoom(@RequestBody NiuniuRoomParameter niuniuRoomParameter){
-        UserInfo sessionUser = SessionUtil.getSessionUser();
+        WebSessionUser sessionUser = SessionUtil.getSessionUser();
         return createRoomService.createRoom(niuniuRoomParameter ,sessionUser);
     }
 }

@@ -28,6 +28,20 @@ public interface UserMapper {
     Long findByWeiXinId(@Param("openid") String openid);
 
     /**
+     * 根据微信id查询用户，包含openid和hash字段
+     * @param openid
+     * @return
+     */
+    User findUserOpenidAndHash(@Param("openid") String openid);
+
+    /**
+     * 根据微信id查询用户，包含id，weixinName，weixinPictureUrl字段
+     * @param openid
+     * @return
+     */
+    User findUserByWeiXinId(@Param("openid") String openid);
+
+    /**
      * 新增一个用户
      * @param user
      */
@@ -39,4 +53,5 @@ public interface UserMapper {
      * @param openid
      */
     void updateHash(@Param("hash") String hash ,@Param("openid") String openid);
+
 }

@@ -1,7 +1,7 @@
 package com.trevor.web.controller.person;
 
 import com.trevor.bo.JsonEntity;
-import com.trevor.bo.UserInfo;
+import com.trevor.bo.WebSessionUser;
 import com.trevor.domain.CardTrans;
 import com.trevor.service.cardTrans.CardTransService;
 import com.trevor.util.SessionUtil;
@@ -34,8 +34,8 @@ public class CardTransController {
     @ApiImplicitParam(name = "cardNum" ,value = "房卡的数量" , required = true ,paramType = "body" ,dataType = "Integer")
     @RequestMapping(value = "/api/cardTrans/create/package", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public JsonEntity<String> createCardPackage(Integer cardNum){
-        UserInfo userInfo = SessionUtil.getSessionUser();
-        return cardTransService.createCardPackage(cardNum ,userInfo);
+        WebSessionUser webSessionUser = SessionUtil.getSessionUser();
+        return cardTransService.createCardPackage(cardNum , webSessionUser);
     }
 
     /**
@@ -47,8 +47,8 @@ public class CardTransController {
     @ApiImplicitParam(name = "cardNum" ,value = "交易号" , required = true ,paramType = "body" ,dataType = "string")
     @RequestMapping(value = "/api/cardTrans/receive/package", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public JsonEntity<Object> createCardPackage(String transNo){
-        UserInfo userInfo = SessionUtil.getSessionUser();
-        return cardTransService.receiveCardPackage(transNo ,userInfo);
+        WebSessionUser webSessionUser = SessionUtil.getSessionUser();
+        return cardTransService.receiveCardPackage(transNo , webSessionUser);
     }
 
     /**
@@ -58,8 +58,8 @@ public class CardTransController {
     @ApiOperation(value = "查询发出的房卡")
     @RequestMapping(value = "/api/cardTrans/send/package", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public JsonEntity<List<CardTrans>> findSendCardRecord(){
-        UserInfo userInfo = SessionUtil.getSessionUser();
-        return cardTransService.findSendCardRecord(userInfo);
+        WebSessionUser webSessionUser = SessionUtil.getSessionUser();
+        return cardTransService.findSendCardRecord(webSessionUser);
     }
 
     /**
@@ -69,8 +69,8 @@ public class CardTransController {
     @ApiOperation(value = "查询收到的房卡")
     @RequestMapping(value = "/api/cardTrans/query/package", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public JsonEntity<List<CardTrans>> findRecevedCardRecord(){
-        UserInfo userInfo = SessionUtil.getSessionUser();
-        return cardTransService.findRecevedCardRecord(userInfo);
+        WebSessionUser webSessionUser = SessionUtil.getSessionUser();
+        return cardTransService.findRecevedCardRecord(webSessionUser);
     }
 
 }

@@ -1,5 +1,6 @@
 package com.trevor.bo;
 
+import com.trevor.domain.User;
 import lombok.Data;
 
 /**
@@ -9,7 +10,7 @@ import lombok.Data;
  * @create: 2019-03-03 21:53
  **/
 @Data
-public class UserInfo {
+public class WebSessionUser {
 
     /**
      * 用户id
@@ -24,7 +25,6 @@ public class UserInfo {
     /**
      * 用户头像
      */
-    private String picture;
-
+    private String pictureUrl;
 
 }

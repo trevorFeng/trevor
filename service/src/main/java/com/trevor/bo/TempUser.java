@@ -9,12 +9,24 @@ import lombok.Data;
 @Data
 public class TempUser {
 
+    /**
+     * 1代表已授权，0代表未授权
+     */
     private String isAuth;
 
+    /**
+     * token信息
+     */
     private String token;
 
-    public TempUser(String isAuth, String token) {
+    /**
+     * openid
+     */
+    private String openid;
+
+    public TempUser(String isAuth, String token ,String openid) {
         this.isAuth = isAuth;
         this.token = token;
+        this.openid = openid;
     }
 }

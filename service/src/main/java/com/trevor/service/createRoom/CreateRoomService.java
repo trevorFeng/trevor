@@ -1,7 +1,7 @@
 package com.trevor.service.createRoom;
 
 import com.trevor.bo.JsonEntity;
-import com.trevor.bo.UserInfo;
+import com.trevor.bo.WebSessionUser;
 import com.trevor.service.createRoom.bo.NiuniuRoomParameter;
 
 /**
@@ -15,5 +15,5 @@ public interface CreateRoomService {
      * @param niuniuRoomParameter
      * @return
      */
-    JsonEntity<Long> createRoom(NiuniuRoomParameter niuniuRoomParameter , UserInfo userInfo);
+    JsonEntity<Long> createRoom(NiuniuRoomParameter niuniuRoomParameter , WebSessionUser webSessionUser);
 }

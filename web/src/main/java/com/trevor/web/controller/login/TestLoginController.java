@@ -1,7 +1,7 @@
 package com.trevor.web.controller.login;
 
 
-import com.trevor.bo.UserInfo;
+import com.trevor.bo.WebSessionUser;
 import com.trevor.bo.WebKeys;
 import com.trevor.util.SessionUtil;
 import io.swagger.annotations.Api;
@@ -25,9 +25,9 @@ public class TestLoginController {
 
     @RequestMapping(value = "/api/testLogin/login", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public void weixinAuth(HttpServletRequest request, HttpServletResponse response){
-        UserInfo userInfo = new UserInfo();
-        userInfo.setId(1L);
-        userInfo.setName("test_name");
-        SessionUtil.getSession().setAttribute(WebKeys.SESSION_USER_KEY ,userInfo);
+        WebSessionUser webSessionUser = new WebSessionUser();
+        webSessionUser.setId(1L);
+        webSessionUser.setName("test_name");
+        SessionUtil.getSession().setAttribute(WebKeys.SESSION_USER_KEY , webSessionUser);
     }
 }

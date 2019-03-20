@@ -44,7 +44,7 @@ public class User {
     /**
      * 用户微信头像
      */
-    private String weixinPicture;
+    private String weixinPictureUrl;
 
     /**
      * 闲聊名字
@@ -59,7 +59,7 @@ public class User {
     /**
      * 闲聊头像
      */
-    private String xianliaoPicture;
+    private String xianliaoPictureUrl;
 
     /**
      * 本表中关联的userId，实则为同一用户

@@ -1,10 +1,9 @@
 package com.trevor.service.niuniu;
 
 import com.trevor.bo.JsonEntity;
-import com.trevor.bo.SimpleUser;
-import com.trevor.bo.UserInfo;
+import com.trevor.bo.SocketSessionUser;
+import com.trevor.bo.WebSessionUser;
 
-import javax.websocket.Session;
 import java.io.IOException;
 
 /**
@@ -21,13 +20,13 @@ public interface NiuniuService {
      * @param roomId
      * @return
      */
-    JsonEntity<SimpleUser> onOpenCheck(String roomId , UserInfo userInfo) throws IOException;
+    JsonEntity<SocketSessionUser> onOpenCheck(String roomId , WebSessionUser webSessionUser) throws IOException;
 
     /**
      * 根据消息来处理
      * @return
      */
-    JsonEntity<SimpleUser> dealReceiveMessage(String message ,SimpleUser simpleUser);
+    JsonEntity<SocketSessionUser> dealReceiveMessage(String message , SocketSessionUser socketSessionUser);
 
 
 

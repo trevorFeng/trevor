@@ -1,7 +1,7 @@
 package com.trevor.service.friendManager;
 
 import com.trevor.bo.JsonEntity;
-import com.trevor.bo.UserInfo;
+import com.trevor.bo.WebSessionUser;
 import com.trevor.domain.FriendsManage;
 
 import java.util.List;
@@ -17,9 +17,9 @@ public interface FriendManagerService {
 
     /**
      * 查询好友（申请通过和未通过的）
-     * @param userInfo
+     * @param webSessionUser
      * @return
      */
-    JsonEntity<List<FriendsManage>> findRecevedCardRecord(UserInfo userInfo);
+    JsonEntity<List<FriendsManage>> findRecevedCardRecord(WebSessionUser webSessionUser);
 
 }

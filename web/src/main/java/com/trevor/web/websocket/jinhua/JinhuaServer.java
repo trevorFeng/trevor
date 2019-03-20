@@ -1,6 +1,6 @@
 package com.trevor.web.websocket.jinhua;
 
-import com.trevor.bo.UserInfo;
+import com.trevor.bo.WebSessionUser;
 import org.springframework.stereotype.Component;
 
 import javax.websocket.server.ServerEndpoint;
@@ -17,7 +17,7 @@ public class JinhuaServer {
 
     private final Integer MAX_PERSON = 10;
 
-    private ConcurrentHashMap<String , Set<UserInfo>> jinHuaRooms = new ConcurrentHashMap<>(2<<10);
+    private ConcurrentHashMap<String , Set<WebSessionUser>> jinHuaRooms = new ConcurrentHashMap<>(2<<10);
 
 
 

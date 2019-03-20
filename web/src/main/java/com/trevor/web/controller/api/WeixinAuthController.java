@@ -49,8 +49,9 @@ public class WeixinAuthController {
             log.error(jsonEntity.getMessage());
         }else {
             //生成token
-            String token = TokenUtil.generateToken(jsonEntity.getData());
-            TempUser tempUser = new TempUser("1" ,token);
+            Map<String, Object> map = jsonEntity.getData();
+            String token = TokenUtil.generateToken(map);
+            TempUser tempUser = new TempUser("1" ,token ,(String) map.get(WebKeys.OPEN_ID));
             request.getServletContext().setAttribute(uuid,tempUser);
         }
     }

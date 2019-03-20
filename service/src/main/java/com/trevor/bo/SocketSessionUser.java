@@ -8,7 +8,7 @@ import lombok.Data;
  * @date 2019/3/4 11:28
  */
 @Data
-public class SimpleUser {
+public class SocketSessionUser {
 
     /**
      * id
@@ -45,10 +45,10 @@ public class SimpleUser {
      */
     private Boolean isChiGuaPeople;
 
-    public SimpleUser(UserInfo userInfo) {
-        this.id = userInfo.getId();
-        this.name = userInfo.getName();
-        this.picture = userInfo.getPicture();
+    public SocketSessionUser(WebSessionUser webSessionUser) {
+        this.id = webSessionUser.getId();
+        this.name = webSessionUser.getName();
+        this.picture = webSessionUser.getPicture();
         this.isOnLine = Boolean.TRUE;
         this.isReady = Boolean.FALSE;
     }

@@ -1,6 +1,5 @@
 package com.trevor.web.config;
 
-import com.trevor.bo.SimpleUser;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;

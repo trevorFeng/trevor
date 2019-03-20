@@ -11,7 +11,6 @@ import java.io.IOException;
  * @author: trevor
  * @create: 2019-03-07 0:07
  **/
-
 @WebFilter(filterName = "wsFilter", urlPatterns = "/websocket/*")
 public class WebSocketFilter implements Filter {
 

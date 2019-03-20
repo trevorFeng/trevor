@@ -48,6 +48,11 @@ public enum MessageCodeEnum {
      */
     AUTH_SUCCESS(4 ,"授权成功"),
 
+    /**
+     * 退出登录成功
+     */
+    LOGIN_OUT_SUCCESS(5 ,"退出登录成功"),
+
 
     /*****************************************               websocket返回消息                    *********************/
 

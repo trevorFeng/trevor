@@ -2,8 +2,8 @@ package com.trevor.web.websocket.niuniu;
 
 import com.alibaba.fastjson.JSON;
 import com.trevor.bo.JsonEntity;
-import com.trevor.bo.SimpleUser;
-import com.trevor.bo.UserInfo;
+import com.trevor.bo.SocketSessionUser;
+import com.trevor.bo.WebSessionUser;
 import com.trevor.bo.WebKeys;
 import com.trevor.service.niuniu.NiuniuService;
 import com.trevor.util.WebsocketUtil;
@@ -48,12 +48,12 @@ public class NiuniuServer {
     public void onOpen(Session session ,EndpointConfig config ,@PathParam("rooId") String rooId) throws IOException {
         this.session = session;
         HttpSession httpSession = (HttpSession) config.getUserProperties().get(HttpSession.class.getName());
-        UserInfo userInfo = (UserInfo) httpSession.getAttribute(WebKeys.SESSION_USER_KEY);
+        WebSessionUser webSessionUser = (WebSessionUser) httpSession.getAttribute(WebKeys.SESSION_USER_KEY);
         String tempRoomId = rooId.intern();
         String jsonString;
-        JsonEntity<SimpleUser> jsonEntity;
+        JsonEntity<SocketSessionUser> jsonEntity;
         synchronized (tempRoomId) {
-            jsonEntity = niuniuService.onOpenCheck(rooId, userInfo);
+            jsonEntity = niuniuService.onOpenCheck(rooId, webSessionUser);
             if (jsonEntity.getCode() > 0) {
                 niuniuRomms.get(Long.valueOf(rooId)).add(session);
             }
@@ -70,7 +70,7 @@ public class NiuniuServer {
 
     @OnMessage
     public void receiveMsg(@PathParam("rooId") String rooId, String msg) throws Exception {
-        SimpleUser simpleUser = (SimpleUser) session.getUserProperties().get(WebKeys.SESSION_USER_KEY);
+        SocketSessionUser socketSessionUser = (SocketSessionUser) session.getUserProperties().get(WebKeys.SESSION_USER_KEY);
     }
 
     @OnClose

@@ -1,6 +1,6 @@
 package com.trevor.domain;
 
-import com.trevor.bo.UserInfo;
+import com.trevor.bo.WebSessionUser;
 import lombok.Data;
 
 import java.util.UUID;
@@ -65,12 +65,12 @@ public class CardTrans {
 
     /**
      * 生成一个房间交易基本信息
-     * @param userInfo
+     * @param webSessionUser
      */
-    public void generateCardTransBase(UserInfo userInfo ,Integer cardNum){
+    public void generateCardTransBase(WebSessionUser webSessionUser, Integer cardNum){
         this.cardNum = cardNum;
-        this.turnOutUserName = userInfo.getName();
-        this.turnOutUserId = userInfo.getId();
+        this.turnOutUserName = webSessionUser.getName();
+        this.turnOutUserId = webSessionUser.getId();
         this.turnOutTime = System.currentTimeMillis();
         this.transNum = UUID.randomUUID().toString() + this.turnOutTime;
         this.version = 0;

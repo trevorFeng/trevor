@@ -38,6 +38,11 @@ public class WebKeys {
     public static final String IPONE_BROWSER = "micromessenger";
 
     /**
+     * 微信授权
+     */
+    public static final String WEIXIN_AUTH_PAGE_PATH = "/api/weixin/auth";
+
+    /**
      * 微信登陆
      */
     public static final String WEIXIN_LOGIN_PAGE_PATH = "/front/weixin/login";

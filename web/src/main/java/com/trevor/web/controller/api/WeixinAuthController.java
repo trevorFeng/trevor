@@ -35,9 +35,12 @@ public class WeixinAuthController {
     @Resource
     private WeixinService weixinService;
 
+    @Resource
+    private HttpServletRequest request;
+
     @ApiOperation("微信授权回调地址")
     @RequestMapping(value = "/api/weixin/auth", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public void weixinAuth(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void weixinAuth() throws IOException {
         String code = request.getParameter(WebKeys.CODE);
         String uuid = request.getParameter(WebKeys.UUID);
         if (uuid == null) {

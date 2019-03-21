@@ -1,13 +1,12 @@
 package com.trevor.service.weixin;
 
-import com.trevor.bo.*;
+import com.trevor.bo.JsonEntity;
+import com.trevor.bo.ResponseHelper;
+import com.trevor.bo.WebKeys;
 import com.trevor.common.MessageCodeEnum;
 import com.trevor.dao.UserMapper;
 import com.trevor.domain.User;
-import com.trevor.service.weixin.bo.WeixinToken;
-import com.trevor.util.HttpUtil;
 import com.trevor.util.RandomUtils;
-import com.trevor.util.TokenUtil;
 import com.trevor.util.WeixinAuthUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

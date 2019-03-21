@@ -14,7 +14,12 @@ public class WebKeys {
      */
     public static final String SESSION_USER_KEY = "sessionUser";
 
+    /**
+     * token
+     */
     public static final String TOKEN = "token";
+
+    public static final String COOKIE_USER_INFO = "cookieUserInfo";
 
     /**
      * 微信浏览器标识

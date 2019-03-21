@@ -1,6 +1,7 @@
 package com.trevor.web.controller.login;
 
 
+import com.alibaba.fastjson.JSON;
 import com.trevor.bo.*;
 import com.trevor.common.AuthEnum;
 import com.trevor.common.MessageCodeEnum;
@@ -61,7 +62,8 @@ public class WeixinLoginController{
             webSessionUser.setPictureUrl(user.getWeixinPictureUrl());
             //存入cookie
             CookieUtils.add(WebKeys.TOKEN ,tempUser.getToken() ,response);
-            return ResponseHelper.createInstance(webSessionUser ,MessageCodeEnum.AUTH_SUCCESS);
+            CookieUtils.add(WebKeys.COOKIE_USER_INFO , JSON.toJSONString(webSessionUser) ,response);
+            return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.AUTH_SUCCESS);
         }else {
             return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.AUTH_FAILED);
         }

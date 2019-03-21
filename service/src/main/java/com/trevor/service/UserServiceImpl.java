@@ -29,7 +29,7 @@ public class UserServiceImpl implements UserService{
         //解析token
         Map<String, Object> claims = TokenUtil.getClaimsFromToken(token);
         String openid = (String) claims.get("openid");
-        User user = userMapper.findUserByWeiXinId(openid);
+        User user = userMapper.findUserByOpenId(openid);
         WebSessionUser webSessionUser = new WebSessionUser(user);
         return webSessionUser;
     }

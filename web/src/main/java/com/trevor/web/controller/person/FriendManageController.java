@@ -3,6 +3,7 @@ package com.trevor.web.controller.person;
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.WebSessionUser;
 import com.trevor.domain.FriendsManage;
+import com.trevor.service.UserService;
 import com.trevor.service.friendManager.FriendManagerService;
 import com.trevor.util.SessionUtil;
 import io.swagger.annotations.Api;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -28,6 +30,12 @@ public class FriendManageController {
     @Resource
     private FriendManagerService findRecevedCardRecord;
 
+    @Resource
+    private UserService userService;
+
+    @Resource
+    private HttpServletRequest request;
+
     /**
      * 查询好友（申请通过和未通过的）
      * @return
@@ -35,7 +43,7 @@ public class FriendManageController {
     @ApiOperation(value = "查询好友（申请通过和未通过的）")
     @RequestMapping(value = "/api/friend/manager/query", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public JsonEntity<List<FriendsManage>> findRecevedCardRecord(){
-        WebSessionUser webSessionUser = SessionUtil.getSessionUser();
+        WebSessionUser webSessionUser = userService.getUserByCookie(request);
         return null;
     }
 

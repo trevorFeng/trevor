@@ -3,6 +3,7 @@ package com.trevor.web.controller.login;
 
 import com.trevor.bo.WebSessionUser;
 import com.trevor.bo.WebKeys;
+import com.trevor.domain.User;
 import com.trevor.util.SessionUtil;
 import io.swagger.annotations.Api;
 import org.springframework.http.MediaType;
@@ -25,9 +26,9 @@ public class TestLoginController {
 
     @RequestMapping(value = "/api/testLogin/login", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public void weixinAuth(HttpServletRequest request, HttpServletResponse response){
-        WebSessionUser webSessionUser = new WebSessionUser();
-        webSessionUser.setId(1L);
-        webSessionUser.setName("test_name");
-        SessionUtil.getSession().setAttribute(WebKeys.SESSION_USER_KEY , webSessionUser);
+        User user = new User();
+        user.setWeixinId("11");
+        user.setId(1L);
+        WebSessionUser webSessionUser = new WebSessionUser(user);
     }
 }

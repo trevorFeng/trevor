@@ -1,6 +1,7 @@
 package com.trevor.web.controller.api;
 
 import com.trevor.bo.*;
+import com.trevor.common.AuthEnum;
 import com.trevor.service.weixin.WeixinService;
 import com.trevor.util.CookieUtils;
 import com.trevor.util.TokenUtil;
@@ -39,19 +40,17 @@ public class WeixinAuthController {
     public void weixinAuth(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String code = request.getParameter(WebKeys.CODE);
         String uuid = request.getParameter(WebKeys.UUID);
-        response.setHeader("Content-Type", "application/json;charset=utf-8");
         if (uuid == null) {
             return;
         }
         JsonEntity<Map<String, Object>> jsonEntity = weixinService.weixinAuth(code);
-
         if(jsonEntity.getCode() < 0){
             log.error(jsonEntity.getMessage());
         }else {
             //生成token
             Map<String, Object> map = jsonEntity.getData();
             String token = TokenUtil.generateToken(map);
-            TempUser tempUser = new TempUser("1" ,token ,(String) map.get(WebKeys.OPEN_ID));
+            TempUser tempUser = new TempUser(AuthEnum.IS_AUTH.getCode() ,token ,(String) map.get(WebKeys.OPEN_ID));
             request.getServletContext().setAttribute(uuid,tempUser);
         }
     }

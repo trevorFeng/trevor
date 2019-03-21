@@ -2,6 +2,7 @@ package com.trevor.web.controller.login;
 
 
 import com.trevor.bo.*;
+import com.trevor.common.AuthEnum;
 import com.trevor.common.MessageCodeEnum;
 import com.trevor.dao.UserMapper;
 import com.trevor.domain.User;
@@ -40,9 +41,9 @@ public class WeixinLoginController{
         //用户临时凭证
         String uuid = RandomUtils.getRandomChars(40);
         //使用全局变量，微信授权成功后改变值
-        TempUser tempUser = new TempUser("0" ,"" ,"");
+        TempUser tempUser = new TempUser(AuthEnum.NOT_AUTH.getCode() ,"" ,"");
         req.getServletContext().setAttribute(uuid ,tempUser);
-        CookieUtils.add("uuid" ,uuid ,resp);
+        CookieUtils.add(WebKeys.UUID ,uuid ,resp);
         req.getRequestDispatcher("/view/weixinlogin.html?uuid=" + uuid + "&reUrl=" + req.getParameter("reUrl")).forward(req,resp);
     }
 
@@ -52,7 +53,7 @@ public class WeixinLoginController{
         String uuid = request.getParameter(WebKeys.UUID);
         //判断微信是否已经授权
         TempUser tempUser = (TempUser) request.getServletContext().getAttribute(uuid);
-        if("1".equals(tempUser.getIsAuth())){
+        if(AuthEnum.IS_AUTH.getCode().equals(tempUser.getIsAuth())){
             User user = userMapper.findUserByWeiXinId(tempUser.getOpenid());
             WebSessionUser webSessionUser = new WebSessionUser(user);
             webSessionUser.setId(user.getId());

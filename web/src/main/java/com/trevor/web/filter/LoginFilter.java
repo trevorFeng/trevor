@@ -45,7 +45,7 @@ public class LoginFilter implements Filter{
         try {
             //解析token
             Map<String, Object> claims = TokenUtil.getClaimsFromToken(token);
-            String openid = (String) claims.get("openid");
+            String openid = (String) claims.get(WebKeys.OPEN_ID);
             String hash = (String) claims.get("hash");
             String timestamp = String.valueOf(claims.get("timestamp"));
             //三者必须存在,少一样说明token被篡改
@@ -130,7 +130,7 @@ public class LoginFilter implements Filter{
         long expires_in = 30 * 1000 * 60;
         long timestamp_long = Long.parseLong(timestamp);
         //两者相差的时间,单位(ms)
-        long time = new Date().getTime() - timestamp_long;
+        long time = System.currentTimeMillis() - timestamp_long;
         if(time > expires_in){
             //过期
             return false;

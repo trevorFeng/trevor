@@ -8,7 +8,6 @@ import com.trevor.dao.UserMapper;
 import com.trevor.domain.User;
 import com.trevor.util.CookieUtils;
 import com.trevor.util.RandomUtils;
-import com.trevor.util.SessionUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.MediaType;
@@ -28,42 +27,43 @@ import java.io.IOException;
  * @author: trevor
  * @create: 2019-03-14 0:56
  **/
-@Api("微信登陆相关")
+@Api("闲聊登陆相关")
 @RestController
-public class WeixinLoginController{
+public class XianliaoLoginController {
 
     @Resource
     private UserMapper userMapper;
 
-    @ApiOperation("微信登录并转发到微信登录页面")
-    @RequestMapping(value = "/front/weixin/login", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ApiOperation("闲聊登录并转发到微信登录页面")
+    @RequestMapping(value = "/front/xianliao/login", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public void login(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         //用户临时凭证
         String uuid = RandomUtils.getRandomChars(40);
-        //使用全局变量，微信授权成功后改变值
+        //使用全局变量，闲聊授权成功后改变值
         TempUser tempUser = new TempUser(AuthEnum.NOT_AUTH.getCode() ,"" ,"");
         req.getServletContext().setAttribute(uuid ,tempUser);
         CookieUtils.add(WebKeys.UUID ,uuid ,resp);
-        req.getRequestDispatcher("/view/weixinlogin.html?uuid=" + uuid + "&reUrl=" + req.getParameter("reUrl")).forward(req,resp);
+        req.getRequestDispatcher("/view/xianliao.html?uuid=" + uuid + "&reUrl=" + req.getParameter("reUrl")).forward(req,resp);
     }
 
-    @ApiOperation("检查微信是否授权")
-    @RequestMapping(value = "/front/weixin/login/check", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ApiOperation("检查闲聊是否授权")
+    @RequestMapping(value = "/front/xianliao/login/check", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public JsonEntity<WebSessionUser> checkAuth(HttpServletRequest request, HttpServletResponse response)  {
         String uuid = request.getParameter(WebKeys.UUID);
-        //判断微信是否已经授权
+        //判断闲聊是否已经授权
         TempUser tempUser = (TempUser) request.getServletContext().getAttribute(uuid);
         if(AuthEnum.IS_AUTH.getCode().equals(tempUser.getIsAuth())){
             User user = userMapper.findUserByOpenId(tempUser.getOpenid());
             WebSessionUser webSessionUser = new WebSessionUser(user);
             webSessionUser.setId(user.getId());
-            webSessionUser.setName(user.getWeixinName());
-            webSessionUser.setPictureUrl(user.getWeixinPictureUrl());
+            webSessionUser.setName(user.getXianliaoName());
+            webSessionUser.setPictureUrl(user.getXianliaoPictureUrl());
             //存入cookie
             CookieUtils.add(WebKeys.TOKEN ,tempUser.getToken() ,response);
-            return ResponseHelper.createInstance(webSessionUser ,MessageCodeEnum.AUTH_SUCCESS);
+            return ResponseHelper.createInstance(webSessionUser , MessageCodeEnum.AUTH_SUCCESS);
         }else {
             return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.AUTH_FAILED);
         }
     }
+
 }

@@ -1,13 +1,22 @@
 package com.trevor.service.xiaoliao;
 
 import com.trevor.bo.JsonEntity;
+import com.trevor.bo.ResponseHelper;
+import com.trevor.bo.WebKeys;
+import com.trevor.common.MessageCodeEnum;
 import com.trevor.dao.UserMapper;
+import com.trevor.domain.User;
+import com.trevor.util.RandomUtils;
+import com.trevor.util.WeixinAuthUtils;
+import com.trevor.util.XianliaoAuthUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author trevor
@@ -26,6 +35,53 @@ public class XianliaoServiceImpl implements XianliaoService{
      */
     @Override
     public JsonEntity<Map<String, Object>> weixinAuth(String code) throws IOException {
-        return null;
+        //获取access_token
+        Map<String, String> accessTokenMap = XianliaoAuthUtils.getXianliaoToken(code);
+        //拉取用户信息
+        Map<String, String> userInfoMap = XianliaoAuthUtils.getUserInfo(accessTokenMap.get(WebKeys.ACCESS_TOKEN));
+        //有可能access token以被使用
+        if (Objects.equals(WebKeys.SUCCESS ,userInfoMap.get(WebKeys.ERRMSG))) {
+            log.error("拉取用户信息 失败啦,快来围观:-----------------" + userInfoMap.get(WebKeys.ERRMSG));
+            //刷新access_token
+            Map<String, String> accessTokenByRefreshTokenMap = XianliaoAuthUtils.getXianliaoTokenByRefreshToken(accessTokenMap.get(WebKeys.REFRESH_TOKEN));
+            // 再次拉取用户信息
+            userInfoMap = XianliaoAuthUtils.getUserInfo(accessTokenByRefreshTokenMap.get(WebKeys.ACCESS_TOKEN));
+        }
+        String openid = userInfoMap.get(WebKeys.OPEN_ID);
+        if (openid == null) {
+            return ResponseHelper.withErrorInstance(MessageCodeEnum.AUTH_FAILED);
+        } else {
+            //生成10位hash
+            String hash = RandomUtils.getRandomChars(10);
+            Map<String, Object> claims = new HashMap<>(2<<4);
+            claims.put("hash", hash);
+            claims.put("openid", openid);
+            claims.put("timestamp", System.currentTimeMillis());
+            //判断用户是否存在
+            Long isExist = userMapper.findByOpnenId(openid);
+            if (Objects.equals(isExist ,0L)) {
+                //新增
+                userMapper.insertOne(generateUser(hash ,userInfoMap));
+            } else {
+                //更新hash
+                userMapper.updateHash(hash ,openid);
+            }
+            return ResponseHelper.createInstance(claims ,MessageCodeEnum.AUTH_SUCCESS);
+        }
+    }
+
+
+    /**
+     * 生成一个user
+     * @return
+     */
+    private User generateUser(String hash , Map<String, String> userInfoMap){
+        User user = new User();
+        user.setOpenid(userInfoMap.get(WebKeys.OPEN_ID));
+        user.setXianliaoName(userInfoMap.get("nickName"));
+        user.setXianliaoPictureUrl(userInfoMap.get("smallAvatar"));
+        user.setHash(hash);
+        user.setFriendManageFlag(0);
+        return user;
     }
 }

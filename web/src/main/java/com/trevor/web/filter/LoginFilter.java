@@ -148,9 +148,9 @@ public class LoginFilter implements Filter{
      */
     private Boolean checkOpenidAndHash(String openid,String hash){
         User user = userMapper.findUserOpenidAndHash(openid);
-        if(user.getWeixinId() != null){
+        if(user.getOpenid() != null){
             //对比
-            if(openid.equals(user.getWeixinId()) && hash.equals(user.getHash())){
+            if(openid.equals(user.getOpenid()) && hash.equals(user.getHash())){
                 return true;
             }
         }

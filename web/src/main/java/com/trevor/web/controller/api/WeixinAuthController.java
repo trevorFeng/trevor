@@ -27,7 +27,7 @@ import java.util.jar.JarEntry;
  * @author: trevor
  * @create: 2019-03-14 0:56
  **/
-@Api(value = "微信授权" ,description = "微信授权")
+@Api(value = "微信回调" ,description = "微信回调")
 @RestController
 @Slf4j
 public class WeixinAuthController {

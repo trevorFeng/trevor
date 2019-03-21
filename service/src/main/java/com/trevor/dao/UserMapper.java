@@ -21,11 +21,11 @@ public interface UserMapper {
     Integer findUserFriendManage(Long userId);
 
     /**
-     * 根据微信id查找用户是否存在
+     * 根据openid查找用户是否存在
      * @param openid
      * @return
      */
-    Long findByWeiXinId(@Param("openid") String openid);
+    Long findByOpnenId(@Param("openid") String openid);
 
     /**
      * 根据微信id查询用户，包含openid和hash字段
@@ -39,7 +39,7 @@ public interface UserMapper {
      * @param openid
      * @return
      */
-    User findUserByWeiXinId(@Param("openid") String openid);
+    User findUserByOpenId(@Param("openid") String openid);
 
     /**
      * 新增一个用户

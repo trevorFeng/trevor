@@ -63,14 +63,24 @@ public class WebKeys {
     public static final String ERROR_LOGIN_PAGE_PATH = "/view/login/shoujiLogin.html";
 
     /**
-     * appId
+     * 微信appId
      */
-    public static final String APPID = "";
+    public static final String WEIXIN_APPID = "";
 
     /**
-     * APP_SECRET
+     * 微信APP_SECRET
      */
-    public static final String APP_SECRET = "";
+    public static final String WEIXIN_APP_SECRET = "";
+
+    /**
+     * 闲聊appId
+     */
+    public static final String XIANLIAO_APPID = "";
+
+    /**
+     * 闲聊APP_SECRET
+     */
+    public static final String XIANLIAO_APP_SECRET = "";
 
     /**
      * grant_type
@@ -82,6 +92,9 @@ public class WebKeys {
      */
     public static final String CODE = "code";
 
+    /**
+     * uuid
+     */
     public static final String UUID = "uuid";
 
     /**
@@ -109,6 +122,11 @@ public class WebKeys {
      * errmsg
      */
     public static final String ERRMSG = "errmsg";
+
+    /**
+     * success
+     */
+    public static final String SUCCESS = "success";
 
 
 

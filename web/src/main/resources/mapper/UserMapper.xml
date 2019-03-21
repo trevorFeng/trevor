@@ -7,7 +7,7 @@
         from
         `user`
         where
-        weixin_id=#{openid}
+        open_id=#{openid}
     </select>
 
 </mapper>

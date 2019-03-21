@@ -1,11 +1,10 @@
 package com.trevor.util;
 
-import okhttp3.Call;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+import com.trevor.bo.WebKeys;
+import okhttp3.*;
 
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * @author trevor
@@ -28,6 +27,24 @@ public class HttpUtil {
         Response response = call.execute();
         String responseString = response.body().string();
         return responseString;
+    }
 
+    /**
+     * 发送post请求，并将返回的json字符串转化为对象
+     * @param url 请求的url
+     * @return
+     * @throws IOException
+     */
+    public static String httpPost(String url ,FormBody formBody) throws IOException {
+        OkHttpClient okHttpClient = new OkHttpClient();
+        //post方式提交的数据
+        Request request = new Request.Builder()
+                .url(url)
+                .post(formBody)
+                .build();
+        Call call = okHttpClient.newCall(request);
+        Response response = call.execute();
+        String responseString = response.body().string();
+        return responseString;
     }
 }

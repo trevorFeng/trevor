@@ -55,7 +55,7 @@ public class WeixinServiceImpl implements WeixinService {
             claims.put("openid", openid);
             claims.put("timestamp", System.currentTimeMillis());
             //判断用户是否存在
-            Long isExist = userMapper.findByWeiXinId(openid);
+            Long isExist = userMapper.findByOpnenId(openid);
             if (Objects.equals(isExist ,0L)) {
                 //新增
                 userMapper.insertOne(generateUser(hash ,userInfoMap));
@@ -73,8 +73,12 @@ public class WeixinServiceImpl implements WeixinService {
      */
     private User generateUser(String hash ,Map<String, String> userInfoMap){
         User user = new User();
-        user.setWeixinId(userInfoMap.get("openid"));
+        user.setOpenid(userInfoMap.get("openid"));
+        user.setWeixinName(userInfoMap.get("nickname"));
+        //用户头像，最后一个数值代表正方形头像大小（有0、46、64、96、132数值可选，0代表640*640正方形头像），用户没有头像时该项为空
+        user.setWeixinPictureUrl(userInfoMap.get("headimgurl"));
         user.setHash(hash);
+        user.setFriendManageFlag(0);
         return user;
     }
 }

@@ -15,12 +15,12 @@ public class WeixinAuthUtils {
      * 请求微信token的基本url
      */
     private final static String ACCESS_TOKEN_BASE_URL = "https://api.weixin.qq.com/sns/oauth2/access_token?appid="
-            + WebKeys.APPID + "&secret=" + WebKeys.APP_SECRET + "&grant_type"+WebKeys.GRANT_TYPE;
+            + WebKeys.WEIXIN_APPID + "&secret=" + WebKeys.WEIXIN_APP_SECRET + "&grant_type"+WebKeys.GRANT_TYPE;
 
     /**
      * 通过refresh_token请求微信token的基本url
      */
-    private final static String ACCESS_TOKEN_BASE_URL_BY_REFRESH = "https://api.weixin.qq.com/sns/oauth2/refresh_token?appid=" + WebKeys.APPID +
+    private final static String ACCESS_TOKEN_BASE_URL_BY_REFRESH = "https://api.weixin.qq.com/sns/oauth2/refresh_token?appid=" + WebKeys.WEIXIN_APPID +
             "&grant_type=refresh_token";
 
     /**

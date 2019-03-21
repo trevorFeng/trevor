@@ -17,14 +17,29 @@ public class User {
     private Long id;
 
     /**
-     * 名字
+     * 真实名字
      */
-    private String name;
+    private String realName;
 
     /**
      * 身份证号
      */
     private String idCard;
+
+    /**
+     * 唯一的openid
+     */
+    private String openid;
+
+    /**
+     * hash值
+     */
+    private String hash;
+
+    /**
+     * 本表中自关联的userId，实则为同一用户（微信账号和闲聊账号）
+     */
+    private Long userId;
 
     /**
      * 电话号码
@@ -33,11 +48,6 @@ public class User {
 
     /**
      * 微信名字
-     */
-    private String weixinId;
-
-    /**
-     * 微信号
      */
     private String weixinName;
 
@@ -52,24 +62,9 @@ public class User {
     private String xianliaoName;
 
     /**
-     * 闲聊号
-     */
-    private String xianliaoId;
-
-    /**
      * 闲聊头像
      */
     private String xianliaoPictureUrl;
-
-    /**
-     * 本表中关联的userId，实则为同一用户
-     */
-    private Long userId;
-
-    /**
-     * hash值
-     */
-    private String hash;
 
     /**
      * 是否开启好友管理，1为是，0为否

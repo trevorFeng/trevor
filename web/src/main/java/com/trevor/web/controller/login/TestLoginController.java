@@ -26,9 +26,9 @@ public class TestLoginController {
 
     @RequestMapping(value = "/api/testLogin/login", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public void weixinAuth(HttpServletRequest request, HttpServletResponse response){
-        User user = new User();
-        user.setWeixinId("11");
-        user.setId(1L);
-        WebSessionUser webSessionUser = new WebSessionUser(user);
+//        User user = new User();
+//        user.set("11");
+//        user.setId(1L);
+//        WebSessionUser webSessionUser = new WebSessionUser(user);
     }
 }

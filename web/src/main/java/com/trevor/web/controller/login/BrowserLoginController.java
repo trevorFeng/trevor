@@ -33,7 +33,7 @@ public class BrowserLoginController {
     private UserMapper userMapper;
 
     @ApiOperation("浏览器登录并转发到微信登录页面")
-    @RequestMapping(value = "/front/weixin/login", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/front/phone/login", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public void login(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         //用户临时凭证
         String uuid = RandomUtils.getRandomChars(40);
@@ -41,6 +41,6 @@ public class BrowserLoginController {
         TempUser tempUser = new TempUser(AuthEnum.NOT_AUTH.getCode() ,"" ,"");
         req.getServletContext().setAttribute(uuid ,tempUser);
         CookieUtils.add(WebKeys.UUID ,uuid ,resp);
-        req.getRequestDispatcher("/view/weixinlogin.html?uuid=" + uuid + "&reUrl=" + req.getParameter("reUrl")).forward(req,resp);
+        req.getRequestDispatcher("/view/phonelogin.html?uuid=" + uuid + "&reUrl=" + req.getParameter("reUrl")).forward(req,resp);
     }
 }

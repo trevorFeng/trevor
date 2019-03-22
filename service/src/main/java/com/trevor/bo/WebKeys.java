@@ -43,9 +43,14 @@ public class WebKeys {
     public static final String IPONE_BROWSER = "micromessenger";
 
     /**
-     * 微信授权
+     * 微信回调
      */
     public static final String WEIXIN_AUTH_PAGE_PATH = "/api/weixin/auth";
+
+    /**
+     * 闲聊回调
+     */
+    public static final String XIANLIAO_AUTH_PAGE_PATH = "/api/xianliao/auth";
 
     /**
      * 微信登陆
@@ -60,7 +65,7 @@ public class WebKeys {
     /**
      * 手机浏览器登陆页面
      */
-    public static final String SHOUJI_LOGIN_PAGE_PATH = "/front/phone/login";
+    public static final String SHOUJI_LOGIN_PAGE_PATH = "/view/phonelogin.html";
 
     /**
      * 错误登陆页面，浏览器类型不满足

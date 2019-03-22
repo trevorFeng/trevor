@@ -116,6 +116,9 @@ public class LoginFilter implements Filter{
         if (uri.startsWith(WebKeys.WEIXIN_AUTH_PAGE_PATH)) {
             return Boolean.TRUE;
         }
+        if (uri.startsWith(WebKeys.XIANLIAO_AUTH_PAGE_PATH)) {
+            return Boolean.TRUE;
+        }
         return Boolean.FALSE;
     }
 

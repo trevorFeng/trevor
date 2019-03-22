@@ -6,6 +6,7 @@ import com.trevor.bo.WebKeys;
 import com.trevor.common.MessageCodeEnum;
 import com.trevor.dao.UserMapper;
 import com.trevor.domain.User;
+import com.trevor.service.user.UserService;
 import com.trevor.util.RandomUtils;
 import com.trevor.util.WeixinAuthUtils;
 import com.trevor.util.XianliaoAuthUtils;
@@ -27,7 +28,7 @@ import java.util.Objects;
 public class XianliaoServiceImpl implements XianliaoService{
 
     @Resource
-    private UserMapper userMapper;
+    private UserService userService;
 
     /**
      * 根据code获取闲聊用户基本信息
@@ -58,8 +59,8 @@ public class XianliaoServiceImpl implements XianliaoService{
             claims.put("openid", openid);
             claims.put("timestamp", System.currentTimeMillis());
             //判断用户是否存在
-            Long isExist = userMapper.findByOpnenId(openid);
-            if (Objects.equals(isExist ,0L)) {
+            Boolean isExist = userService.isExistByOpnenId(openid);
+            if (!isExist) {
                 //新增
                 userMapper.insertOne(generateUser(hash ,userInfoMap));
             } else {

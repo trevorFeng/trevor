@@ -6,6 +6,7 @@ import com.trevor.bo.WebKeys;
 import com.trevor.common.MessageCodeEnum;
 import com.trevor.dao.UserMapper;
 import com.trevor.domain.User;
+import com.trevor.service.user.UserService;
 import com.trevor.util.RandomUtils;
 import com.trevor.util.WeixinAuthUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +27,7 @@ import java.util.Objects;
 public class WeixinServiceImpl implements WeixinService {
 
     @Resource
-    private UserMapper userMapper;
+    private UserService userService;
 
     @Override
     public JsonEntity<Map<String, Object>> weixinAuth(String code) throws IOException {
@@ -55,8 +56,8 @@ public class WeixinServiceImpl implements WeixinService {
             claims.put("openid", openid);
             claims.put("timestamp", System.currentTimeMillis());
             //判断用户是否存在
-            Long isExist = userMapper.findByOpnenId(openid);
-            if (Objects.equals(isExist ,0L)) {
+            Boolean isExist = userService.isExistByOpnenId(openid);
+            if (!isExist) {
                 //新增
                 userMapper.insertOne(generateUser(hash ,userInfoMap));
             } else {

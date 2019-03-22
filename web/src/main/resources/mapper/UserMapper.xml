@@ -1,7 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.trevor.dao.UserMapper">
-    <select id="findByWeiXinId" resultType="java.lang.Long">
+
+    <insert id="insertOne">
+        insert into
+        `user`
+
+    </insert>
+
+    <select id="isFriendManage" resultType="java.lang.Integer">
+        select
+        friend_manage_flag
+        from
+        `user`
+        where
+        id=#{userId}
+    </select>
+
+    <select id="isExistByOpnenId" resultType="java.lang.Long">
         select
         count(id)
         from
@@ -9,5 +25,4 @@
         where
         open_id=#{openid}
     </select>
-
 </mapper>

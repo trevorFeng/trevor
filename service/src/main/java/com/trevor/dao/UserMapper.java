@@ -18,14 +18,14 @@ public interface UserMapper {
      * @param userId
      * @return
      */
-    Integer findUserFriendManage(Long userId);
+    Integer isFriendManage(@Param("userId") Long userId);
 
     /**
      * 根据openid查找用户是否存在
      * @param openid
      * @return
      */
-    Long findByOpnenId(@Param("openid") String openid);
+    Long isExistByOpnenId(@Param("openid") String openid);
 
     /**
      * 根据微信id查询用户，包含openid和hash字段

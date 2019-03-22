@@ -2,10 +2,9 @@ package com.trevor.web.controller.person;
 
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.WebSessionUser;
-import com.trevor.service.UserService;
+import com.trevor.service.user.UserService;
 import com.trevor.service.createRoom.CreateRoomService;
 import com.trevor.service.createRoom.bo.NiuniuRoomParameter;
-import com.trevor.util.SessionUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.MediaType;

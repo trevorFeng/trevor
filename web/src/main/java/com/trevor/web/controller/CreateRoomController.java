@@ -1,10 +1,11 @@
-package com.trevor.web.controller.person;
+package com.trevor.web.controller;
 
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.WebSessionUser;
 import com.trevor.service.user.UserService;
 import com.trevor.service.createRoom.CreateRoomService;
 import com.trevor.service.createRoom.bo.NiuniuRoomParameter;
+import com.trevor.util.CookieUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.MediaType;
@@ -41,7 +42,8 @@ public class CreateRoomController {
     @ApiOperation("创建一个房间")
     @RequestMapping(value = "/api/room/create/niuniu", method = {RequestMethod.PUT}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public JsonEntity<Long> createRoom(@RequestBody NiuniuRoomParameter niuniuRoomParameter){
-        WebSessionUser webSessionUser = userService.getUserByCookie(request);
+        String opendi = CookieUtils.getOpenid(request);
+        WebSessionUser webSessionUser = userService.getWebSessionUser(opendi);
         return createRoomService.createRoom(niuniuRoomParameter ,webSessionUser);
     }
 }

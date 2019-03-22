@@ -1,4 +1,4 @@
-package com.trevor.web.controller.person;
+package com.trevor.web.controller;
 
 import io.swagger.annotations.Api;
 import org.springframework.stereotype.Controller;

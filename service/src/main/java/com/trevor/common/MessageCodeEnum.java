@@ -27,6 +27,26 @@ public enum MessageCodeEnum {
      */
     AUTH_FAILED(-3 ,"授权失败"),
 
+    /**
+     * 手机号未注册
+     */
+    PHONE_NOT_EXIST(-4 ,"手机号未注册"),
+
+    /**
+     * 验证码错误
+     */
+    CODE_ERROR(-4 ,"验证码错误"),
+
+    /**
+     * 草，报异常了
+     */
+    SYSTEM_ERROR(-5 ,"草，报异常了"),
+
+    /**
+     * 草，参数错误
+     */
+    PARAM_ERROR(-50 ,"草，参数错误"),
+
 
     /**
      * 创建成功

@@ -28,18 +28,18 @@ public interface UserMapper {
     Long isExistByOpnenId(@Param("openid") String openid);
 
     /**
-     * 根据微信id查询用户，包含openid和hash字段
+     * 根据openid查询用户，包含openid和hash字段
      * @param openid
      * @return
      */
-    User findUserOpenidAndHash(@Param("openid") String openid);
+    User findUserByOpenidContainOpenidAndHash(@Param("openid") String openid);
 
     /**
-     * 根据微信id查询用户，包含id，weixinName，weixinPictureUrl字段
+     * 根据openid查询用户，包含id，weixinName，weixinPictureUrl字段
      * @param openid
      * @return
      */
-    User findUserByOpenId(@Param("openid") String openid);
+    User findUserByOpenIdContainIdAndAppNameAndPicture(@Param("openid") String openid);
 
     /**
      * 新增一个用户
@@ -53,5 +53,19 @@ public interface UserMapper {
      * @param openid
      */
     void updateHash(@Param("hash") String hash ,@Param("openid") String openid);
+
+    /**
+     * 根据手机号查询用户是否存在
+     * @param phoneNum
+     * @return
+     */
+    Long isExistByPhoneNum(@Param("phoneNum") String phoneNum);
+
+    /**
+     * 根据phoneNum查询用户，包含id，weixinName，weixinPictureUrl字段
+     * @param phoneNum
+     * @return
+     */
+    User findUserByPhoneNumContainIdAndAppNameAndPicture(@Param("phoneNum") String phoneNum);
 
 }

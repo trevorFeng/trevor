@@ -1,8 +1,8 @@
 package com.trevor.web.filter;
 
 import com.trevor.bo.WebKeys;
-import com.trevor.dao.UserMapper;
 import com.trevor.domain.User;
+import com.trevor.service.user.UserService;
 import com.trevor.util.CookieUtils;
 import com.trevor.util.TokenUtil;
 
@@ -12,7 +12,6 @@ import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Date;
 import java.util.Map;
 
 /**
@@ -25,7 +24,7 @@ import java.util.Map;
 public class LoginFilter implements Filter{
 
     @Resource
-    private UserMapper userMapper;
+    private UserService userService;
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
@@ -150,7 +149,7 @@ public class LoginFilter implements Filter{
      * @return
      */
     private Boolean checkOpenidAndHash(String openid,String hash){
-        User user = userMapper.findUserOpenidAndHash(openid);
+        User user = userService.findUserByOpenidContainOpenidAndHash(openid);
         if(user.getOpenid() != null){
             //对比
             if(openid.equals(user.getOpenid()) && hash.equals(user.getHash())){

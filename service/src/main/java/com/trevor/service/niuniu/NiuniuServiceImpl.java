@@ -10,11 +10,11 @@ import com.trevor.common.MessageCodeEnum;
 import com.trevor.common.RoomTypeEnum;
 import com.trevor.common.SpecialEnum;
 import com.trevor.dao.FriendManageMapper;
-import com.trevor.dao.UserMapper;
 import com.trevor.domain.RoomRecord;
 import com.trevor.service.cache.RoomRecordCacheService;
 import com.trevor.service.createRoom.bo.NiuniuRoomParameter;
 import com.trevor.service.niuniu.bo.NiuniuAction;
+import com.trevor.service.user.UserService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -43,7 +43,7 @@ public class NiuniuServiceImpl implements NiuniuService{
     private FriendManageMapper friendManageMapper;
 
     @Resource
-    private UserMapper userMapper;
+    private UserService userService;
 
     /**
      * 在websocket连接时检查房间是否存在以及房间人数是否已满
@@ -63,7 +63,7 @@ public class NiuniuServiceImpl implements NiuniuService{
         }
         NiuniuRoomParameter niuniuRoomParameter = JSON.parseObject(oneById.getRoomConfig() ,NiuniuRoomParameter.class);
         //房主是否开启好友管理功能
-        Boolean isFriendManage = Objects.equals(userMapper.findUserFriendManage(oneById.getRoomAuth()) , FriendManageEnum.YES.getCode());
+        Boolean isFriendManage = Objects.equals(userService.isFriendManage(oneById.getRoomAuth()) , FriendManageEnum.YES.getCode());
         //开通
         if (isFriendManage) {
             return this.isFriendManage(niuniuRoomParameter ,oneById , webSessionUser,roomId);

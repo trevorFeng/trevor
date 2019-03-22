@@ -29,8 +29,8 @@ public class WebSessionUser {
 
     public WebSessionUser(User user){
         this.id = user.getId();
-        this.name = user.getWeixinName();
-        this.pictureUrl = user.getWeixinPictureUrl();
+        this.name = user.getAppName();
+        this.pictureUrl = user.getAppPictureUrl();
     }
 
 }

@@ -47,24 +47,19 @@ public class User {
     private String phoneNumber;
 
     /**
-     * 微信名字
+     * 用户昵称
      */
-    private String weixinName;
+    private String appName;
 
     /**
-     * 用户微信头像
+     * 用户头像地址
      */
-    private String weixinPictureUrl;
+    private String appPictureUrl;
 
     /**
-     * 闲聊名字
+     * 0代表微信，1代表闲聊
      */
-    private String xianliaoName;
-
-    /**
-     * 闲聊头像
-     */
-    private String xianliaoPictureUrl;
+    private Integer type;
 
     /**
      * 是否开启好友管理，1为是，0为否

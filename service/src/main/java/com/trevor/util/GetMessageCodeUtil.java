@@ -28,7 +28,7 @@ public class GetMessageCodeUtil {
      * @return
      */
     public static String getCode(String phone) {
-        String rod = smsCode();
+        String rod = RandomUtils.getRandNum();
         String timestamp = getTimestamp();
         String sig = getMD5(ACCOUNT_SID, AUTH_TOKEN, timestamp);
         String tamp = "【测试专用】尊敬的用户，您的验证码为" + rod;
@@ -131,14 +131,6 @@ public class GetMessageCodeUtil {
         return result.toString();
     }
 
-    /**
-     * 创建验证码
-     * @return
-     */
-    public static String smsCode() {
-        String random = (int) ((Math.random() * 9 + 1) * 100000) + "";
-        return random;
-    }
 
 
 }

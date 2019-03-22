@@ -1,4 +1,4 @@
-package com.trevor.web.controller.person;
+package com.trevor.web.controller;
 
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.ProposalContent;

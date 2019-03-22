@@ -4,7 +4,6 @@ import com.trevor.bo.JsonEntity;
 import com.trevor.bo.ResponseHelper;
 import com.trevor.bo.WebKeys;
 import com.trevor.common.MessageCodeEnum;
-import com.trevor.dao.UserMapper;
 import com.trevor.domain.User;
 import com.trevor.service.user.UserService;
 import com.trevor.util.RandomUtils;
@@ -16,7 +15,6 @@ import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * @author trevor
@@ -59,10 +57,10 @@ public class WeixinServiceImpl implements WeixinService {
             Boolean isExist = userService.isExistByOpnenId(openid);
             if (!isExist) {
                 //新增
-                userMapper.insertOne(generateUser(hash ,userInfoMap));
+                userService.insertOne(generateUser(hash ,userInfoMap));
             } else {
                 //更新hash
-                userMapper.updateHash(hash ,openid);
+                userService.updateHash(hash ,openid);
             }
             return ResponseHelper.createInstance(claims ,MessageCodeEnum.AUTH_SUCCESS);
         }
@@ -75,10 +73,11 @@ public class WeixinServiceImpl implements WeixinService {
     private User generateUser(String hash ,Map<String, String> userInfoMap){
         User user = new User();
         user.setOpenid(userInfoMap.get("openid"));
-        user.setWeixinName(userInfoMap.get("nickname"));
+        user.setAppName(userInfoMap.get("nickname"));
         //用户头像，最后一个数值代表正方形头像大小（有0、46、64、96、132数值可选，0代表640*640正方形头像），用户没有头像时该项为空
-        user.setWeixinPictureUrl(userInfoMap.get("headimgurl"));
+        user.setAppPictureUrl(userInfoMap.get("headimgurl"));
         user.setHash(hash);
+        user.setType(0);
         user.setFriendManageFlag(0);
         return user;
     }

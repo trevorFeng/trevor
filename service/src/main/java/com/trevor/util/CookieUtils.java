@@ -1,8 +1,11 @@
 package com.trevor.util;
 
+import com.trevor.bo.WebKeys;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 /**
  * @author trevor
@@ -15,6 +18,19 @@ public class CookieUtils {
 
     private static String path = DEFAULT_PATH;
     private static int age = DEFAULT_AGE;
+
+    /**
+     * 得到openid
+     * @param request
+     * @return
+     */
+    public static String getOpenid(HttpServletRequest request){
+        String token = CookieUtils.fine(request, WebKeys.TOKEN);
+        //解析token
+        Map<String, Object> claims = TokenUtil.getClaimsFromToken(token);
+        String openid = (String) claims.get(WebKeys.OPEN_ID);
+        return openid;
+    }
 
     /**
      * 添加cookie

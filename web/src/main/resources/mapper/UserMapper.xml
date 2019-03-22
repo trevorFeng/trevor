@@ -1,28 +1,78 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.trevor.dao.UserMapper">
-
-    <insert id="insertOne">
-        insert into
-        `user`
-
-    </insert>
-
+    <!-- 查询玩家是否开启好友管理功能,1为是，0为否 -->
     <select id="isFriendManage" resultType="java.lang.Integer">
-        select
-        friend_manage_flag
-        from
-        `user`
-        where
+        SELECT friend_manage_flag
+        from `user`
+        WHERE
         id=#{userId}
     </select>
 
+    <!-- 根据openid查找用户是否存在 -->
     <select id="isExistByOpnenId" resultType="java.lang.Long">
-        select
-        count(id)
-        from
-        `user`
-        where
+        SELECT count(id)
+        from `user`
+        WHERE
         open_id=#{openid}
     </select>
+
+    <!-- 根据openid查询用户，包含openid和hash字段 -->
+    <select id="findUserByOpenidContainOpenidAndHash" resultType="com.trevor.domain.User">
+        SELECT
+        open_id openid,
+        hash hash
+        from `user`
+        WHERE
+        open_id=#{openid}
+    </select>
+
+    <!-- 根据openid查询用户，包含id，appName，appPictureUrl字段 -->
+    <select id="findUserByOpenIdContainIdAndAppNameAndPicture" resultType="com.trevor.domain.User">
+        SELECT
+        id id,
+        app_name appName,
+        app_picture_url appPictureUrl
+        hash hash
+        from `user`
+        WHERE
+        open_id=#{openid}
+    </select>
+
+    <!-- 新增一个用户 -->
+    <insert id="insertOne">
+        INSERT  INTO
+        `user`(open_id ,hash ,app_name ,app_picture_url ,type ,friend_manage_flag)
+        VALUES (#{user.openid} ,#{user.hash} ,#{user.appName} ,#{user.appPictureUrl} ,#{user.type} ,#{user.friendManageFlag})
+    </insert>
+
+    <!-- 更新hash值 -->
+    <update id="updateHash">
+        update `user` SET
+        hash=#{hash}
+        where
+        open_id=#{opneid}
+    </update>
+
+    <!-- 根据手机号查询用户是否存在 -->
+    <select id="isExistByPhoneNum" resultType="java.lang.Long">
+        SELECT count(id)
+        from `user`
+        WHERE
+        phone_number=#{phoneNum}
+    </select>
+
+    <!-- 根据phoneNum查询用户，包含id，weixinName，weixinPictureUrl字段 -->
+    <select id="findUserByPhoneNumContainIdAndAppNameAndPicture" resultType="com.trevor.domain.User">
+        SELECT
+        id id,
+        app_name appName,
+        app_picture_url appPictureUrl
+        hash hash
+        from `user`
+        WHERE
+        phone_number=#{phoneNum}
+    </select>
+
+
 </mapper>

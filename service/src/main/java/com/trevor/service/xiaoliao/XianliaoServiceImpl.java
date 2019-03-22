@@ -4,11 +4,9 @@ import com.trevor.bo.JsonEntity;
 import com.trevor.bo.ResponseHelper;
 import com.trevor.bo.WebKeys;
 import com.trevor.common.MessageCodeEnum;
-import com.trevor.dao.UserMapper;
 import com.trevor.domain.User;
 import com.trevor.service.user.UserService;
 import com.trevor.util.RandomUtils;
-import com.trevor.util.WeixinAuthUtils;
 import com.trevor.util.XianliaoAuthUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -62,10 +60,10 @@ public class XianliaoServiceImpl implements XianliaoService{
             Boolean isExist = userService.isExistByOpnenId(openid);
             if (!isExist) {
                 //新增
-                userMapper.insertOne(generateUser(hash ,userInfoMap));
+                userService.insertOne(generateUser(hash ,userInfoMap));
             } else {
                 //更新hash
-                userMapper.updateHash(hash ,openid);
+                userService.updateHash(hash ,openid);
             }
             return ResponseHelper.createInstance(claims ,MessageCodeEnum.AUTH_SUCCESS);
         }
@@ -79,9 +77,10 @@ public class XianliaoServiceImpl implements XianliaoService{
     private User generateUser(String hash , Map<String, String> userInfoMap){
         User user = new User();
         user.setOpenid(userInfoMap.get(WebKeys.OPEN_ID));
-        user.setXianliaoName(userInfoMap.get("nickName"));
-        user.setXianliaoPictureUrl(userInfoMap.get("smallAvatar"));
+        user.setAppName(userInfoMap.get("nickName"));
+        user.setAppPictureUrl(userInfoMap.get("smallAvatar"));
         user.setHash(hash);
+        user.setType(1);
         user.setFriendManageFlag(0);
         return user;
     }

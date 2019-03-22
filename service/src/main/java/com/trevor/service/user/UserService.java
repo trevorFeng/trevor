@@ -21,18 +21,54 @@ public interface UserService {
      * @param openid
      * @return
      */
-    Boolean isExistByOpnenId(@Param("openid") String openid);
-
-    /**
-     * 根据cookie得到user
-     * @param request
-     * @return
-     */
-    WebSessionUser getUserByCookie(HttpServletRequest request);
+    Boolean isExistByOpnenId(String openid);
 
     /**
      * 新增一个用户
      * @param user
      */
     void insertOne(User user);
+
+    /**
+     * 根据微信id查询用户，包含openid和hash字段
+     * @param openid
+     * @return
+     */
+    User findUserByOpenidContainOpenidAndHash(String openid);
+
+    /**
+     * 根据微信id查询用户，包含id，weixinName，weixinPictureUrl字段
+     * @param openid
+     * @return
+     */
+    User findUserByOpenIdContainIdAndAppNameAndPicture(String openid);
+
+    /**
+     * 更新hash值
+     * @param hash
+     * @param openid
+     */
+    void updateHash(String hash ,String openid);
+
+    /**
+     * 根据openid查询WebSessionUser
+     * @param openid
+     * @return
+     */
+    WebSessionUser getWebSessionUserByOpneid(String openid);
+
+    /**
+     * 根据phoneNum查找用户是否存在
+     * @param phoneNum
+     * @return
+     */
+    Boolean isExistByPhoneNum(String phoneNum);
+
+    /**
+     * 根据phoneNum查询WebSessionUser
+     * @param phoneNum
+     * @return
+     */
+    WebSessionUser getWebSessionUserByPhone(String phoneNum);
+
 }

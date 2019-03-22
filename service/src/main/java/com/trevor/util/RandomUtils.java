@@ -24,4 +24,17 @@ public class RandomUtils {
         }
         return builder.toString();
     }
+
+    /**
+     * 生成随机6位数
+     * @return
+     */
+    public static String getRandNum() {
+        String randNum = new Random().nextInt(1000000)+"";
+        //如果生成的不是6位数随机数则返回该方法继续生成
+        if (randNum.length()!=6) {
+            return getRandNum();
+        }
+        return randNum;
+    }
 }

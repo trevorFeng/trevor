@@ -1,6 +1,7 @@
 package com.trevor.service.BrowserLogin;
 
 import com.trevor.bo.JsonEntity;
+import com.trevor.bo.WebSessionUser;
 
 /**
  * @author trevor
@@ -13,5 +14,12 @@ public interface BrowserLoginService {
      * @param phoneNum
      * @return
      */
-    JsonEntity<Object> generatePhoneCode(String phoneNum);
+    JsonEntity<String> generatePhoneCode(String phoneNum);
+
+    /**
+     * 查询用户
+     * @param phoneNum
+     * @return
+     */
+    JsonEntity<WebSessionUser> getWebSessionUserByPhoneNum(String phoneNum);
 }

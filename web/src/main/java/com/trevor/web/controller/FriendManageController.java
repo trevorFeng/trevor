@@ -1,10 +1,11 @@
-package com.trevor.web.controller.person;
+package com.trevor.web.controller;
 
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.WebSessionUser;
 import com.trevor.domain.FriendsManage;
 import com.trevor.service.user.UserService;
 import com.trevor.service.friendManager.FriendManagerService;
+import com.trevor.util.CookieUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.MediaType;
@@ -42,7 +43,8 @@ public class FriendManageController {
     @ApiOperation(value = "查询好友（申请通过和未通过的）")
     @RequestMapping(value = "/api/friend/manager/query", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public JsonEntity<List<FriendsManage>> findRecevedCardRecord(){
-        WebSessionUser webSessionUser = userService.getUserByCookie(request);
+        String opendi = CookieUtils.getOpenid(request);
+        WebSessionUser webSessionUser = userService.getWebSessionUser(opendi);
         return null;
     }
 

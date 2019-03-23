@@ -68,4 +68,11 @@ public interface UserMapper {
      */
     User findUserByPhoneNumContainIdAndAppNameAndPicture(@Param("phoneNum") String phoneNum);
 
+    /**
+     * 根据用户id更新手机号
+     * @param userId
+     * @param phoneNum
+     */
+    void updatePhoneNumByUserId(@Param("userId") Long userId ,@Param("phoneNum") String phoneNum);
+
 }

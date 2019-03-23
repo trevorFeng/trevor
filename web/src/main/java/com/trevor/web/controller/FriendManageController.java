@@ -44,7 +44,7 @@ public class FriendManageController {
     @RequestMapping(value = "/api/friend/manager/query", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public JsonEntity<List<FriendsManage>> findRecevedCardRecord(){
         String opendi = CookieUtils.getOpenid(request);
-        WebSessionUser webSessionUser = userService.getWebSessionUser(opendi);
+        WebSessionUser webSessionUser = userService.getWebSessionUserByOpneid(opendi);
         return null;
     }
 

@@ -2,6 +2,7 @@ package com.trevor.web.controller;
 
 import io.swagger.annotations.Api;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 一句话描述该类作用:【历史战绩】
@@ -9,7 +10,7 @@ import org.springframework.stereotype.Controller;
  * @author: trevor
  * @create: 2019-03-03 23:06
  **/
-@Controller
+@RestController
 @Api(value = "历史记录的查询" ,description = "历史记录的查询")
 public class HistoryRecordController {
 

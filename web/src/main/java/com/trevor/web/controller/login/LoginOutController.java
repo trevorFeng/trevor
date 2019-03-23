@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 
 /**
@@ -25,11 +26,14 @@ import javax.servlet.http.HttpServletResponse;
 @RestController
 public class LoginOutController {
 
+    @Resource
+    private HttpServletResponse response;
+
     @ApiOperation("退出登录")
     @RequestMapping(value = "/api/login/out", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    protected JsonEntity<Object> loginOut(HttpServletResponse resp) {
+    protected JsonEntity<Object> loginOut() {
         //删除cookie即可
-        CookieUtils.delete(WebKeys.TOKEN ,resp);
+        CookieUtils.delete(WebKeys.TOKEN ,response);
         return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.LOGIN_OUT_SUCCESS);
     }
 }

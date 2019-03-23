@@ -54,6 +54,14 @@
         open_id=#{opneid}
     </update>
 
+    <!-- 根据用户id更新手机号 -->
+    <update id="updatePhoneNumByUserId">
+        update `user` SET
+        phone_number=#{phoneNum}
+        where
+        id=#{userId}
+    </update>
+
     <!-- 根据手机号查询用户是否存在 -->
     <select id="isExistByPhoneNum" resultType="java.lang.Long">
         SELECT count(id)

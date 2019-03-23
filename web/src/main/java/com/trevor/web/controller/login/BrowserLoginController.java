@@ -53,7 +53,7 @@ public class BrowserLoginController {
         }
         String code = stringJsonEntity.getData();
         request.getServletContext().setAttribute(phoneNum ,code);
-        return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.CREATE_SUCCESS);
+        return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.SEND_MESSAGE);
     }
 
     @ApiOperation("校验用户的验证码是否正确")

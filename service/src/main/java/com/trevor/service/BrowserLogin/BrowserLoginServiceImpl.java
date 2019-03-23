@@ -4,12 +4,12 @@ import com.trevor.bo.JsonEntity;
 import com.trevor.bo.ResponseHelper;
 import com.trevor.bo.WebSessionUser;
 import com.trevor.common.MessageCodeEnum;
-import com.trevor.domain.User;
 import com.trevor.service.user.UserService;
 import com.trevor.util.GetMessageCodeUtil;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.Objects;
 
 /**
  * @author trevor
@@ -34,6 +34,9 @@ public class BrowserLoginServiceImpl implements BrowserLoginService{
             return ResponseHelper.withErrorInstance(MessageCodeEnum.PHONE_NOT_EXIST);
         }
         String code = GetMessageCodeUtil.getCode(phoneNum);
+        if (Objects.equals(code ,"000000")) {
+            return ResponseHelper.withErrorInstance(MessageCodeEnum.CODE_FILED);
+        }
         return ResponseHelper.createInstance(code ,MessageCodeEnum.CREATE_SUCCESS);
     }
 

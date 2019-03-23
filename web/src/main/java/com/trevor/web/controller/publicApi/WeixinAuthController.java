@@ -1,12 +1,8 @@
-package com.trevor.web.controller.api;
+package com.trevor.web.controller.publicApi;
 
-
-import com.trevor.bo.JsonEntity;
-import com.trevor.bo.TempUser;
-import com.trevor.bo.WebKeys;
+import com.trevor.bo.*;
 import com.trevor.common.AuthEnum;
 import com.trevor.service.weixin.WeixinService;
-import com.trevor.service.xiaoliao.XianliaoService;
 import com.trevor.util.TokenUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -18,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
 
@@ -28,26 +23,26 @@ import java.util.Map;
  * @author: trevor
  * @create: 2019-03-14 0:56
  **/
-@Api(value = "闲聊回调" ,description = "闲聊回调")
+@Api(value = "微信回调" ,description = "微信回调")
 @RestController
 @Slf4j
-public class XianliaoAuthController {
+public class WeixinAuthController {
 
     @Resource
-    private XianliaoService xianliaoService;
+    private WeixinService weixinService;
 
     @Resource
     private HttpServletRequest request;
 
-    @ApiOperation("闲聊回调的地址")
-    @RequestMapping(value = "/api/xianliao/auth", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ApiOperation("微信授权回调地址")
+    @RequestMapping(value = "/public/api/weixin/auth", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public void weixinAuth() throws IOException {
         String code = request.getParameter(WebKeys.CODE);
         String uuid = request.getParameter(WebKeys.UUID);
         if (uuid == null) {
             return;
         }
-        JsonEntity<Map<String, Object>> jsonEntity = xianliaoService.weixinAuth(code);
+        JsonEntity<Map<String, Object>> jsonEntity = weixinService.weixinAuth(code);
         if(jsonEntity.getCode() < 0){
             log.error(jsonEntity.getMessage());
         }else {

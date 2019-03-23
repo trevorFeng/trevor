@@ -43,7 +43,7 @@ public class CreateRoomController {
     @RequestMapping(value = "/api/room/create/niuniu", method = {RequestMethod.PUT}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public JsonEntity<Long> createRoom(@RequestBody NiuniuRoomParameter niuniuRoomParameter){
         String opendi = CookieUtils.getOpenid(request);
-        WebSessionUser webSessionUser = userService.getWebSessionUser(opendi);
+        WebSessionUser webSessionUser = userService.getWebSessionUserByOpneid(opendi);
         return createRoomService.createRoom(niuniuRoomParameter ,webSessionUser);
     }
 }

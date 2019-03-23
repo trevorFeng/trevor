@@ -33,14 +33,25 @@ public enum MessageCodeEnum {
     PHONE_NOT_EXIST(-4 ,"手机号未注册"),
 
     /**
+     * 发送验证码失败
+     */
+    CODE_FILED(-5 ,"发送验证码失败"),
+
+    /**
      * 验证码错误
      */
-    CODE_ERROR(-4 ,"验证码错误"),
+    CODE_ERROR(-5 ,"验证码错误"),
 
     /**
      * 草，报异常了
      */
-    SYSTEM_ERROR(-5 ,"草，报异常了"),
+    SYSTEM_ERROR(-6 ,"草，报异常了"),
+
+    /**
+     * 操作失败
+     */
+    HANDLER_FAILED(-7, "操作失败"),
+
 
     /**
      * 草，参数错误
@@ -72,6 +83,21 @@ public enum MessageCodeEnum {
      * 退出登录成功
      */
     LOGIN_OUT_SUCCESS(5 ,"退出登录成功"),
+
+    /**
+     * 发送验证码成功
+     */
+    SEND_MESSAGE(6 ,"发送验证码成功"),
+
+    /**
+     * 绑定手机号成功
+     */
+    BINDING_SUCCESS(7 ,"绑定手机号成功"),
+
+    /**
+     * 操作成功
+     */
+    HANDLER_SUCCESS(8, "操作成功"),
 
 
     /*****************************************               websocket返回消息                    *********************/

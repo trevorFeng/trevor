@@ -71,4 +71,11 @@ public interface UserService {
      */
     WebSessionUser getWebSessionUserByPhone(String phoneNum);
 
+    /**
+     * 根据用户id绑定手机号
+     * @param userId
+     * @param phoneNum
+     */
+    void updatePhoneByUserId(Long userId ,String phoneNum);
+
 }

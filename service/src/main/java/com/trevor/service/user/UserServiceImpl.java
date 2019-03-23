@@ -121,4 +121,14 @@ public class UserServiceImpl implements UserService{
         WebSessionUser webSessionUser = new WebSessionUser(user);
         return webSessionUser;
     }
+
+    /**
+     * 根据用户id绑定手机号
+     * @param userId
+     * @param phoneNum
+     */
+    @Override
+    public void updatePhoneByUserId(Long userId, String phoneNum) {
+        userMapper.updatePhoneNumByUserId(userId ,phoneNum);
+    }
 }

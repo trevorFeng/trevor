@@ -68,7 +68,6 @@ public class XianliaoLoginController {
             webSessionUser.setPictureUrl(user.getAppPictureUrl());
             //存入cookie
             CookieUtils.add(WebKeys.TOKEN ,tempUser.getToken() ,response);
-            CookieUtils.add(WebKeys.COOKIE_USER_INFO , JSON.toJSONString(webSessionUser) ,response);
             return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.AUTH_SUCCESS);
         }else {
             return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.AUTH_FAILED);

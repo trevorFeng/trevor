@@ -82,10 +82,11 @@
 		</encoder>
 	</appender>
 
-	<logger name="com.xdbigdata.subsidize_zjut" level="debug" />
+	<!-- 指定项目中某个包，当有日志操作行为时的日志记录级别 -->
+	<logger name="com.trevor" level="info" />
 	
-	<!-- 指定项目可输出的最低级别日志 -->
-	<root level="error">
+	<!-- 控制台日志输出级别  -->
+	<root level="info">
 		<appender-ref ref="console" />
 		<appender-ref ref="file-debug" />
 		<appender-ref ref="file-info" />

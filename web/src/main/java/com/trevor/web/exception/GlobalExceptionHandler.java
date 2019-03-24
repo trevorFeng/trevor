@@ -35,7 +35,7 @@ public class GlobalExceptionHandler {
             objectJsonEntity.setMessage(defaultMessage);
             return objectJsonEntity;
         } else {
-            log.error("系统异常:" + e.getMessage(), e);
+            log.error("鸡巴，报错了:" + e.getMessage(), e);
             return ResponseHelper.withErrorInstance(MessageCodeEnum.SYSTEM_ERROR);
         }
     }

@@ -15,6 +15,7 @@ import com.trevor.util.RandomUtils;
 import com.trevor.util.SessionUtil;
 import com.trevor.util.TokenUtil;
 import io.swagger.annotations.Api;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -34,6 +35,7 @@ import java.util.Map;
  **/
 @Api(value = "测试用暂时登录" ,description = "测试用暂时登录")
 @RestController
+@Slf4j
 public class TestLoginController {
 
     @Resource
@@ -41,17 +43,17 @@ public class TestLoginController {
 
     @RequestMapping(value = "/api/testLogin/login", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public JsonEntity<Object> weixinAuth(HttpServletRequest request, HttpServletResponse response){
-        String hash = RandomUtils.getRandomChars(10);
+        String token;
         Map<String, Object> claims = new HashMap<>(2<<4);
-        claims.put("hash", hash);
-        claims.put("openid", "1");
-        claims.put("timestamp", System.currentTimeMillis());
-        String token = TokenUtil.generateToken(claims);
-
         Boolean existByOpnenId = userService.isExistByOpnenId("1");
-        User user;
         if (!existByOpnenId) {
-            user = new User();
+            String hash = RandomUtils.getRandomChars(10);
+            claims.put("hash", hash);
+            claims.put("openid", "1");
+            claims.put("timestamp", System.currentTimeMillis());
+            token = TokenUtil.generateToken(claims);
+
+            User user = new User();
             user.setOpenid("1");
             user.setHash(hash);
             user.setAppName("name");
@@ -59,16 +61,16 @@ public class TestLoginController {
             user.setType(1);
             user.setFriendManageFlag(0);
             userService.insertOne(user);
+            log.info("测试登录成功 ，hash值---------" + hash);
+        }else {
+            User user = userService.findUserByOpenidContainOpenidAndHash("1");
+            claims.put("hash", user.getHash());
+            claims.put("openid", "1");
+            claims.put("timestamp", System.currentTimeMillis());
+            token = TokenUtil.generateToken(claims);
+            log.info("测试登录成功 ，hash值---------" + user.getHash());
         }
-
-        user = userService.findUserByOpenIdContainIdAndAppNameAndPicture("1");
-
-        WebSessionUser webSessionUser = new WebSessionUser(user);
-
         CookieUtils.add(WebKeys.TOKEN ,token ,response);
-        CookieUtils.add(WebKeys.COOKIE_USER_INFO , JSON.toJSONString(webSessionUser) ,response);
-
         return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.HANDLER_SUCCESS);
-
     }
 }

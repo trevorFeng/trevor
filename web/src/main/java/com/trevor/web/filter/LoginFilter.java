@@ -5,6 +5,7 @@ import com.trevor.domain.User;
 import com.trevor.service.user.UserService;
 import com.trevor.util.CookieUtils;
 import com.trevor.util.TokenUtil;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.servlet.*;
@@ -22,6 +23,7 @@ import java.util.Objects;
  * @create: 2019-03-03 0:07
  **/
 @WebFilter(filterName = "userFilter" , urlPatterns = "/*")
+@Component
 public class LoginFilter implements Filter{
 
     @Resource
@@ -36,10 +38,12 @@ public class LoginFilter implements Filter{
         String token = CookieUtils.fine(request, WebKeys.TOKEN);
         // 取得客户端浏览器的类型
         String browserType = request.getHeader("user-agent").toLowerCase();
-        //token不存在,则要求登录
-        if (reUrl.startsWith("/api/testLogin/login")) {
+        //测试登录和swagger通过
+        if (reUrl.startsWith("/api/testLogin/login") || jugeSwagger(reUrl)) {
             filterChain.doFilter(servletRequest,servletResponse);
+            return;
         }
+        //token不存在,则要求登录
         if (token == null && !judeLoginPath(reUrl)) {
             //根据浏览器类型去不同的登陆页面
             goToLoginPage(response ,browserType ,reUrl);
@@ -159,6 +163,13 @@ public class LoginFilter implements Filter{
             if(openid.equals(user.getOpenid()) && hash.equals(user.getHash())){
                 return true;
             }
+        }
+        return false;
+    }
+
+    private Boolean jugeSwagger(String uri) {
+        if (uri.startsWith("/swagger") || uri.startsWith("/webjars") || uri.startsWith("/v2")) {
+            return true;
         }
         return false;
     }

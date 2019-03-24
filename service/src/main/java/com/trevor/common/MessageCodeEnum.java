@@ -45,7 +45,7 @@ public enum MessageCodeEnum {
     /**
      * 草，报异常了
      */
-    SYSTEM_ERROR(-6 ,"草，报异常了"),
+    SYSTEM_ERROR(-6 ,"鸡巴，报错了"),
 
     /**
      * 操作失败

@@ -8,6 +8,7 @@ import com.trevor.bo.WebSessionUser;
 import com.trevor.common.MessageCodeEnum;
 import com.trevor.service.BrowserLogin.BrowserLoginService;
 import com.trevor.util.CookieUtils;
+import com.trevor.util.TokenUtil;
 import com.trevor.web.controller.login.bo.PhoneCode;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -21,6 +22,8 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Pattern;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -64,7 +67,12 @@ public class BrowserLoginController {
         String code = (String) request.getServletContext().getAttribute(phoneCode.getPhoneNum());
         if (Objects.equals(code ,phoneCode.getCode())) {
             JsonEntity<WebSessionUser> result = browserLoginService.getWebSessionUserByPhoneNum(phoneCode.getPhoneNum());
-            CookieUtils.add(WebKeys.COOKIE_USER_INFO , JSON.toJSONString(result.getData()) ,response);
+
+//            Map<String, Object> claims = new HashMap<>(2<<4);
+//            claims.put("hash", hash);
+//            claims.put("openid", "1");
+//            claims.put("timestamp", System.currentTimeMillis());
+//            String token = TokenUtil.generateToken(claims);
             return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.CREATE_SUCCESS);
         }else {
             return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.CODE_ERROR);

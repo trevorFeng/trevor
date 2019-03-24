@@ -4,7 +4,9 @@ package com.trevor.web.controller.login;
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.ResponseHelper;
 import com.trevor.bo.WebKeys;
+import com.trevor.bo.WebSessionUser;
 import com.trevor.common.MessageCodeEnum;
+import com.trevor.service.user.UserService;
 import com.trevor.util.CookieUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
@@ -22,12 +25,26 @@ import javax.servlet.http.HttpServletResponse;
  * @author: trevor
  * @create: 2019-03-14 0:56
  **/
-@Api(value = "退出登录" ,description = "退出登录")
+@Api(value = "登出和获取登录用户" ,description = "登出和获取登录用户")
 @RestController
-public class LoginOutController {
+public class LoginController {
 
     @Resource
     private HttpServletResponse response;
+
+    @Resource
+    private HttpServletRequest request;
+
+    @Resource
+    private UserService userService;
+
+    @ApiOperation("获取登录用户")
+    @RequestMapping(value = "/api/login/user", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    protected JsonEntity<WebSessionUser> getLoginUser() {
+        String opendi = CookieUtils.getOpenid(request);
+        WebSessionUser webSessionUser = userService.getWebSessionUserByOpneid(opendi);
+        return ResponseHelper.createInstance(webSessionUser ,MessageCodeEnum.HANDLER_SUCCESS);
+    }
 
     @ApiOperation("退出登录")
     @RequestMapping(value = "/api/login/out", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)

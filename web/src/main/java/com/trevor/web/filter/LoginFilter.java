@@ -35,6 +35,7 @@ public class LoginFilter implements Filter{
         HttpServletResponse response = (HttpServletResponse)servletResponse;
         //从什么页面进来
         String reUrl = request.getRequestURI();
+
         String token = CookieUtils.fine(request, WebKeys.TOKEN);
         // 取得客户端浏览器的类型
         String browserType = request.getHeader("user-agent").toLowerCase();
@@ -43,6 +44,7 @@ public class LoginFilter implements Filter{
             filterChain.doFilter(servletRequest,servletResponse);
             return;
         }
+
         //token不存在,则要求登录
         if (token == null && !judeLoginPath(reUrl)) {
             //根据浏览器类型去不同的登陆页面
@@ -76,6 +78,10 @@ public class LoginFilter implements Filter{
         }
 
     }
+
+//    private Boolean isLoginPage(String uro){
+//        if ()
+//    }
 
     /**
      * 根据浏览器类型去不同的登陆页面
@@ -126,6 +132,9 @@ public class LoginFilter implements Filter{
         if (uri.startsWith(WebKeys.XIANLIAO_AUTH_PAGE_PATH)) {
             return Boolean.TRUE;
         }
+        if (uri.startsWith(WebKeys.ERROR_LOGIN_PAGE_PATH)) {
+            return Boolean.TRUE;
+        }
         return Boolean.FALSE;
     }
 
@@ -137,7 +146,7 @@ public class LoginFilter implements Filter{
      */
     private boolean checkTimeStamp(String timestamp) {
         // 有效期: 30分钟,单位: ms
-        long expires_in = 30 * 1000 * 60;
+        long expires_in = 1000 * 20;
         long timestamp_long = Long.parseLong(timestamp);
         //两者相差的时间,单位(ms)
         long time = System.currentTimeMillis() - timestamp_long;

@@ -9,6 +9,7 @@ import com.trevor.util.CookieUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -23,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 @Api(value = "创建房间" ,description = "创建房间接口")
 @RestController
+@Validated
 public class CreateRoomController {
 
     @Resource
@@ -41,7 +43,7 @@ public class CreateRoomController {
      */
     @ApiOperation("创建一个房间")
     @RequestMapping(value = "/api/room/create/niuniu", method = {RequestMethod.PUT}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public JsonEntity<Long> createRoom(@RequestBody NiuniuRoomParameter niuniuRoomParameter){
+    public JsonEntity<Long> createRoom(@RequestBody @Validated NiuniuRoomParameter niuniuRoomParameter){
         String opendi = CookieUtils.getOpenid(request);
         WebSessionUser webSessionUser = userService.getWebSessionUserByOpneid(opendi);
         return createRoomService.createRoom(niuniuRoomParameter ,webSessionUser);

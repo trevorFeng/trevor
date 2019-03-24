@@ -10,10 +10,13 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 /**
@@ -22,6 +25,7 @@ import java.util.List;
  */
 @Api(value = "房卡相关接口" ,description = "房卡相关接口(领取，创建，查询收到或发出)")
 @RestController("/admin")
+@Validated
 public class CardTransController {
 
     @Resource
@@ -35,9 +39,9 @@ public class CardTransController {
 
 
     @ApiOperation(value = "创建房卡包")
-    @ApiImplicitParam(name = "cardNum" ,value = "房卡的数量" , required = true ,paramType = "body" ,dataType = "Integer")
-    @RequestMapping(value = "/api/cardTrans/create/package", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public JsonEntity<String> createCardPackage(Integer cardNum){
+    @ApiImplicitParam(name = "cardNum" ,value = "房卡的数量" , required = true ,paramType = "path" ,dataType = "int")
+    @RequestMapping(value = "/api/cardTrans/create/package/{cardNum}", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public JsonEntity<String> createCardPackage(@PathVariable("cardNum") @Min(value = 1 ,message = "最小值为1") Integer cardNum){
         String opendi = CookieUtils.getOpenid(request);
         WebSessionUser webSessionUser = userService.getWebSessionUserByOpneid(opendi);
         return cardTransService.createCardPackage(cardNum , webSessionUser);
@@ -45,8 +49,8 @@ public class CardTransController {
 
     @ApiOperation(value = "领取房卡包")
     @ApiImplicitParam(name = "cardNum" ,value = "交易号" , required = true ,paramType = "body" ,dataType = "string")
-    @RequestMapping(value = "/api/cardTrans/receive/package", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public JsonEntity<Object> createCardPackage(String transNo){
+    @RequestMapping(value = "/api/cardTrans/receive/package/{transNo}", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public JsonEntity<Object> createCardPackage(@PathVariable("transNo") @NotBlank(message = "交易号不能为空") String transNo){
         String opendi = CookieUtils.getOpenid(request);
         WebSessionUser webSessionUser = userService.getWebSessionUserByOpneid(opendi);
         return cardTransService.receiveCardPackage(transNo , webSessionUser);

@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 一句话描述该类作用:【全局过滤器】
@@ -36,6 +37,9 @@ public class LoginFilter implements Filter{
         // 取得客户端浏览器的类型
         String browserType = request.getHeader("user-agent").toLowerCase();
         //token不存在,则要求登录
+        if (reUrl.startsWith("/api/testLogin/login")) {
+            filterChain.doFilter(servletRequest,servletResponse);
+        }
         if (token == null && !judeLoginPath(reUrl)) {
             //根据浏览器类型去不同的登陆页面
             goToLoginPage(response ,browserType ,reUrl);

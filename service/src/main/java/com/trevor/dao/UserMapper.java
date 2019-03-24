@@ -1,5 +1,6 @@
 package com.trevor.dao;
 
+import com.trevor.bo.Authentication;
 import com.trevor.domain.User;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -74,5 +75,12 @@ public interface UserMapper {
      * @param phoneNum
      */
     void updatePhoneNumByUserId(@Param("userId") Long userId ,@Param("phoneNum") String phoneNum);
+
+    /**
+     * 实名认证
+     * @param userId
+     * @param authentication
+     */
+    void realNameAuth(@Param("userId") Long userId , @Param("authentication") Authentication authentication);
 
 }

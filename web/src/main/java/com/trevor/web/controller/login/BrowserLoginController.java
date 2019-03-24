@@ -29,7 +29,7 @@ import java.util.Objects;
  * @author: trevor
  * @create: 2019-03-14 0:56
  **/
-@Api("浏览器登录相关")
+@Api(value = "浏览器登录相关" ,description = "浏览器登录相关")
 @RestController
 @Validated
 public class BrowserLoginController {

@@ -29,8 +29,8 @@ public class UserProposals {
     private String message;
 
     /**
-     * 照片的url
+     * 照片的url,json字符串
      */
-    private List<String> fileUrls;
+    private String fileUrls;
 
 }

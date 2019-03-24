@@ -28,7 +28,7 @@ import java.io.IOException;
  * @author: trevor
  * @create: 2019-03-14 0:56
  **/
-@Api("闲聊登陆相关")
+@Api(value = "闲聊登陆相关" ,description = "闲聊登陆相关")
 @RestController
 public class XianliaoLoginController {
 

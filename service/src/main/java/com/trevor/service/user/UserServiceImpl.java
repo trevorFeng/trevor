@@ -1,5 +1,6 @@
 package com.trevor.service.user;
 
+import com.trevor.bo.Authentication;
 import com.trevor.bo.WebSessionUser;
 import com.trevor.dao.UserMapper;
 import com.trevor.domain.User;
@@ -130,5 +131,16 @@ public class UserServiceImpl implements UserService{
     @Override
     public void updatePhoneByUserId(Long userId, String phoneNum) {
         userMapper.updatePhoneNumByUserId(userId ,phoneNum);
+    }
+
+
+    /**
+     * 实名认证
+     * @param authentication
+     * @return
+     */
+    @Override
+    public void realNameAuth(Long userId, Authentication authentication) {
+        userMapper.realNameAuth(userId ,authentication);
     }
 }

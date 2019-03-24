@@ -5,6 +5,8 @@ import com.trevor.bo.WebKeys;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Map;
 
 /**
@@ -39,6 +41,11 @@ public class CookieUtils {
      * @param response
      */
     public static void add(String name, String value, HttpServletResponse response) {
+        try {
+            URLEncoder.encode(value, "utf-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         Cookie cookie = new Cookie(name,value);
         /**
          * 单位：秒

@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50087
 File Encoding         : 65001
 
-Date: 2019-03-13 23:38:10
+Date: 2019-03-24 16:30:21
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -145,16 +145,16 @@ CREATE TABLE `room_record` (
 -- ----------------------------
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
-  `id` int(11) NOT NULL auto_increment COMMENT '主键',
-  `name` varchar(40) character set utf8 collate utf8_bin default NULL COMMENT '名字',
-  `id_Card` varchar(20) character set utf8 collate utf8_bin default NULL COMMENT '身份证号码',
-  `weixin_name` varchar(40) character set utf8 collate utf8_bin default NULL COMMENT '微信名字',
-  `weixin_id` varchar(20) character set utf8 collate utf8_bin default NULL COMMENT '微信号',
-  `xianliao_name` varchar(40) character set utf8 collate utf8_bin default NULL COMMENT '闲聊名字',
-  `xianliao_id` varchar(20) character set utf8 collate utf8_bin default NULL COMMENT '闲聊名字',
+  `id` int(11) unsigned NOT NULL auto_increment COMMENT '主键',
+  `real_name` varchar(40) character set utf8 collate utf8_bin default NULL COMMENT '名字',
+  `id_card` varchar(20) character set utf8 collate utf8_bin default NULL COMMENT '身份证号码',
+  `open_id` varchar(40) character set utf8 collate utf8_bin NOT NULL COMMENT '应用的open id',
+  `hash` varchar(11) character set utf8 collate utf8_bin NOT NULL COMMENT 'hash值',
+  `user_id` int(11) unsigned default NULL COMMENT '本表中自关联的userId，实则为同一用户（微信账号和闲聊账号）',
   `phone_number` varchar(11) character set utf8 collate utf8_bin default NULL COMMENT '电话号码',
-  `weixin_picture` blob COMMENT '微信头像',
-  `xianliao_picture` blob COMMENT '闲聊头像',
+  `app_name` varchar(40) character set utf8 collate utf8_bin NOT NULL COMMENT '微信名字',
+  `app_picture_url` varchar(60) character set utf8 collate utf8_bin NOT NULL COMMENT '头像',
+  `type` tinyint(4) unsigned NOT NULL COMMENT '0代表微信，1代表闲聊',
   `friend_manage_flag` tinyint(4) unsigned NOT NULL COMMENT '是否开启好友管理，1为是，0为否',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

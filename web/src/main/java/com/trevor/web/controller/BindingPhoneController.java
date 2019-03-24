@@ -61,7 +61,7 @@ public class BindingPhoneController {
 
     @ApiOperation("校验用户的验证码是否正确,并绑定")
     @ApiImplicitParams({@ApiImplicitParam(paramType = "body", name = "phoneCode", dataType = "PhoneCode", required = true, value = "phoneCode")})
-    @RequestMapping(value = "/front/phone/submit", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/api/front/phone/submit", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public JsonEntity<String> submit(@RequestBody @Validated PhoneCode phoneCode){
         //校验验证码是否正确
         String code = (String) request.getServletContext().getAttribute(phoneCode.getPhoneNum());

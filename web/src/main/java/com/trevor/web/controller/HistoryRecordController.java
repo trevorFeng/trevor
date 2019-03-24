@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @create: 2019-03-03 23:06
  **/
 @RestController
-@Api(value = "历史记录的查询" ,description = "历史记录的查询")
+@Api(value = "历史记录的查询，暂时不做" ,description = "历史记录的查询，暂时不做")
 public class HistoryRecordController {
 
 }

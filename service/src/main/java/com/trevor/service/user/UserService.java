@@ -1,6 +1,7 @@
 package com.trevor.service.user;
 
 
+import com.trevor.bo.Authentication;
 import com.trevor.bo.WebSessionUser;
 import com.trevor.domain.User;
 import org.apache.ibatis.annotations.Param;
@@ -77,5 +78,12 @@ public interface UserService {
      * @param phoneNum
      */
     void updatePhoneByUserId(Long userId ,String phoneNum);
+
+    /**
+     * 实名认证
+     * @param authentication
+     * @return
+     */
+    void realNameAuth(Long userId , Authentication authentication);
 
 }

@@ -32,7 +32,7 @@
         SELECT
         id id,
         app_name appName,
-        app_picture_url appPictureUrl
+        app_picture_url appPictureUrl,
         hash hash
         from `user`
         WHERE
@@ -81,6 +81,14 @@
         WHERE
         phone_number=#{phoneNum}
     </select>
+
+    <update id="realNameAuth">
+        update `user` SET
+        real_name=#{authentication.realName},
+        id_card=#{authentication.idCard}
+        where
+        id=#{userId}
+    </update>
 
 
 </mapper>

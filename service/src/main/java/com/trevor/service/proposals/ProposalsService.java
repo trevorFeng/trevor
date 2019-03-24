@@ -1,6 +1,8 @@
 package com.trevor.service.proposals;
 
+import com.trevor.bo.Authentication;
 import com.trevor.bo.JsonEntity;
+import com.trevor.bo.ProposalContent;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -18,5 +20,19 @@ public interface ProposalsService {
      * @return
      */
     JsonEntity<String> loadMaterial(MultipartFile multipartFile);
+
+    /**
+     * 提交异常举报
+     * @param proposalContent
+     * @return
+     */
+    JsonEntity<Object> submitProposals(ProposalContent proposalContent ,Long userId);
+
+    /**
+     * 实名认证
+     * @param authentication
+     * @return
+     */
+    JsonEntity<Object> realNameAuth(Authentication authentication ,Long userId);
 
 }

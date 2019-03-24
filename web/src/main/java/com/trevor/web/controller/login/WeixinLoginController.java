@@ -28,7 +28,7 @@ import java.io.IOException;
  * @author: trevor
  * @create: 2019-03-14 0:56
  **/
-@Api("微信登陆相关")
+@Api(value = "微信登陆相关" ,description = "微信登陆相关")
 @RestController
 public class WeixinLoginController{
 

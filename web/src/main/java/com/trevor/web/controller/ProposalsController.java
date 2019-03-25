@@ -40,7 +40,7 @@ public class ProposalsController {
     private UserService userService;
 
     @ApiOperation("上传文件")
-    @RequestMapping(value = "/api/proposals/file", method = {RequestMethod.POST}, produces = {MediaType.IMAGE_PNG_VALUE ,MediaType.IMAGE_JPEG_VALUE})
+    @PostMapping(value = "/api/proposals/file")
     public JsonEntity<String> uploadProposalsFile(@RequestParam("file") MultipartFile file){
         return proposalsService.loadMaterial(file);
     }
@@ -60,6 +60,7 @@ public class ProposalsController {
      * @param authentication
      * @return
      */
+    @ApiOperation("实名认证")
     @RequestMapping(value = "/api/proposals/auth", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public JsonEntity<Object> realNameAuth(@RequestBody Authentication authentication){
         String opendi = CookieUtils.getOpenid(request);

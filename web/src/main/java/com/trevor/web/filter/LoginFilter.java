@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * 一句话描述该类作用:【全局过滤器】
@@ -44,9 +43,18 @@ public class LoginFilter implements Filter{
             filterChain.doFilter(servletRequest,servletResponse);
             return;
         }
-
+        //回调请求通过
+        if (isHuidiao(reUrl)) {
+            filterChain.doFilter(servletRequest,servletResponse);
+            return;
+        }
+        //是登陆页面或请求通过
+        if (isLoginPath(reUrl)) {
+            filterChain.doFilter(servletRequest,servletResponse);
+            return;
+        }
         //token不存在,则要求登录
-        if (token == null && !judeLoginPath(reUrl)) {
+        if (token == null) {
             //根据浏览器类型去不同的登陆页面
             goToLoginPage(response ,browserType ,reUrl);
             return;
@@ -79,9 +87,15 @@ public class LoginFilter implements Filter{
 
     }
 
-//    private Boolean isLoginPage(String uro){
-//        if ()
-//    }
+    private Boolean isHuidiao(String uri){
+        if (uri.startsWith(WebKeys.WEIXIN_AUTH_PAGE_PATH)) {
+            return true;
+        }
+        if (uri.startsWith(WebKeys.XIANLIAO_AUTH_PAGE_PATH)) {
+            return true;
+        }
+        return false;
+    }
 
     /**
      * 根据浏览器类型去不同的登陆页面
@@ -112,27 +126,30 @@ public class LoginFilter implements Filter{
     }
 
     /**
-     * 根据uri判断是否是登陆页面
+     * 根据uri判断是否是登陆页面或请求
      * @param uri
      * @return
      */
-    private Boolean judeLoginPath(String uri){
-        if (uri.startsWith(WebKeys.WEIXIN_LOGIN_PAGE_PATH)) {
+    private Boolean isLoginPath(String uri){
+        if (uri.startsWith("/front/weixin/login")) {
             return Boolean.TRUE;
         }
-        if (uri.startsWith(WebKeys.XIANLIAO_LOGIN_PAGE_PATH)) {
+        if (uri.startsWith("/front/xianliao/login")) {
             return Boolean.TRUE;
         }
-        if (uri.startsWith(WebKeys.SHOUJI_LOGIN_PAGE_PATH)) {
+        if (uri.startsWith("/front/phone")) {
             return Boolean.TRUE;
         }
-        if (uri.startsWith(WebKeys.WEIXIN_AUTH_PAGE_PATH)) {
+        if (uri.startsWith("/view/weixinlogin.html")) {
             return Boolean.TRUE;
         }
-        if (uri.startsWith(WebKeys.XIANLIAO_AUTH_PAGE_PATH)) {
+        if (uri.startsWith("/view/xianliaologin.html")) {
             return Boolean.TRUE;
         }
-        if (uri.startsWith(WebKeys.ERROR_LOGIN_PAGE_PATH)) {
+        if (uri.startsWith("/view/phonelogin.html")) {
+            return Boolean.TRUE;
+        }
+        if (uri.startsWith("/static/login/error.html")) {
             return Boolean.TRUE;
         }
         return Boolean.FALSE;

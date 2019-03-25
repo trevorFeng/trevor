@@ -73,7 +73,7 @@ public class ProposalsServiceImpl implements ProposalsService{
         userProposals.setUserId(userId);
         userProposals.setMessage(proposalContent.getContent());
         userProposals.setFileUrls(JSON.toJSONString(proposalContent.getFileUrls()));
-        userProposalsMapper.insertOne1(userProposals);
+        userProposalsMapper.insertOne(userProposals);
         return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.HANDLER_SUCCESS);
     }
 

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.trevor.dao.PersonalCardMapper">
+
+    <!-- 根据玩家id更新房卡数量 -->
+    <update id="updatePersonalCardNum">
+        update `personal_card`
+        set
+        room_card_num=#{card}
+        WHERE
+        user_id = #{userId}
+    </update>
+
+    <!-- 根据玩家查询玩家拥有的房卡数量 -->
+    <select id="findCardNumByUserId" resultType="java.lang.Integer">
+      select room_card_num
+      from `personal_card` where
+      user_id = #{userId}
+    </select>
+
+</mapper>

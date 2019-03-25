@@ -19,8 +19,6 @@ public class WebKeys {
      */
     public static final String TOKEN = "token";
 
-    public static final String COOKIE_USER_INFO = "cookieUserInfo";
-
     /**
      * 微信浏览器标识
      */
@@ -53,14 +51,19 @@ public class WebKeys {
     public static final String XIANLIAO_AUTH_PAGE_PATH = "/api/xianliao/auth";
 
     /**
-     * 微信登陆
+     * 微信登陆请求
      */
     public static final String WEIXIN_LOGIN_PAGE_PATH = "/front/weixin/login";
 
     /**
-     * 闲聊登陆页面
+     * 闲聊登陆页面请求
      */
     public static final String XIANLIAO_LOGIN_PAGE_PATH = "/front/xianliao/login";
+
+    /**
+     * 微信登陆页面
+     */
+    public static final String WEIXIN_LOGIN_HTML = "/view/weixinlogin.html";
 
     /**
      * 手机浏览器登陆页面
@@ -70,7 +73,7 @@ public class WebKeys {
     /**
      * 错误登陆页面，浏览器类型不满足
      */
-    public static final String ERROR_LOGIN_PAGE_PATH = "/view/login/shoujiLogin.html";
+    public static final String ERROR_LOGIN_PAGE_PATH = "/view/login/error.html";
 
     /**
      * 微信appId

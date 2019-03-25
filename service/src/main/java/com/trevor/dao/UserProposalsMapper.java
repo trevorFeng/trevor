@@ -18,5 +18,5 @@ public interface UserProposalsMapper {
      * 插入一条新纪录
      * @param userProposals
      */
-    void insertOne1(@Param("userProposals") UserProposals userProposals);
+    void insertOne(@Param("userProposals") UserProposals userProposals);
 }

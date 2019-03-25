@@ -1,6 +1,7 @@
 package com.trevor.dao;
 
 import com.trevor.domain.RoomRecord;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -15,12 +16,12 @@ public interface RoomRecordMapper {
      * @param id
      * @return
      */
-    RoomRecord findOneById(Long id);
+    RoomRecord findOneById(@Param("id") Long id);
 
     /**
      * 插入一条记录并返回主键
      * @param roomRecord
      * @return
      */
-    Long insertOne(RoomRecord roomRecord);
+    Long insertOne(@Param("roomRecord") RoomRecord roomRecord);
 }

@@ -1,0 +1,39 @@
+server:
+  port: 8080
+  tomcat:
+      uri-encoding: UTF-8
+      max-threads: 600
+
+spring:
+  datasource:
+      url: jdbc:mysql://localhost:3306/trevor?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true
+      username: root
+      password: root
+      driver-class-name: com.mysql.jdbc.Driver
+      type: com.alibaba.druid.pool.DruidDataSource
+      filters: stat
+      maxActive: 20
+      initialSize: 1
+      maxWait: 60000
+      minIdle: 1
+      timeBetweenEvictionRunsMillis: 60000
+      minEvictableIdleTimeMillis: 300000
+      validationQuery: select 'x'
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+      poolPreparedStatements: true
+      maxOpenPreparedStatements: 20
+  resources:
+    static-locations: classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/,classpath:/public/,file:${file.path}
+
+debug: true
+
+mybatis:
+  mapper-locations: classpath:/mapper/*.xml
+  type-aliases-package: com.trevor.dao
+  config-location: classpath:/mybatis-config.xml
+
+file:
+  path: /mnt/sdb/platform/zjut/special-student/
+

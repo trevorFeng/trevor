@@ -63,11 +63,11 @@ public interface UserMapper {
     Long isExistByPhoneNum(@Param("phoneNum") String phoneNum);
 
     /**
-     * 根据phoneNum查询用户，包含id，weixinName，weixinPictureUrl字段
+     * 根据phoneNum查询用户，包含openid和hash字段
      * @param phoneNum
      * @return
      */
-    User findUserByPhoneNumContainIdAndAppNameAndPicture(@Param("phoneNum") String phoneNum);
+    User findUserByPhoneNumContainOpenidAndHash(@Param("phoneNum") String phoneNum);
 
     /**
      * 根据用户id更新手机号

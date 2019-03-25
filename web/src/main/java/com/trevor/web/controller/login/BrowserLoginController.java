@@ -6,6 +6,7 @@ import com.trevor.bo.ResponseHelper;
 import com.trevor.bo.WebKeys;
 import com.trevor.bo.WebSessionUser;
 import com.trevor.common.MessageCodeEnum;
+import com.trevor.domain.User;
 import com.trevor.service.BrowserLogin.BrowserLoginService;
 import com.trevor.util.CookieUtils;
 import com.trevor.util.TokenUtil;
@@ -66,14 +67,15 @@ public class BrowserLoginController {
         //校验验证码是否正确
         String code = (String) request.getServletContext().getAttribute(phoneCode.getPhoneNum());
         if (Objects.equals(code ,phoneCode.getCode())) {
-            JsonEntity<WebSessionUser> result = browserLoginService.getWebSessionUserByPhoneNum(phoneCode.getPhoneNum());
-
-//            Map<String, Object> claims = new HashMap<>(2<<4);
-//            claims.put("hash", hash);
-//            claims.put("openid", "1");
-//            claims.put("timestamp", System.currentTimeMillis());
-//            String token = TokenUtil.generateToken(claims);
-            return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.CREATE_SUCCESS);
+            JsonEntity<User> result = browserLoginService.getUserHashAndOpenidByPhoneNum(phoneCode.getPhoneNum());
+            User user = result.getData();
+            Map<String, Object> claims = new HashMap<>(2<<4);
+            claims.put("hash", user.getHash());
+            claims.put("openid", user.getOpenid());
+            claims.put("timestamp", System.currentTimeMillis());
+            String token = TokenUtil.generateToken(claims);
+            CookieUtils.add(WebKeys.TOKEN ,token ,response);
+            return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.HANDLER_SUCCESS);
         }else {
             return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.CODE_ERROR);
         }

@@ -66,11 +66,11 @@ public interface UserService {
     Boolean isExistByPhoneNum(String phoneNum);
 
     /**
-     * 根据phoneNum查询WebSessionUser
+     * 根据phoneNum查询user 包含openid 和hash
      * @param phoneNum
      * @return
      */
-    WebSessionUser getWebSessionUserByPhone(String phoneNum);
+    User getUserByPhoneNumContainOpenidAndHash(String phoneNum);
 
     /**
      * 根据用户id绑定手机号

@@ -117,10 +117,9 @@ public class UserServiceImpl implements UserService{
      * @return
      */
     @Override
-    public WebSessionUser getWebSessionUserByPhone(String phoneNum) {
-        User user = userMapper.findUserByPhoneNumContainIdAndAppNameAndPicture(phoneNum);
-        WebSessionUser webSessionUser = new WebSessionUser(user);
-        return webSessionUser;
+    public User getUserByPhoneNumContainOpenidAndHash(String phoneNum) {
+        User user = userMapper.findUserByPhoneNumContainOpenidAndHash(phoneNum);
+        return user;
     }
 
     /**

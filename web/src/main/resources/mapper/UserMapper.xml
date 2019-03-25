@@ -71,11 +71,9 @@
     </select>
 
     <!-- 根据phoneNum查询用户，包含id，weixinName，weixinPictureUrl字段 -->
-    <select id="findUserByPhoneNumContainIdAndAppNameAndPicture" resultType="com.trevor.domain.User">
+    <select id="findUserByPhoneNumContainOpenidAndHash" resultType="com.trevor.domain.User">
         SELECT
-        id id,
-        app_name appName,
-        app_picture_url appPictureUrl
+        open_id openid,
         hash hash
         from `user`
         WHERE

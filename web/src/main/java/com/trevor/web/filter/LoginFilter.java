@@ -43,6 +43,11 @@ public class LoginFilter implements Filter{
             filterChain.doFilter(servletRequest,servletResponse);
             return;
         }
+        //充值通过
+        if (reUrl.startsWith("/api/recharge/card")) {
+            filterChain.doFilter(servletRequest,servletResponse);
+            return;
+        }
         //回调请求通过
         if (isHuidiao(reUrl)) {
             filterChain.doFilter(servletRequest,servletResponse);

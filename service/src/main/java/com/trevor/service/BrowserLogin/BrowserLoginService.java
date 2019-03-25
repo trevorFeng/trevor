@@ -2,6 +2,7 @@ package com.trevor.service.BrowserLogin;
 
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.WebSessionUser;
+import com.trevor.domain.User;
 
 /**
  * @author trevor
@@ -21,5 +22,5 @@ public interface BrowserLoginService {
      * @param phoneNum
      * @return
      */
-    JsonEntity<WebSessionUser> getWebSessionUserByPhoneNum(String phoneNum);
+    JsonEntity<User> getUserHashAndOpenidByPhoneNum(String phoneNum);
 }

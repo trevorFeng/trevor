@@ -21,7 +21,7 @@ public class RechargeRecord {
     /**
      * 玩家id
      */
-    private Integer userId;
+    private Long userId;
 
     /**
      * 充值房卡数量

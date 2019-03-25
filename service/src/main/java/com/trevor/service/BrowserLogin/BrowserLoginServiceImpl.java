@@ -4,6 +4,7 @@ import com.trevor.bo.JsonEntity;
 import com.trevor.bo.ResponseHelper;
 import com.trevor.bo.WebSessionUser;
 import com.trevor.common.MessageCodeEnum;
+import com.trevor.domain.User;
 import com.trevor.service.user.UserService;
 import com.trevor.util.GetMessageCodeUtil;
 import org.springframework.stereotype.Service;
@@ -46,8 +47,8 @@ public class BrowserLoginServiceImpl implements BrowserLoginService{
      * @return
      */
     @Override
-    public JsonEntity<WebSessionUser> getWebSessionUserByPhoneNum(String phoneNum) {
-        WebSessionUser webSessionUserByPhone = userService.getWebSessionUserByPhone(phoneNum);
-        return ResponseHelper.createInstance(webSessionUserByPhone ,MessageCodeEnum.QUERY_SUCCESS);
+    public JsonEntity<User> getUserHashAndOpenidByPhoneNum(String phoneNum) {
+        User user = userService.getUserByPhoneNumContainOpenidAndHash(phoneNum);
+        return ResponseHelper.createInstance(user ,MessageCodeEnum.QUERY_SUCCESS);
     }
 }

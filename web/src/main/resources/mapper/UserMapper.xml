@@ -40,7 +40,7 @@
     </select>
 
     <!-- 新增一个用户 -->
-    <insert id="insertOne">
+    <insert id="insertOne" useGeneratedKeys="true" keyProperty="id">
         INSERT  INTO
         `user`(open_id ,hash ,app_name ,app_picture_url ,`type` ,friend_manage_flag)
         VALUES (#{user.openid} ,#{user.hash} ,#{user.appName} ,#{user.appPictureUrl} ,#{user.type} ,#{user.friendManageFlag})

@@ -25,7 +25,7 @@ public interface UserService {
     Boolean isExistByOpnenId(String openid);
 
     /**
-     * 新增一个用户
+     * 新增一个用户,返回主键
      * @param user
      */
     void insertOne(User user);

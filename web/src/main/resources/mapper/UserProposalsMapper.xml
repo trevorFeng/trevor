@@ -8,4 +8,5 @@
         `user_proposals`(user_id ,message ,file_urls)
         VALUES (#{userProposals.userId} ,#{userProposals.message} ,#{userProposals.fileUrls})
     </insert>
+
 </mapper>

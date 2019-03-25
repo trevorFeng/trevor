@@ -1,5 +1,7 @@
 package com.trevor.dao;
 
+import com.trevor.domain.PersonalCard;
+import com.trevor.domain.UserProposals;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -25,4 +27,10 @@ public interface PersonalCardMapper {
      * @param card
      */
     void updatePersonalCardNum(@Param("userId") Long userId ,@Param("card") Integer card);
+
+    /**
+     * 插入一条新纪录
+     * @param personalCard
+     */
+    void insertOne(@Param("personalCard") PersonalCard personalCard);
 }

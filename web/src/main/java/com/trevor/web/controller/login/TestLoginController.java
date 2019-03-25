@@ -1,20 +1,19 @@
 package com.trevor.web.controller.login;
 
 
-import com.alibaba.fastjson.JSON;
-import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.ResponseHelper;
-import com.trevor.bo.WebSessionUser;
 import com.trevor.bo.WebKeys;
 import com.trevor.common.MessageCodeEnum;
+import com.trevor.dao.PersonalCardMapper;
+import com.trevor.domain.PersonalCard;
 import com.trevor.domain.User;
 import com.trevor.service.user.UserService;
 import com.trevor.util.CookieUtils;
 import com.trevor.util.RandomUtils;
-import com.trevor.util.SessionUtil;
 import com.trevor.util.TokenUtil;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,36 +40,40 @@ public class TestLoginController {
     @Resource
     private UserService userService;
 
+    @Resource
+    private PersonalCardMapper personalCardMapper;
+
+    @ApiOperation("只需点一下就可以登录了，转到/api/login/user获取用户信息")
     @RequestMapping(value = "/api/testLogin/login", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public JsonEntity<Object> weixinAuth(HttpServletRequest request, HttpServletResponse response){
-        String token;
-        Map<String, Object> claims = new HashMap<>(2<<4);
-        Boolean existByOpnenId = userService.isExistByOpnenId("1");
-        if (!existByOpnenId) {
-            String hash = RandomUtils.getRandomChars(10);
-            claims.put("hash", hash);
-            claims.put("openid", "1");
-            claims.put("timestamp", System.currentTimeMillis());
-            token = TokenUtil.generateToken(claims);
+        Long time = System.currentTimeMillis();
+        String openid = time + "";
+        String hash = RandomUtils.getRandomChars(10);
 
-            User user = new User();
-            user.setOpenid("1");
-            user.setHash(hash);
-            user.setAppName("name");
-            user.setAppPictureUrl("tupianlianjie");
-            user.setType(1);
-            user.setFriendManageFlag(0);
-            userService.insertOne(user);
-            log.info("测试登录成功 ，hash值---------" + hash);
-        }else {
-            User user = userService.findUserByOpenidContainOpenidAndHash("1");
-            claims.put("hash", user.getHash());
-            claims.put("openid", "1");
-            claims.put("timestamp", System.currentTimeMillis());
-            token = TokenUtil.generateToken(claims);
-            log.info("测试登录成功 ，hash值---------" + user.getHash());
-        }
+        Map<String, Object> claims = new HashMap<>(2<<4);
+        claims.put("hash", hash);
+        claims.put("openid", openid);
+        claims.put("timestamp", time);
+
+        String token = TokenUtil.generateToken(claims);
         CookieUtils.add(WebKeys.TOKEN ,token ,response);
+
+        User user = new User();
+        user.setOpenid(openid);
+        user.setHash(hash);
+        user.setAppName("登录测试名字");
+        user.setAppPictureUrl("https://github.com/redHairChasingTheBeautifulYouth/Java-Guide/blob/master/imgs/20181101-1.jpg");
+        user.setType(1);
+        user.setFriendManageFlag(0);
+        userService.insertOne(user);
+        log.info("测试登录成功 ，hash值---------" + hash);
+
+        PersonalCard personalCard = new PersonalCard();
+        personalCard.setUserId(user.getId());
+        personalCard.setRoomCardNum(0);
+
+        personalCardMapper.insertOne(personalCard);
+
         return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.HANDLER_SUCCESS);
     }
 }

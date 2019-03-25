@@ -18,4 +18,11 @@
       user_id = #{userId}
     </select>
 
+    <!-- 插入一条新纪录 -->
+    <insert id="insertOne">
+        insert into
+        `personal_card`(user_id ,room_card_num)
+        values (#{personalCard.userId} ,#{personalCard.roomCardNum})
+    </insert>
+
 </mapper>

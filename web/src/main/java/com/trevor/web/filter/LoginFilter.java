@@ -163,7 +163,7 @@ public class LoginFilter implements Filter{
      */
     private boolean checkTimeStamp(String timestamp) {
         // 有效期: 30分钟,单位: ms
-        long expires_in = 1000 * 20;
+        long expires_in = 30 * 1000 * 20;
         long timestamp_long = Long.parseLong(timestamp);
         //两者相差的时间,单位(ms)
         long time = System.currentTimeMillis() - timestamp_long;

@@ -46,7 +46,7 @@ public interface UserMapper {
      * 新增一个用户
      * @param user
      */
-    void insertOne(@Param("user") User user);
+    Long insertOne(@Param("user") User user);
 
     /**
      * 更新hash值

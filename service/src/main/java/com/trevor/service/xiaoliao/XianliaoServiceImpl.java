@@ -4,6 +4,8 @@ import com.trevor.bo.JsonEntity;
 import com.trevor.bo.ResponseHelper;
 import com.trevor.bo.WebKeys;
 import com.trevor.common.MessageCodeEnum;
+import com.trevor.dao.PersonalCardMapper;
+import com.trevor.domain.PersonalCard;
 import com.trevor.domain.User;
 import com.trevor.service.user.UserService;
 import com.trevor.util.RandomUtils;
@@ -27,6 +29,9 @@ public class XianliaoServiceImpl implements XianliaoService{
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private PersonalCardMapper personalCardMapper;
 
     /**
      * 根据code获取闲聊用户基本信息
@@ -60,7 +65,13 @@ public class XianliaoServiceImpl implements XianliaoService{
             Boolean isExist = userService.isExistByOpnenId(openid);
             if (!isExist) {
                 //新增
-                userService.insertOne(generateUser(hash ,userInfoMap));
+                User user = generateUser(hash ,userInfoMap);
+                userService.insertOne(user);
+                //新增用户房卡记录
+                PersonalCard personalCard = new PersonalCard();
+                personalCard.setUserId(user.getId());
+                personalCard.setRoomCardNum(0);
+                personalCardMapper.insertOne(personalCard);
             } else {
                 //更新hash
                 userService.updateHash(hash ,openid);

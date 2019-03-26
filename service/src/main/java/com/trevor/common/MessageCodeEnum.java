@@ -52,6 +52,11 @@ public enum MessageCodeEnum {
      */
     HANDLER_FAILED(-7, "操作失败"),
 
+    /**
+     * 文件格式错误
+     */
+    FILE_NAME_ERROR(-8 ,"文件格式错误"),
+
 
     /**
      * 草，参数错误

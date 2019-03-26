@@ -35,5 +35,5 @@ mybatis:
   config-location: classpath:/mybatis-config.xml
 
 file:
-  path: /mnt/sdb/platform/zjut/special-student/
+  path: /liubing/trevor/file
 

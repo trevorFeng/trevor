@@ -62,7 +62,7 @@ public class TestLoginController {
         user.setOpenid(openid);
         user.setHash(hash);
         user.setAppName("登录测试名字");
-        user.setAppPictureUrl("https://github.com/redHairChasingTheBeautifulYouth/Java-Guide/blob/master/imgs/20181101-1.jpg");
+        user.setAppPictureUrl("https://raw.githubusercontent.com/redHairChasingTheBeautifulYouth/Java-Guide/master/imgs/20181101-1.jpg");
         user.setType(1);
         user.setFriendManageFlag(0);
         userService.insertOne(user);

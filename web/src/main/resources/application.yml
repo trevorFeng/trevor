@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: test
+    active: dev
 
 #日志文件配置：
 logging:

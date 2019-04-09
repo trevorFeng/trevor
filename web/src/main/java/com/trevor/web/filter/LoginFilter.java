@@ -154,7 +154,7 @@ public class LoginFilter implements Filter{
         if (uri.startsWith("/view/phonelogin.html")) {
             return Boolean.TRUE;
         }
-        if (uri.startsWith("/static/login/error.html")) {
+        if (uri.startsWith("/static/error.html")) {
             return Boolean.TRUE;
         }
         return Boolean.FALSE;
@@ -164,6 +164,8 @@ public class LoginFilter implements Filter{
      * 检查token是否过期
      * 开发时:指定1分钟,可以更好的看到效果
      * @param timestamp
+     *
+     *
      * @return
      */
     private boolean checkTimeStamp(String timestamp) {

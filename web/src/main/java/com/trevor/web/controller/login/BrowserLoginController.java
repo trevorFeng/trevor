@@ -36,7 +36,8 @@ import java.util.Objects;
 @Api(value = "浏览器登录相关" ,description = "浏览器登录相关")
 @RestController
 @Validated
-public class BrowserLoginController {
+public class
+BrowserLoginController {
 
     @Resource
     private BrowserLoginService browserLoginService;

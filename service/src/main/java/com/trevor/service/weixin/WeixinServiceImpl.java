@@ -4,6 +4,8 @@ import com.trevor.bo.JsonEntity;
 import com.trevor.bo.ResponseHelper;
 import com.trevor.bo.WebKeys;
 import com.trevor.common.MessageCodeEnum;
+import com.trevor.dao.PersonalCardMapper;
+import com.trevor.domain.PersonalCard;
 import com.trevor.domain.User;
 import com.trevor.service.user.UserService;
 import com.trevor.util.RandomUtils;
@@ -26,6 +28,9 @@ public class WeixinServiceImpl implements WeixinService {
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private PersonalCardMapper personalCardMapper;
 
     @Override
     public JsonEntity<Map<String, Object>> weixinAuth(String code) throws IOException {
@@ -56,8 +61,14 @@ public class WeixinServiceImpl implements WeixinService {
             //判断用户是否存在
             Boolean isExist = userService.isExistByOpnenId(openid);
             if (!isExist) {
-                //新增
-                userService.insertOne(generateUser(hash ,userInfoMap));
+                //新增用户
+                User user = generateUser(hash ,userInfoMap);
+                userService.insertOne(user);
+                //新增用户房卡记录
+                PersonalCard personalCard = new PersonalCard();
+                personalCard.setUserId(user.getId());
+                personalCard.setRoomCardNum(0);
+                personalCardMapper.insertOne(personalCard);
             } else {
                 //更新hash
                 userService.updateHash(hash ,openid);

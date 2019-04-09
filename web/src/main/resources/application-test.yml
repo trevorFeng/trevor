@@ -25,7 +25,7 @@ spring:
     poolPreparedStatements: true
     maxOpenPreparedStatements: 20
   resources:
-    static-locations: classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/,classpath:/public/,classpath:${weixinimgs.path}
+    static-locations: classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/,classpath:/public/,file:${file.path}
 
 debug: true
 
@@ -34,6 +34,6 @@ mybatis:
   type-aliases-package: com.trevor.dao
   config-location: classpath:/mybatis-config.xml
 
-weixinimgs:
-  path: /liubing/spg/weixinimgs
+file:
+  path: /mnt/sdb/platform/zjut/special-student/
 

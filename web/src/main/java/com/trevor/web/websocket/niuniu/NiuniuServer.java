@@ -70,7 +70,7 @@ public class NiuniuServer {
 
     @OnMessage
     public void receiveMsg(@PathParam("rooId") String rooId, String msg) throws Exception {
-        SocketSessionUser socketSessionUser = (SocketSessionUser) session.getUserProperties().get(WebKeys.SESSION_USER_KEY);
+                                           SocketSessionUser socketSessionUser = (SocketSessionUser) session.getUserProperties().get(WebKeys.SESSION_USER_KEY);
     }
 
     @OnClose

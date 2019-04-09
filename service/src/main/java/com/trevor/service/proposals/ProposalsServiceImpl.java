@@ -1,5 +1,6 @@
 package com.trevor.service.proposals;
 
+import com.alibaba.druid.util.StringUtils;
 import com.alibaba.fastjson.JSON;
 import com.trevor.bo.Authentication;
 import com.trevor.bo.JsonEntity;
@@ -48,7 +49,14 @@ public class ProposalsServiceImpl implements ProposalsService{
         if (multipartFile.isEmpty() || multipartFile == null) {
             return ResponseHelper.withErrorInstance(MessageCodeEnum.HANDLER_FAILED);
         }
-        String newFileName = UUID.randomUUID().toString()+System.currentTimeMillis();
+        String fileName = multipartFile.getOriginalFilename();
+        if (StringUtils.isEmpty(fileName)) {
+            return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.FILE_NAME_ERROR);
+        }
+        if (!(fileName.toLowerCase().endsWith("jpg") || fileName.toLowerCase().endsWith("png"))) {
+            return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.FILE_NAME_ERROR);
+        }
+        String newFileName = UUID.randomUUID().toString()+System.currentTimeMillis() + ".png";
         Boolean saveFile = null;
         try {
             saveFile = FileUtil.saveFileToDirectory(this.filepath ,newFileName ,multipartFile.getInputStream());

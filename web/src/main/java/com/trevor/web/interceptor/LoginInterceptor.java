@@ -5,6 +5,9 @@ import com.spg.domin.User;
 import com.spg.service.UserService;
 import com.spg.util.ThreadLocalUtil;
 import com.spg.util.TokenUtil;
+import com.trevor.domain.User;
+import com.trevor.service.user.UserService;
+import com.trevor.util.TokenUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
@@ -50,7 +53,7 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
                 return false;
             }
             //合法才通过
-            User user = userService.findByOpenid(openid);
+            User user = userService.findUserByOpenIdContainIdAndAppNameAndPicture(openid);
             if (user != null && Objects.equals(hash ,user.getHash())) {
                 ThreadLocalUtil.getInstance().bind(userService.findByOpenid(openid));
                 return Boolean.TRUE;

@@ -47,12 +47,12 @@ public class BindingPhoneController {
     @ApiImplicitParam(name = "phoneNum" ,value = "phoneNum" , required = true ,paramType = "path" ,dataType = "string")
     @RequestMapping(value = "/api/binding/phone/{phoneNum}", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public JsonEntity<String> bindPhoneNum(@PathVariable("phoneNum") @Pattern(regexp = "^[0-9]{11}$" ,message = "手机号格式不正确") String phoneNum){
-        JsonEntity<String> stringJsonEntity = browserLoginService.generatePhoneCode(phoneNum);
-        if (stringJsonEntity.getCode() < 0) {
-            return stringJsonEntity;
-        }
-        String code = stringJsonEntity.getData();
-        SessionUtil.getSession().setAttribute("phoneNumCode" ,code);
+//        JsonEntity<String> stringJsonEntity = browserLoginService.generatePhoneCode(phoneNum);
+//        if (stringJsonEntity.getCode() < 0) {
+//            return stringJsonEntity;
+//        }
+//        String code = stringJsonEntity.getData();
+        SessionUtil.getSession().setAttribute(phoneNum ,"123456");
         return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.SEND_MESSAGE);
     }
 
@@ -61,8 +61,8 @@ public class BindingPhoneController {
     @RequestMapping(value = "/api/front/phone/submit", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public JsonEntity<String> submit(@RequestBody @Validated PhoneCode phoneCode){
         //校验验证码是否正确
-        String code = (String) request.getServletContext().getAttribute("phoneNumCode");
-        if (Objects.equals("123456" ,phoneCode.getCode())) {
+        String code = (String) SessionUtil.getSession().getAttribute(phoneCode.getPhoneNum());
+        if (Objects.equals(code ,phoneCode.getCode())) {
             User user = ThreadLocalUtil.getInstance().getUserInfo();
             JsonEntity<String> stringJsonEntity = bindingPhoneService.bindingPhone(user.getId(), phoneCode.getPhoneNum());
             ThreadLocalUtil.getInstance().remove();

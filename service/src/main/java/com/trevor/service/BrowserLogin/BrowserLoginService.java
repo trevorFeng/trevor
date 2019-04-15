@@ -1,7 +1,6 @@
 package com.trevor.service.BrowserLogin;
 
 import com.trevor.bo.JsonEntity;
-import com.trevor.bo.WebSessionUser;
 import com.trevor.domain.User;
 
 /**

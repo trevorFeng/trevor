@@ -105,7 +105,7 @@ public class UserServiceImpl implements UserService{
     @Override
     public void updatePhoneByUserId(Long userId, String phoneNum) {
         User user = new User();
-        user.setUserId(userId);
+        user.setId(userId);
         user.setPhoneNumber(phoneNum);
         userMapper.updateUser(user);
     }

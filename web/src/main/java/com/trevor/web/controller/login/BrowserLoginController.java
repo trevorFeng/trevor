@@ -7,6 +7,7 @@ import com.trevor.common.MessageCodeEnum;
 import com.trevor.domain.User;
 import com.trevor.service.BrowserLogin.BrowserLoginService;
 import com.trevor.util.CookieUtils;
+import com.trevor.util.SessionUtil;
 import com.trevor.util.TokenUtil;
 import com.trevor.web.controller.login.bo.PhoneCode;
 import io.swagger.annotations.Api;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.validation.constraints.Pattern;
 import java.util.HashMap;
 import java.util.Map;
@@ -50,12 +52,12 @@ BrowserLoginController {
     @ApiImplicitParams({@ApiImplicitParam(paramType = "path", name = "phoneNum", dataType = "string", required = true, value = "phoneNum")})
     @RequestMapping(value = "/front/phone/code/{phoneNum}", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public JsonEntity<String> sendCode(@PathVariable("phoneNum") @Pattern (regexp = "^[0-9]{11}$" ,message = "手机号格式不正确") String phoneNum){
-        JsonEntity<String> stringJsonEntity = browserLoginService.generatePhoneCode(phoneNum);
-        if (stringJsonEntity.getCode() < 0) {
-            return stringJsonEntity;
-        }
-        String code = stringJsonEntity.getData();
-        request.getServletContext().setAttribute(phoneNum ,code);
+//        JsonEntity<String> stringJsonEntity = browserLoginService.generatePhoneCode(phoneNum);
+//        if (stringJsonEntity.getCode() < 0) {
+//            return stringJsonEntity;
+//        }
+//        String code = stringJsonEntity.getData();
+        SessionUtil.getSession().setAttribute(phoneNum ,"123456");
         return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.SEND_MESSAGE);
     }
 
@@ -64,8 +66,8 @@ BrowserLoginController {
     @RequestMapping(value = "/front/phone/code/check", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public JsonEntity<String> submit(@RequestBody @Validated PhoneCode phoneCode){
         //校验验证码是否正确
-        String code = (String) request.getServletContext().getAttribute(phoneCode.getPhoneNum());
-        if (Objects.equals("123456" ,phoneCode.getCode())) {
+        String code = (String) SessionUtil.getSession().getAttribute(phoneCode.getPhoneNum());
+        if (Objects.equals(code ,phoneCode.getCode())) {
             JsonEntity<User> result = browserLoginService.getUserHashAndOpenidByPhoneNum(phoneCode.getPhoneNum());
             User user = result.getData();
             Map<String, Object> claims = new HashMap<>(2<<4);
@@ -73,7 +75,7 @@ BrowserLoginController {
             claims.put("openid", user.getOpenid());
             claims.put("timestamp", System.currentTimeMillis());
             String token = TokenUtil.generateToken(claims);
-            return ResponseHelper.createInstance(token ,MessageCodeEnum.HANDLER_SUCCESS);
+            return ResponseHelper.createInstance(token ,MessageCodeEnum.AUTH_SUCCESS);
         }else {
             return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.CODE_ERROR);
         }

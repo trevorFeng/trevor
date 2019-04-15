@@ -2,15 +2,11 @@ package com.trevor.web.controller;
 
 
 import com.trevor.bo.JsonEntity;
-import com.trevor.bo.ProposalContent;
 import com.trevor.bo.RechargeCard;
-import com.trevor.bo.WebSessionUser;
 import com.trevor.service.RechargeRecordService;
-import com.trevor.util.CookieUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.MediaType;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;

@@ -1,12 +1,10 @@
 package com.trevor.web.interceptor;
 
-import com.spg.commom.WebKeys;
-import com.spg.domin.User;
-import com.spg.service.UserService;
-import com.spg.util.ThreadLocalUtil;
-import com.spg.util.TokenUtil;
+
+import com.trevor.bo.WebKeys;
 import com.trevor.domain.User;
 import com.trevor.service.user.UserService;
+import com.trevor.util.ThreadLocalUtil;
 import com.trevor.util.TokenUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -40,6 +38,8 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
             response.sendRedirect(redirectUrl);
             return false;
         }
+        // 取得客户端浏览器的类型
+        String browserType = request.getHeader("user-agent").toLowerCase();
         try {
             //解析token
             Map<String, Object> claims = TokenUtil.getClaimsFromToken(token);
@@ -53,9 +53,9 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
                 return false;
             }
             //合法才通过
-            User user = userService.findUserByOpenIdContainIdAndAppNameAndPicture(openid);
+            User user = userService.findUserByOpenid(openid);
             if (user != null && Objects.equals(hash ,user.getHash())) {
-                ThreadLocalUtil.getInstance().bind(userService.findByOpenid(openid));
+                ThreadLocalUtil.getInstance().bind(userService.findUserByOpenid(openid));
                 return Boolean.TRUE;
             }else {
                 response.sendRedirect(redirectUrl);

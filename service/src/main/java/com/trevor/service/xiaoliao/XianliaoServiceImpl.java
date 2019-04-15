@@ -1,5 +1,6 @@
 package com.trevor.service.xiaoliao;
 
+import com.google.common.collect.Maps;
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.ResponseHelper;
 import com.trevor.bo.WebKeys;
@@ -9,6 +10,7 @@ import com.trevor.domain.PersonalCard;
 import com.trevor.domain.User;
 import com.trevor.service.user.UserService;
 import com.trevor.util.RandomUtils;
+import com.trevor.util.TokenUtil;
 import com.trevor.util.XianliaoAuthUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -38,7 +40,7 @@ public class XianliaoServiceImpl implements XianliaoService{
      * @return
      */
     @Override
-    public JsonEntity<Map<String, Object>> weixinAuth(String code) throws IOException {
+    public JsonEntity<String> weixinAuth(String code) throws IOException {
         //获取access_token
         Map<String, String> accessTokenMap = XianliaoAuthUtils.getXianliaoToken(code);
         //拉取用户信息
@@ -55,44 +57,45 @@ public class XianliaoServiceImpl implements XianliaoService{
         if (openid == null) {
             return ResponseHelper.withErrorInstance(MessageCodeEnum.AUTH_FAILED);
         } else {
-            //生成10位hash
-            String hash = RandomUtils.getRandomChars(10);
-            Map<String, Object> claims = new HashMap<>(2<<4);
-            claims.put("hash", hash);
-            claims.put("openid", openid);
-            claims.put("timestamp", System.currentTimeMillis());
             //判断用户是否存在
             Boolean isExist = userService.isExistByOpnenId(openid);
+            Map<String,Object> claims = Maps.newHashMap();
             if (!isExist) {
                 //新增
-                User user = generateUser(hash ,userInfoMap);
+                String hash = RandomUtils.getRandomChars(10);
+                User user = new User();
+                user.setOpenid(userInfoMap.get(WebKeys.OPEN_ID));
+                user.setAppName(userInfoMap.get("nickName"));
+                user.setAppPictureUrl(userInfoMap.get("smallAvatar"));
+                user.setHash(hash);
+                user.setType(1);
+                user.setFriendManageFlag(0);
                 userService.insertOne(user);
                 //新增用户房卡记录
                 PersonalCard personalCard = new PersonalCard();
                 personalCard.setUserId(user.getId());
                 personalCard.setRoomCardNum(0);
                 personalCardMapper.insertOne(personalCard);
+
+                claims.put("hash" ,user.getHash());
+                claims.put("openid" ,user.getOpenid());
+                claims.put("timestamp" ,System.currentTimeMillis());
             } else {
-                //更新hash
-                userService.updateHash(hash ,openid);
+                //更新头像，昵称，hash
+                String hash = RandomUtils.getRandomChars(10);
+                User user = new User();
+                user.setAppName(userInfoMap.get("nickName"));
+                user.setHash(hash);
+                user.setAppPictureUrl(userInfoMap.get("smallAvatar"));
+                userService.updateUser(user);
+
+                claims.put("hash" ,user.getHash());
+                claims.put("openid" ,user.getOpenid());
+                claims.put("timestamp" ,System.currentTimeMillis());
             }
-            return ResponseHelper.createInstance(claims ,MessageCodeEnum.AUTH_SUCCESS);
+            String token = TokenUtil.generateToken(claims);
+            return ResponseHelper.createInstance(token ,MessageCodeEnum.AUTH_SUCCESS);
         }
     }
 
-
-    /**
-     * 生成一个user
-     * @return
-     */
-    private User generateUser(String hash , Map<String, String> userInfoMap){
-        User user = new User();
-        user.setOpenid(userInfoMap.get(WebKeys.OPEN_ID));
-        user.setAppName(userInfoMap.get("nickName"));
-        user.setAppPictureUrl(userInfoMap.get("smallAvatar"));
-        user.setHash(hash);
-        user.setType(1);
-        user.setFriendManageFlag(0);
-        return user;
-    }
 }

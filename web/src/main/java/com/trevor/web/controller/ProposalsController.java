@@ -3,14 +3,13 @@ package com.trevor.web.controller;
 import com.trevor.bo.Authentication;
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.ProposalContent;
-import com.trevor.bo.WebSessionUser;
+import com.trevor.domain.User;
 import com.trevor.service.proposals.ProposalsService;
 import com.trevor.service.user.UserService;
-import com.trevor.util.CookieUtils;
+import com.trevor.util.ThreadLocalUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -49,9 +48,9 @@ public class ProposalsController {
     @ApiOperation("提交异常举报")
     @RequestMapping(value = "/api/proposals/submit", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public JsonEntity<Object> submitProposals(@RequestBody @Validated ProposalContent proposalContent){
-        String opendi = CookieUtils.getOpenid(request);
-        WebSessionUser webSessionUser = userService.getWebSessionUserByOpneid(opendi);
-        JsonEntity<Object> objectJsonEntity = proposalsService.submitProposals(proposalContent, webSessionUser.getId());
+        User user = ThreadLocalUtil.getInstance().getUserInfo();
+        JsonEntity<Object> objectJsonEntity = proposalsService.submitProposals(proposalContent, user.getId());
+        ThreadLocalUtil.getInstance().remove();
         return objectJsonEntity;
     }
 
@@ -63,9 +62,10 @@ public class ProposalsController {
     @ApiOperation("实名认证")
     @RequestMapping(value = "/api/proposals/auth", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public JsonEntity<Object> realNameAuth(@RequestBody Authentication authentication){
-        String opendi = CookieUtils.getOpenid(request);
-        WebSessionUser webSessionUser = userService.getWebSessionUserByOpneid(opendi);
-        return proposalsService.realNameAuth(authentication ,webSessionUser.getId());
+        User user = ThreadLocalUtil.getInstance().getUserInfo();
+        JsonEntity<Object> jsonEntity = proposalsService.realNameAuth(authentication ,user.getId());
+        ThreadLocalUtil.getInstance().remove();
+        return jsonEntity;
     }
 
 }

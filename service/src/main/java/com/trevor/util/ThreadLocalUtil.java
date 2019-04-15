@@ -1,6 +1,7 @@
 package com.trevor.util;
 
-import com.spg.domin.User;
+
+import com.trevor.domain.User;
 
 /**
  * @Auther: trevor

@@ -1,15 +1,14 @@
 package com.trevor.web.controller.login;
 
 
+import com.google.common.collect.Maps;
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.ResponseHelper;
-import com.trevor.bo.WebKeys;
 import com.trevor.common.MessageCodeEnum;
 import com.trevor.dao.PersonalCardMapper;
 import com.trevor.domain.PersonalCard;
 import com.trevor.domain.User;
 import com.trevor.service.user.UserService;
-import com.trevor.util.CookieUtils;
 import com.trevor.util.RandomUtils;
 import com.trevor.util.TokenUtil;
 import io.swagger.annotations.Api;
@@ -21,9 +20,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -45,18 +41,9 @@ public class TestLoginController {
 
     @ApiOperation("只需点一下就可以登录了，转到/api/login/user获取用户信息")
     @RequestMapping(value = "/api/testLogin/login", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public JsonEntity<Object> weixinAuth(HttpServletRequest request, HttpServletResponse response){
-        Long time = System.currentTimeMillis();
-        String openid = time + "";
-        String hash = RandomUtils.getRandomChars(10);
-
-        Map<String, Object> claims = new HashMap<>(2<<4);
-        claims.put("hash", hash);
-        claims.put("openid", openid);
-        claims.put("timestamp", time);
-
-        String token = TokenUtil.generateToken(claims);
-        CookieUtils.add(WebKeys.TOKEN ,token ,response);
+    public JsonEntity<String> weixinAuth(){
+        String openid = System.currentTimeMillis() + "";
+        String hash = RandomUtils.getRandomChars(20);
 
         User user = new User();
         user.setOpenid(openid);
@@ -74,6 +61,13 @@ public class TestLoginController {
 
         personalCardMapper.insertOne(personalCard);
 
-        return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.HANDLER_SUCCESS);
+
+        Map<String, Object> claims = Maps.newHashMap();
+        claims.put("openid" ,openid);
+        claims.put("hash" ,hash);
+        claims.put("timestamp" ,System.currentTimeMillis());
+        String token = TokenUtil.generateToken(claims);
+
+        return ResponseHelper.createInstance(token ,MessageCodeEnum.HANDLER_SUCCESS);
     }
 }

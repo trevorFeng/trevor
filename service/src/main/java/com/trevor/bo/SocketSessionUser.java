@@ -1,5 +1,6 @@
 package com.trevor.bo;
 
+import com.trevor.domain.User;
 import lombok.Data;
 
 /**
@@ -45,10 +46,10 @@ public class SocketSessionUser {
      */
     private Boolean isChiGuaPeople;
 
-    public SocketSessionUser(WebSessionUser webSessionUser) {
-        this.id = webSessionUser.getId();
-        this.name = webSessionUser.getName();
-        this.picture = webSessionUser.getPictureUrl();
+    public SocketSessionUser(User user) {
+        this.id = user.getId();
+        this.name = user.getAppName();
+        this.picture = user.getAppPictureUrl();
         this.isOnLine = Boolean.TRUE;
         this.isReady = Boolean.FALSE;
     }

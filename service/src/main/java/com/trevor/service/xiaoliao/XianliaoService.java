@@ -15,5 +15,5 @@ public interface XianliaoService {
      * 根据code获取闲聊用户基本信息
      * @return
      */
-    JsonEntity<Map<String, Object>> weixinAuth(String code) throws IOException;
+    JsonEntity<String> weixinAuth(String code) throws IOException;
 }

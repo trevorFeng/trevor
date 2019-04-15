@@ -3,6 +3,7 @@ package com.trevor.service.bindingPhone;
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.ResponseHelper;
 import com.trevor.common.MessageCodeEnum;
+import com.trevor.domain.User;
 import com.trevor.service.user.UserService;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,8 @@ public class BindingPhoneServiceImpl implements BindingPhoneService{
      */
     @Override
     public JsonEntity<String> bindingPhone(Long userId, String phoneNum) {
+        User user = new User();
+        user.setUserId(userId);
         userService.updatePhoneByUserId(userId ,phoneNum);
         return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.BINDING_SUCCESS);
     }

@@ -3,8 +3,8 @@ package com.trevor.web.websocket.niuniu;
 import com.alibaba.fastjson.JSON;
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.SocketSessionUser;
-import com.trevor.bo.WebSessionUser;
 import com.trevor.bo.WebKeys;
+import com.trevor.domain.User;
 import com.trevor.service.niuniu.NiuniuService;
 import com.trevor.util.WebsocketUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -48,12 +48,12 @@ public class NiuniuServer {
     public void onOpen(Session session ,EndpointConfig config ,@PathParam("rooId") String rooId) throws IOException {
         this.session = session;
         HttpSession httpSession = (HttpSession) config.getUserProperties().get(HttpSession.class.getName());
-        WebSessionUser webSessionUser = (WebSessionUser) httpSession.getAttribute(WebKeys.SESSION_USER_KEY);
+        User user = (User) httpSession.getAttribute(WebKeys.SESSION_USER_KEY);
         String tempRoomId = rooId.intern();
         String jsonString;
         JsonEntity<SocketSessionUser> jsonEntity;
         synchronized (tempRoomId) {
-            jsonEntity = niuniuService.onOpenCheck(rooId, webSessionUser);
+            jsonEntity = niuniuService.onOpenCheck(rooId, user);
             if (jsonEntity.getCode() > 0) {
                 niuniuRomms.get(Long.valueOf(rooId)).add(session);
             }

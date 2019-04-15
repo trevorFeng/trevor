@@ -15,5 +15,5 @@ public interface WeixinService {
      * 根据code获取微信用户基本信息
      * @return
      */
-    JsonEntity<Map<String, Object>> weixinAuth(String code) throws IOException;
+    JsonEntity<String> weixinAuth(String code) throws IOException;
 }

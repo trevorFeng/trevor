@@ -1,7 +1,6 @@
 package com.trevor.service.user;
 
 import com.trevor.bo.Authentication;
-import com.trevor.bo.WebSessionUser;
 import com.trevor.dao.UserMapper;
 import com.trevor.domain.User;
 import org.springframework.stereotype.Service;
@@ -59,43 +58,19 @@ public class UserServiceImpl implements UserService{
      * @return
      */
     @Override
-    public User findUserByOpenidContainOpenidAndHash(String openid) {
-        return userMapper.findUserByOpenidContainOpenidAndHash(openid);
+    public User findUserByOpenid(String openid) {
+        return userMapper.findUserByOpenid(openid);
     }
 
-    /**
-     * 根据微信id查询用户，包含id，weixinName，weixinPictureUrl字段
-     * @param openid
-     * @return
-     */
-    @Override
-    public User findUserByOpenIdContainIdAndAppNameAndPicture(String openid) {
-        return userMapper.findUserByOpenIdContainIdAndAppNameAndPicture(openid);
-    }
-
-    /**
-     * 更新hash值
-     * @param hash
-     * @param openid
-     */
-    @Override
-    public void updateHash(String hash, String openid) {
-        userMapper.updateHash(hash ,openid);
-    }
 
 
     /**
-     * 根据openid查询WebSessionUser
-     * @param openid
-     * @return
+     * 更新user
      */
     @Override
-    public WebSessionUser getWebSessionUserByOpneid(String openid) {
-        User user = this.findUserByOpenIdContainIdAndAppNameAndPicture(openid);
-        WebSessionUser webSessionUser = new WebSessionUser(user);
-        return webSessionUser;
+    public void updateUser(User user) {
+        userMapper.updateUser(user);
     }
-
 
     /**
      * 根据phoneNum查找用户是否存在
@@ -129,7 +104,10 @@ public class UserServiceImpl implements UserService{
      */
     @Override
     public void updatePhoneByUserId(Long userId, String phoneNum) {
-        userMapper.updatePhoneNumByUserId(userId ,phoneNum);
+        User user = new User();
+        user.setUserId(userId);
+        user.setPhoneNumber(phoneNum);
+        userMapper.updateUser(user);
     }
 
 
@@ -140,6 +118,10 @@ public class UserServiceImpl implements UserService{
      */
     @Override
     public void realNameAuth(Long userId, Authentication authentication) {
-        userMapper.realNameAuth(userId ,authentication);
+        User user = new User();
+        user.setUserId(userId);
+        user.setIdCard(authentication.getIdCard());
+        user.setRealName(authentication.getRealName());
+        userMapper.updateUser(user);
     }
 }

@@ -57,6 +57,11 @@ public enum MessageCodeEnum {
      */
     FILE_NAME_ERROR(-8 ,"文件格式错误"),
 
+    /**
+     * 操你妈，想黑爸爸呢
+     */
+    ERROR_NUM_MAX(-9 ,"操你妈，想黑爸爸呢"),
+
 
     /**
      * 草，参数错误

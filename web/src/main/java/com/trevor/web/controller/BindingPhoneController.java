@@ -3,12 +3,12 @@ package com.trevor.web.controller;
 
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.ResponseHelper;
-import com.trevor.bo.WebSessionUser;
 import com.trevor.common.MessageCodeEnum;
+import com.trevor.domain.User;
 import com.trevor.service.BrowserLogin.BrowserLoginService;
 import com.trevor.service.bindingPhone.BindingPhoneService;
-import com.trevor.service.user.UserService;
-import com.trevor.util.CookieUtils;
+import com.trevor.util.SessionUtil;
+import com.trevor.util.ThreadLocalUtil;
 import com.trevor.web.controller.login.bo.PhoneCode;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -37,9 +37,6 @@ public class BindingPhoneController {
     private HttpServletRequest request;
 
     @Resource
-    private UserService userService;
-
-    @Resource
     private BrowserLoginService browserLoginService;
 
     @Resource
@@ -55,7 +52,7 @@ public class BindingPhoneController {
             return stringJsonEntity;
         }
         String code = stringJsonEntity.getData();
-        request.getServletContext().setAttribute(phoneNum ,code);
+        SessionUtil.getSession().setAttribute("phoneNumCode" ,code);
         return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.SEND_MESSAGE);
     }
 
@@ -64,11 +61,11 @@ public class BindingPhoneController {
     @RequestMapping(value = "/api/front/phone/submit", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public JsonEntity<String> submit(@RequestBody @Validated PhoneCode phoneCode){
         //校验验证码是否正确
-        String code = (String) request.getServletContext().getAttribute(phoneCode.getPhoneNum());
-        if (Objects.equals(code ,phoneCode.getCode())) {
-            String opendi = CookieUtils.getOpenid(request);
-            WebSessionUser webSessionUser = userService.getWebSessionUserByOpneid(opendi);
-            JsonEntity<String> stringJsonEntity = bindingPhoneService.bindingPhone(webSessionUser.getId(), phoneCode.getPhoneNum());
+        String code = (String) request.getServletContext().getAttribute("phoneNumCode");
+        if (Objects.equals("123456" ,phoneCode.getCode())) {
+            User user = ThreadLocalUtil.getInstance().getUserInfo();
+            JsonEntity<String> stringJsonEntity = bindingPhoneService.bindingPhone(user.getId(), phoneCode.getPhoneNum());
+            ThreadLocalUtil.getInstance().remove();
             return stringJsonEntity;
         }else {
             return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.CODE_ERROR);

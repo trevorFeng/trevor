@@ -1,17 +1,20 @@
 package com.trevor.web.controller;
 
 import com.trevor.bo.JsonEntity;
-import com.trevor.bo.WebSessionUser;
 import com.trevor.domain.CardTrans;
-import com.trevor.service.user.UserService;
+import com.trevor.domain.User;
 import com.trevor.service.cardTrans.CardTransService;
-import com.trevor.util.CookieUtils;
+import com.trevor.service.user.UserService;
+import com.trevor.util.ThreadLocalUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -42,34 +45,38 @@ public class CardTransController {
     @ApiImplicitParam(name = "cardNum" ,value = "房卡的数量" , required = true ,paramType = "path" ,dataType = "int")
     @RequestMapping(value = "/api/cardTrans/create/package/{cardNum}", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public JsonEntity<String> createCardPackage(@PathVariable("cardNum") @Min(value = 1 ,message = "最小值为1") Integer cardNum){
-        String opendi = CookieUtils.getOpenid(request);
-        WebSessionUser webSessionUser = userService.getWebSessionUserByOpneid(opendi);
-        return cardTransService.createCardPackage(cardNum , webSessionUser);
+        User user = ThreadLocalUtil.getInstance().getUserInfo();
+        JsonEntity<String> jsonEntity = cardTransService.createCardPackage(cardNum , user);
+        ThreadLocalUtil.getInstance().remove();
+        return jsonEntity;
     }
 
     @ApiOperation(value = "领取房卡包")
     @ApiImplicitParam(name = "transNo" ,value = "交易号" , required = true ,paramType = "path" ,dataType = "string")
     @RequestMapping(value = "/api/cardTrans/receive/package/{transNo}", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public JsonEntity<Object> createCardPackage(@PathVariable("transNo") @NotBlank(message = "交易号不能为空") String transNo){
-        String opendi = CookieUtils.getOpenid(request);
-        WebSessionUser webSessionUser = userService.getWebSessionUserByOpneid(opendi);
-        return cardTransService.receiveCardPackage(transNo , webSessionUser);
+        User user = ThreadLocalUtil.getInstance().getUserInfo();
+        JsonEntity<Object> jsonEntity = cardTransService.receiveCardPackage(transNo , user);
+        ThreadLocalUtil.getInstance().remove();
+        return jsonEntity;
     }
 
     @ApiOperation(value = "查询发出的房卡")
     @RequestMapping(value = "/api/cardTrans/send/package", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public JsonEntity<List<CardTrans>> findSendCardRecord(){
-        String opendi = CookieUtils.getOpenid(request);
-        WebSessionUser webSessionUser = userService.getWebSessionUserByOpneid(opendi);
-        return cardTransService.findSendCardRecord(webSessionUser);
+        User user = ThreadLocalUtil.getInstance().getUserInfo();
+        JsonEntity<List<CardTrans>> jsonEntity = cardTransService.findSendCardRecord(user);
+        ThreadLocalUtil.getInstance().remove();
+        return jsonEntity;
     }
 
     @ApiOperation(value = "查询收到的房卡")
     @RequestMapping(value = "/api/cardTrans/query/package", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public JsonEntity<List<CardTrans>> findRecevedCardRecord(){
-        String opendi = CookieUtils.getOpenid(request);
-        WebSessionUser webSessionUser = userService.getWebSessionUserByOpneid(opendi);
-        return cardTransService.findRecevedCardRecord(webSessionUser);
+        User user = ThreadLocalUtil.getInstance().getUserInfo();
+        JsonEntity<List<CardTrans>> jsonEntity = cardTransService.findRecevedCardRecord(user);
+        ThreadLocalUtil.getInstance().remove();
+        return jsonEntity;
     }
 
 }

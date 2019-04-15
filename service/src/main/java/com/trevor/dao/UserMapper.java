@@ -29,18 +29,12 @@ public interface UserMapper {
     Long isExistByOpnenId(@Param("openid") String openid);
 
     /**
-     * 根据openid查询用户，包含openid和hash字段
+     * 根据openid查询用户
      * @param openid
      * @return
      */
-    User findUserByOpenidContainOpenidAndHash(@Param("openid") String openid);
+    User findUserByOpenid(@Param("openid") String openid);
 
-    /**
-     * 根据openid查询用户，包含id，weixinName，weixinPictureUrl字段
-     * @param openid
-     * @return
-     */
-    User findUserByOpenIdContainIdAndAppNameAndPicture(@Param("openid") String openid);
 
     /**
      * 新增一个用户
@@ -49,11 +43,10 @@ public interface UserMapper {
     Long insertOne(@Param("user") User user);
 
     /**
-     * 更新hash值
-     * @param hash
-     * @param openid
+     * 更新user
+     * @param user
      */
-    void updateHash(@Param("hash") String hash ,@Param("openid") String openid);
+    void updateUser(@Param("user") User user);
 
     /**
      * 根据手机号查询用户是否存在
@@ -68,19 +61,5 @@ public interface UserMapper {
      * @return
      */
     User findUserByPhoneNumContainOpenidAndHash(@Param("phoneNum") String phoneNum);
-
-    /**
-     * 根据用户id更新手机号
-     * @param userId
-     * @param phoneNum
-     */
-    void updatePhoneNumByUserId(@Param("userId") Long userId ,@Param("phoneNum") String phoneNum);
-
-    /**
-     * 实名认证
-     * @param userId
-     * @param authentication
-     */
-    void realNameAuth(@Param("userId") Long userId , @Param("authentication") Authentication authentication);
 
 }

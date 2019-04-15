@@ -1,9 +1,9 @@
 package com.trevor.service.friendManager;
 
 import com.trevor.bo.JsonEntity;
-import com.trevor.bo.WebSessionUser;
 import com.trevor.dao.FriendManageMapper;
 import com.trevor.domain.FriendsManage;
+import com.trevor.domain.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -25,11 +25,10 @@ public class FriendManagerServiceImpl implements FriendManagerService {
 
     /**
      * 查询好友（申请通过和未通过的）
-     * @param webSessionUser
      * @return
      */
     @Override
-    public JsonEntity<List<FriendsManage>> findRecevedCardRecord(WebSessionUser webSessionUser) {
+    public JsonEntity<List<FriendsManage>> findRecevedCardRecord(User user) {
 
         return null;
     }

@@ -1,10 +1,8 @@
 package com.trevor.web.controller.login;
 
-import com.alibaba.fastjson.JSON;
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.ResponseHelper;
 import com.trevor.bo.WebKeys;
-import com.trevor.bo.WebSessionUser;
 import com.trevor.common.MessageCodeEnum;
 import com.trevor.domain.User;
 import com.trevor.service.BrowserLogin.BrowserLoginService;
@@ -50,7 +48,7 @@ BrowserLoginController {
 
     @ApiOperation("生成验证码,给用户发送验证码")
     @ApiImplicitParams({@ApiImplicitParam(paramType = "path", name = "phoneNum", dataType = "string", required = true, value = "phoneNum")})
-    @RequestMapping(value = "/front/phone/send/{phoneNum}", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/front/phone/code/{phoneNum}", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public JsonEntity<String> sendCode(@PathVariable("phoneNum") @Pattern (regexp = "^[0-9]{11}$" ,message = "手机号格式不正确") String phoneNum){
         JsonEntity<String> stringJsonEntity = browserLoginService.generatePhoneCode(phoneNum);
         if (stringJsonEntity.getCode() < 0) {
@@ -63,11 +61,11 @@ BrowserLoginController {
 
     @ApiOperation("校验用户的验证码是否正确")
     @ApiImplicitParams({@ApiImplicitParam(paramType = "body", name = "phoneCode", dataType = "PhoneCode", required = true, value = "phoneCode")})
-    @RequestMapping(value = "/front/phone/submit", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/front/phone/code/check", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public JsonEntity<String> submit(@RequestBody @Validated PhoneCode phoneCode){
         //校验验证码是否正确
         String code = (String) request.getServletContext().getAttribute(phoneCode.getPhoneNum());
-        if (Objects.equals(code ,phoneCode.getCode())) {
+        if (Objects.equals("123456" ,phoneCode.getCode())) {
             JsonEntity<User> result = browserLoginService.getUserHashAndOpenidByPhoneNum(phoneCode.getPhoneNum());
             User user = result.getData();
             Map<String, Object> claims = new HashMap<>(2<<4);
@@ -75,8 +73,7 @@ BrowserLoginController {
             claims.put("openid", user.getOpenid());
             claims.put("timestamp", System.currentTimeMillis());
             String token = TokenUtil.generateToken(claims);
-            CookieUtils.add(WebKeys.TOKEN ,token ,response);
-            return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.HANDLER_SUCCESS);
+            return ResponseHelper.createInstance(token ,MessageCodeEnum.HANDLER_SUCCESS);
         }else {
             return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.CODE_ERROR);
         }

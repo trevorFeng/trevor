@@ -2,11 +2,7 @@ package com.trevor.service.user;
 
 
 import com.trevor.bo.Authentication;
-import com.trevor.bo.WebSessionUser;
 import com.trevor.domain.User;
-import org.apache.ibatis.annotations.Param;
-
-import javax.servlet.http.HttpServletRequest;
 
 public interface UserService {
 
@@ -35,28 +31,14 @@ public interface UserService {
      * @param openid
      * @return
      */
-    User findUserByOpenidContainOpenidAndHash(String openid);
+    User findUserByOpenid(String openid);
 
-    /**
-     * 根据微信id查询用户，包含id，weixinName，weixinPictureUrl字段
-     * @param openid
-     * @return
-     */
-    User findUserByOpenIdContainIdAndAppNameAndPicture(String openid);
 
     /**
      * 更新hash值
-     * @param hash
-     * @param openid
      */
-    void updateHash(String hash ,String openid);
+    void updateUser(User user);
 
-    /**
-     * 根据openid查询WebSessionUser
-     * @param openid
-     * @return
-     */
-    WebSessionUser getWebSessionUserByOpneid(String openid);
 
     /**
      * 根据phoneNum查找用户是否存在

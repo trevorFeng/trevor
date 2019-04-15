@@ -4,8 +4,8 @@ package com.trevor.web.controller.login;
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.ResponseHelper;
 import com.trevor.bo.WebKeys;
-import com.trevor.bo.WebSessionUser;
 import com.trevor.common.MessageCodeEnum;
+import com.trevor.domain.User;
 import com.trevor.service.user.UserService;
 import com.trevor.util.CookieUtils;
 import io.swagger.annotations.Api;
@@ -40,9 +40,9 @@ public class LoginController {
 
     @ApiOperation("获取登录用户")
     @RequestMapping(value = "/api/login/user", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    protected JsonEntity<WebSessionUser> getLoginUser() {
+    protected JsonEntity<User> getLoginUser() {
         String opendi = CookieUtils.getOpenid(request);
-        WebSessionUser webSessionUser = userService.getWebSessionUserByOpneid(opendi);
+        User webSessionUser = userService.findUserByOpenid(opendi);
         return ResponseHelper.createInstance(webSessionUser ,MessageCodeEnum.HANDLER_SUCCESS);
     }
 

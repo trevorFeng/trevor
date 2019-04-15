@@ -1,5 +1,6 @@
 package com.trevor.service.weixin;
 
+import com.google.common.collect.Maps;
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.ResponseHelper;
 import com.trevor.bo.WebKeys;
@@ -9,6 +10,7 @@ import com.trevor.domain.PersonalCard;
 import com.trevor.domain.User;
 import com.trevor.service.user.UserService;
 import com.trevor.util.RandomUtils;
+import com.trevor.util.TokenUtil;
 import com.trevor.util.WeixinAuthUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -33,7 +35,7 @@ public class WeixinServiceImpl implements WeixinService {
     private PersonalCardMapper personalCardMapper;
 
     @Override
-    public JsonEntity<Map<String, Object>> weixinAuth(String code) throws IOException {
+    public JsonEntity<String> weixinAuth(String code) throws IOException {
         //获取access_token
         Map<String, String> accessTokenMap = WeixinAuthUtils.getWeixinToken(code);
         //拉取用户信息
@@ -52,44 +54,47 @@ public class WeixinServiceImpl implements WeixinService {
         if (openid == null) {
             return ResponseHelper.withErrorInstance(MessageCodeEnum.AUTH_FAILED);
         } else {
-            //生成10位hash
-            String hash = RandomUtils.getRandomChars(10);
-            Map<String, Object> claims = new HashMap<>(2<<4);
-            claims.put("hash", hash);
-            claims.put("openid", openid);
-            claims.put("timestamp", System.currentTimeMillis());
             //判断用户是否存在
             Boolean isExist = userService.isExistByOpnenId(openid);
+            Map<String,Object> claims = Maps.newHashMap();
             if (!isExist) {
-                //新增用户
-                User user = generateUser(hash ,userInfoMap);
+                //新增
+                String hash = RandomUtils.getRandomChars(10);
+                User user = new User();
+                user.setOpenid(openid);
+                user.setHash(hash);
+                user.setAppName(userInfoMap.get("nickname"));
+                user.setAppPictureUrl(userInfoMap.get("headimgurl"));
+                user.setType(0);
+                user.setFriendManageFlag(0);
                 userService.insertOne(user);
+
                 //新增用户房卡记录
                 PersonalCard personalCard = new PersonalCard();
-                personalCard.setUserId(user.getId());
                 personalCard.setRoomCardNum(0);
+                personalCard.setUserId(user.getId());
                 personalCardMapper.insertOne(personalCard);
+
+                claims.put("openid" ,user.getOpenid());
+                claims.put("hash" ,user.getHash());
+                claims.put("timestamp" ,System.currentTimeMillis());
             } else {
-                //更新hash
-                userService.updateHash(hash ,openid);
+                //更新头像，昵称，hash
+                String hash = RandomUtils.getRandomChars(10);
+                User user = new User();
+                user.setAppName(userInfoMap.get("nickname"));
+                user.setHash(hash);
+                user.setAppPictureUrl(userInfoMap.get("headimgurl"));
+                userService.updateUser(user);
+
+                claims.put("openid" ,user.getOpenid());
+                claims.put("hash" ,user.getHash());
+                claims.put("timestamp" ,System.currentTimeMillis());
             }
-            return ResponseHelper.createInstance(claims ,MessageCodeEnum.AUTH_SUCCESS);
+
+            String token = TokenUtil.generateToken(claims);
+            return ResponseHelper.createInstance(token, MessageCodeEnum.AUTH_SUCCESS);
         }
     }
 
-    /**
-     * 生成一个user
-     * @return
-     */
-    private User generateUser(String hash ,Map<String, String> userInfoMap){
-        User user = new User();
-        user.setOpenid(userInfoMap.get("openid"));
-        user.setAppName(userInfoMap.get("nickname"));
-        //用户头像，最后一个数值代表正方形头像大小（有0、46、64、96、132数值可选，0代表640*640正方形头像），用户没有头像时该项为空
-        user.setAppPictureUrl(userInfoMap.get("headimgurl"));
-        user.setHash(hash);
-        user.setType(0);
-        user.setFriendManageFlag(0);
-        return user;
-    }
 }

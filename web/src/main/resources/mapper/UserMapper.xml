@@ -17,50 +17,64 @@
         open_id=#{openid}
     </select>
 
-    <!-- 根据openid查询用户，包含openid和hash字段 -->
-    <select id="findUserByOpenidContainOpenidAndHash" resultType="com.trevor.domain.User">
-        SELECT
-        open_id openid,
-        hash hash
-        from `user`
-        WHERE
-        open_id=#{openid}
-    </select>
+    <!-- 更新用户 -->
+    <update id="updateUser">
+        update `user` SET
+        <if test="user.realName != null and user.realName != ''">
+            real_name=#{user.realName},
+        </if>
+        <if test="user.idCard != null and user.idCard != ''">
+            id_card=#{user.idCard},
+        </if>
+        <if test="user.hash != null and user.hash != ''">
+            hash=#{user.hash},
+        </if>
+        <if test="user.userId != null">
+            user_id=#{user.userId},
+        </if>
+        <if test="user.appName != null and user.appName != ''">
+            app_name=#{user.appName},
+        </if>
+        <if test="user.appPictureUrl != null and user.appPictureUrl != ''">
+            app_picture_url=#{user.appPictureUrl},
+        </if>
+        <if test="user.friendManageFlag != null">
+            friend_manage_flag=#{user.friendManageFlag},
+        </if>
+        <if test="user.phoneNumber != null and user.phoneNumber != ''">
+            phone_number=#{user.phoneNumber},
+        </if>
+        id=id
+        where
+        1=1
+        <if test="user.openid != null">
+            and open_id=#{user.openid}
+        </if>
+        <if test="user.id != null">
+            and id=#{user.id}
+        </if>
 
-    <!-- 根据openid查询用户，包含id，appName，appPictureUrl字段 -->
-    <select id="findUserByOpenIdContainIdAndAppNameAndPicture" resultType="com.trevor.domain.User">
+    </update>
+
+    <!-- 根据openid查询用户 -->
+    <select id="findUserByOpenid" resultType="com.trevor.domain.User">
         SELECT
         id id,
-        app_name appName,
-        app_picture_url appPictureUrl,
-        hash hash
+        app_name appName;
+        open_id openid,
+        hash hash,
+        app_picture_url appPictureUrl
         from `user`
         WHERE
         open_id=#{openid}
     </select>
 
-    <!-- 新增一个用户 -->
+    <!-- 插入user -->
     <insert id="insertOne" useGeneratedKeys="true" keyProperty="id">
         INSERT  INTO
         `user`(open_id ,hash ,app_name ,app_picture_url ,`type` ,friend_manage_flag)
         VALUES (#{user.openid} ,#{user.hash} ,#{user.appName} ,#{user.appPictureUrl} ,#{user.type} ,#{user.friendManageFlag})
     </insert>
-
-    <!-- 更新hash值 -->
-    <update id="updateHash">
-        update `user` SET
-        hash=#{hash}
-        where
-        open_id=#{opneid}
-    </update>
-
-    <!-- 根据用户id更新手机号 -->
-    <update id="updatePhoneNumByUserId">
-        update `user` SET
-        phone_number=#{phoneNum}
-        where
-        id=#{userId}
-    </update>
 
     <!-- 根据手机号查询用户是否存在 -->
     <select id="isExistByPhoneNum" resultType="java.lang.Long">
@@ -79,14 +93,5 @@
         WHERE
         phone_number=#{phoneNum}
     </select>
-
-    <update id="realNameAuth">
-        update `user` SET
-        real_name=#{authentication.realName},
-        id_card=#{authentication.idCard}
-        where
-        id=#{userId}
-    </update>
-
 
 </mapper>

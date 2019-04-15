@@ -1,6 +1,5 @@
 package com.trevor.web.websocket.config;
 
-import com.spg.commom.ChatMessage;
 import lombok.Data;
 
 import javax.websocket.HandshakeResponse;
@@ -18,7 +17,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Data
 public class ChatServerConfigurator extends ServerEndpointConfig.Configurator {
 
-    private ConcurrentHashMap<String , CopyOnWriteArrayList<ChatMessage>> messages = new ConcurrentHashMap<>(2<<12);
 
     private ConcurrentHashMap<String , CopyOnWriteArrayList<Session>> sessions = new ConcurrentHashMap<>(2<<9);
 

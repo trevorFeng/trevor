@@ -1,8 +1,8 @@
 package com.trevor.service.friendManager;
 
 import com.trevor.bo.JsonEntity;
-import com.trevor.bo.WebSessionUser;
 import com.trevor.domain.FriendsManage;
+import com.trevor.domain.User;
 
 import java.util.List;
 
@@ -20,6 +20,6 @@ public interface FriendManagerService {
      * @param webSessionUser
      * @return
      */
-    JsonEntity<List<FriendsManage>> findRecevedCardRecord(WebSessionUser webSessionUser);
+    JsonEntity<List<FriendsManage>> findRecevedCardRecord(User webSessionUser);
 
 }

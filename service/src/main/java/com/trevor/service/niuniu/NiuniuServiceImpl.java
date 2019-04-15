@@ -4,13 +4,13 @@ import com.alibaba.fastjson.JSON;
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.ResponseHelper;
 import com.trevor.bo.SocketSessionUser;
-import com.trevor.bo.WebSessionUser;
 import com.trevor.common.FriendManageEnum;
 import com.trevor.common.MessageCodeEnum;
 import com.trevor.common.RoomTypeEnum;
 import com.trevor.common.SpecialEnum;
 import com.trevor.dao.FriendManageMapper;
 import com.trevor.domain.RoomRecord;
+import com.trevor.domain.User;
 import com.trevor.service.cache.RoomRecordCacheService;
 import com.trevor.service.createRoom.bo.NiuniuRoomParameter;
 import com.trevor.service.niuniu.bo.NiuniuAction;
@@ -51,7 +51,7 @@ public class NiuniuServiceImpl implements NiuniuService{
      * @return
      */
     @Override
-    public JsonEntity<SocketSessionUser> onOpenCheck(String roomId , WebSessionUser webSessionUser) throws IOException {
+    public JsonEntity<SocketSessionUser> onOpenCheck(String roomId , User user) throws IOException {
         //查出房间配置
         RoomRecord oneById = roomRecordCacheService.findOneById(Long.valueOf(roomId));
         if (oneById == null) {
@@ -66,10 +66,10 @@ public class NiuniuServiceImpl implements NiuniuService{
         Boolean isFriendManage = Objects.equals(userService.isFriendManage(oneById.getRoomAuth()) , FriendManageEnum.YES.getCode());
         //开通
         if (isFriendManage) {
-            return this.isFriendManage(niuniuRoomParameter ,oneById , webSessionUser,roomId);
+            return this.isFriendManage(niuniuRoomParameter ,oneById , user,roomId);
         // 未开通
         }else {
-            return this.dealCanSee(roomId , webSessionUser,niuniuRoomParameter);
+            return this.dealCanSee(roomId , user,niuniuRoomParameter);
         }
     }
 
@@ -100,14 +100,14 @@ public class NiuniuServiceImpl implements NiuniuService{
      * @throws IOException
      */
     private JsonEntity<SocketSessionUser> isFriendManage(NiuniuRoomParameter niuniuRoomParameter , RoomRecord oneById ,
-                                                         WebSessionUser webSessionUser, String roomId) throws IOException {
+                                                         User user, String roomId) throws IOException {
         //配置仅限好友
         if (niuniuRoomParameter.getSpecial().contains(SpecialEnum.JUST_FRIENDS.getCode())) {
-            return this.justFriends(niuniuRoomParameter ,oneById , webSessionUser,roomId);
+            return this.justFriends(niuniuRoomParameter ,oneById , user,roomId);
         }
         //未配置仅限好友
         else {
-            return this.dealCanSee(roomId , webSessionUser,niuniuRoomParameter);
+            return this.dealCanSee(roomId , user,niuniuRoomParameter);
         }
     }
 
@@ -116,31 +116,29 @@ public class NiuniuServiceImpl implements NiuniuService{
      * 处理是否是好友
      * @param niuniuRoomParameter
      * @param oneById
-     * @param webSessionUser
      * @param roomId
      * @throws IOException
      */
     private JsonEntity<SocketSessionUser> justFriends(NiuniuRoomParameter niuniuRoomParameter , RoomRecord oneById ,
-                                                      WebSessionUser webSessionUser, String roomId) throws IOException {
-        Long count = friendManageMapper.countRoomAuthFriendAllow(oneById.getRoomAuth(), webSessionUser.getId());
+                                                      User user, String roomId) throws IOException {
+        Long count = friendManageMapper.countRoomAuthFriendAllow(oneById.getRoomAuth(), user.getId());
         //不是房主的好友
         if (Objects.equals(count ,0L)) {
             return ResponseHelper.withErrorInstance(MessageCodeEnum.NOT_FRIEND);
         //是房主的好友
         }else {
-            return this.dealCanSee(roomId , webSessionUser,niuniuRoomParameter);
+            return this.dealCanSee(roomId , user,niuniuRoomParameter);
         }
     }
 
     /**
      * 处理是否可以观战
      * @param roomId
-     * @param webSessionUser
      * @param niuniuRoomParameter
      * @throws IOException
      */
-    private JsonEntity<SocketSessionUser> dealCanSee(String roomId , WebSessionUser webSessionUser, NiuniuRoomParameter niuniuRoomParameter) throws IOException {
-        SocketSessionUser socketSessionUser = new SocketSessionUser(webSessionUser);
+    private JsonEntity<SocketSessionUser> dealCanSee(String roomId , User user, NiuniuRoomParameter niuniuRoomParameter) throws IOException {
+        SocketSessionUser socketSessionUser = new SocketSessionUser(user);
         Set<Session> sessions = niuniuRooms.get(Long.valueOf(roomId));
         //允许观战
         if (niuniuRoomParameter.getSpecial().contains(SpecialEnum.CAN_SEE.getCode())) {

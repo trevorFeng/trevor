@@ -60,7 +60,7 @@
     <select id="findUserByOpenid" resultType="com.trevor.domain.User">
         SELECT
         id id,
-        app_name appName;
+        app_name appName,
         open_id openid,
         hash hash,
         app_picture_url appPictureUrl

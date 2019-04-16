@@ -4,7 +4,6 @@ import com.trevor.bo.JsonEntity;
 import com.trevor.domain.CardTrans;
 import com.trevor.domain.User;
 import com.trevor.service.cardTrans.CardTransService;
-import com.trevor.service.user.UserService;
 import com.trevor.util.ThreadLocalUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import java.util.List;
@@ -33,13 +31,6 @@ public class CardTransController {
 
     @Resource
     private CardTransService cardTransService;
-
-    @Resource
-    private UserService userService;
-
-    @Resource
-    private HttpServletRequest request;
-
 
     @ApiOperation(value = "创建房卡包")
     @ApiImplicitParam(name = "cardNum" ,value = "房卡的数量" , required = true ,paramType = "path" ,dataType = "int")

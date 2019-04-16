@@ -1,5 +1,7 @@
 package com.trevor.dao;
 
+import com.trevor.domain.FriendsManage;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -20,4 +22,11 @@ public interface FriendManageMapper {
      * @return
      */
     Long countRoomAuthFriendAllow(Long userId ,Long manageFriendId);
+
+    /**
+     * 根据用户id查询管理的好友
+     * @param userId
+     * @return
+     */
+    List<FriendsManage> findByUserId(@Param("userId") Long userId);
 }

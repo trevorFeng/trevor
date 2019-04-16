@@ -5,6 +5,8 @@ import com.trevor.domain.User;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
  * 一句话描述该类作用:【】
  *
@@ -61,5 +63,12 @@ public interface UserMapper {
      * @return
      */
     User findUserByPhoneNumContainOpenidAndHash(@Param("phoneNum") String phoneNum);
+
+    /**
+     * 根据id集合查询用户
+     * @param ids
+     * @return
+     */
+    List<User> findUsersByIds(@Param("ids") List<Long> ids);
 
 }

@@ -1,5 +1,6 @@
 package com.trevor.dao;
 
+import com.trevor.bo.FriendInfo;
 import com.trevor.domain.FriendsManage;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;

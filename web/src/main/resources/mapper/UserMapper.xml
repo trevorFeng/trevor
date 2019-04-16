@@ -94,4 +94,18 @@
         phone_number=#{phoneNum}
     </select>
 
+    <select id="findUsersByIds" resultType="com.trevor.domain.User">
+        select
+        id id,
+        app_name appName,
+        app_picture_url appPictureUrl,
+        from
+        `user`
+        where
+        id in
+        <foreach collection="ids" item="id"  open="(" separator="," close=")">
+        #{id}
+        </foreach>
+    </select>
+
 </mapper>

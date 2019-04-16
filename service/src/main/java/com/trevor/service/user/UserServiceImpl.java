@@ -6,6 +6,7 @@ import com.trevor.domain.User;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -135,5 +136,10 @@ public class UserServiceImpl implements UserService{
         user.setId(userId);
         user.setHash("loginOut");
         userMapper.updateUser(user);
+    }
+
+    @Override
+    public List<User> findUsersByIds(List<Long> ids) {
+        return userMapper.findUsersByIds(ids);
     }
 }

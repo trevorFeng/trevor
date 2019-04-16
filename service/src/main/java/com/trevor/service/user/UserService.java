@@ -4,6 +4,8 @@ package com.trevor.service.user;
 import com.trevor.bo.Authentication;
 import com.trevor.domain.User;
 
+import java.util.List;
+
 public interface UserService {
 
     /**
@@ -73,5 +75,12 @@ public interface UserService {
      * @param userId
      */
     void loginOut(Long userId);
+
+    /**
+     * 根据id集合查询用户
+     * @param ids
+     * @return
+     */
+    List<User> findUsersByIds(List<Long> ids);
 
 }

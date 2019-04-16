@@ -5,9 +5,11 @@
 
     <select id="findByUserId" resultType="com.trevor.domain.FriendsManage">
         select
+        distinct
         manage_friend_id manageFriendId,
         allow_flag allowFlag
-        from friends_manage
+        from
+        friends_manage
         where
         user_id=#{userId}
     </select>

@@ -95,7 +95,6 @@ public class NiuniuServiceImpl implements NiuniuService{
      * 处理开通了好友管理
      * @param niuniuRoomParameter
      * @param oneById
-     * @param webSessionUser
      * @param roomId
      * @throws IOException
      */

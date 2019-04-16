@@ -124,4 +124,16 @@ public class UserServiceImpl implements UserService{
         user.setRealName(authentication.getRealName());
         userMapper.updateUser(user);
     }
+
+    /**
+     * 退出登录
+     * @param userId
+     */
+    @Override
+    public void loginOut(Long userId) {
+        User user = new User();
+        user.setId(userId);
+        user.setHash("loginOut");
+        userMapper.updateUser(user);
+    }
 }

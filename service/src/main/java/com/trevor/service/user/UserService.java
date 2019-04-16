@@ -68,4 +68,10 @@ public interface UserService {
      */
     void realNameAuth(Long userId , Authentication authentication);
 
+    /**
+     * 退出登录
+     * @param userId
+     */
+    void loginOut(Long userId);
+
 }

@@ -8,6 +8,7 @@ import com.trevor.common.MessageCodeEnum;
 import com.trevor.domain.User;
 import com.trevor.service.user.UserService;
 import com.trevor.util.CookieUtils;
+import com.trevor.util.ThreadLocalUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.MediaType;
@@ -30,27 +31,25 @@ import javax.servlet.http.HttpServletResponse;
 public class LoginController {
 
     @Resource
-    private HttpServletResponse response;
-
-    @Resource
-    private HttpServletRequest request;
-
-    @Resource
     private UserService userService;
 
     @ApiOperation("获取登录用户")
     @RequestMapping(value = "/api/login/user", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     protected JsonEntity<User> getLoginUser() {
-        String opendi = CookieUtils.getOpenid(request);
-        User webSessionUser = userService.findUserByOpenid(opendi);
-        return ResponseHelper.createInstance(webSessionUser ,MessageCodeEnum.HANDLER_SUCCESS);
+        User user = ThreadLocalUtil.getInstance().getUserInfo();
+        JsonEntity<User> jsonEntity = ResponseHelper.createInstance(user ,MessageCodeEnum.HANDLER_SUCCESS);
+        ThreadLocalUtil.getInstance().remove();
+        return jsonEntity;
     }
 
     @ApiOperation("退出登录")
     @RequestMapping(value = "/api/login/out", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     protected JsonEntity<Object> loginOut() {
-        //删除cookie即可
-        CookieUtils.delete(WebKeys.TOKEN ,response);
-        return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.LOGIN_OUT_SUCCESS);
+        //删除hash即可
+        User user = ThreadLocalUtil.getInstance().getUserInfo();
+        userService.loginOut(user.getId());
+        JsonEntity<Object> jsonEntity = ResponseHelper.createInstanceWithOutData(MessageCodeEnum.LOGIN_OUT_SUCCESS);
+        ThreadLocalUtil.getInstance().remove();
+        return jsonEntity;
     }
 }

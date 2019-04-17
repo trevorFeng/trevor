@@ -36,7 +36,7 @@ public class GlobalExceptionHandler {
             return objectJsonEntity;
         } else {
             log.error("鸡巴，报错了:" + e.getMessage(), e);
-            return ResponseHelper.withErrorInstance(MessageCodeEnum.SYSTEM_ERROR);
+            return ResponseHelper.createInstance(e.getMessage() ,MessageCodeEnum.SYSTEM_ERROR);
         }
     }
 }

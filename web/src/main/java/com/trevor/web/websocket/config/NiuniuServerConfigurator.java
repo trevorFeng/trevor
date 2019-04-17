@@ -15,7 +15,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @Description:
  */
 @Data
-public class ChatServerConfigurator extends ServerEndpointConfig.Configurator {
+public class NiuniuServerConfigurator extends ServerEndpointConfig.Configurator {
 
 
     private ConcurrentHashMap<String , CopyOnWriteArrayList<Session>> sessions = new ConcurrentHashMap<>(2<<9);

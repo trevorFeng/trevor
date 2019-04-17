@@ -23,4 +23,12 @@
         where
         id=#{id}
     </select>
+    <select id="findRoomAuthIdByRoomId" resultType="java.lang.Long">
+        select
+        room_auth
+        from
+        `room_record`
+        where
+        id=#{roomId}
+    </select>
 </mapper>

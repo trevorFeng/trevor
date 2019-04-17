@@ -40,9 +40,9 @@ public class FriendManageController {
      */
     @ApiOperation(value = "查询好友（申请通过和未通过的）")
     @RequestMapping(value = "/api/friend/manager/query", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public JsonEntity<List<FriendInfo>> findRecevedCardRecord(){
+    public JsonEntity<List<FriendInfo>> queryFriends(){
         User user = ThreadLocalUtil.getInstance().getUserInfo();
-        List<FriendInfo> friendInfos = friendManagerService.findRecevedCardRecord(user);
+        List<FriendInfo> friendInfos = friendManagerService.queryFriends(user);
         ThreadLocalUtil.getInstance().remove();
         return ResponseHelper.createInstance(friendInfos , MessageCodeEnum.QUERY_SUCCESS);
     }
@@ -53,8 +53,11 @@ public class FriendManageController {
      */
     @ApiOperation(value = "申请成为房主的好友")
     @RequestMapping(value = "/api/friend/manager/query/{roomId}", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public JsonEntity<Object> applyRoomAuth(@PathVariable("roomId") Long roomId){
-        return null;
+    public JsonEntity<Object> applyFriend(@PathVariable("roomId") Long roomId){
+        User user = ThreadLocalUtil.getInstance().getUserInfo();
+        JsonEntity<Object> jsonEntity = friendManagerService.applyFriend(roomId ,user.getId());
+        ThreadLocalUtil.getInstance().remove();
+        return jsonEntity;
     }
 
     /**
@@ -62,9 +65,12 @@ public class FriendManageController {
      * @return
      */
     @ApiOperation(value = "踢出好友")
-    @RequestMapping(value = "/api/friend/manager/remove/{userId}", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public JsonEntity<Object> removeRoomAuth(@PathVariable("userId") Long userId){
-        return null;
+    @RequestMapping(value = "/api/friend/manager/remove/{removeUserId}", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public JsonEntity<Object> removeFriend(@PathVariable("removeUserId") Long removeUserId){
+        User user = ThreadLocalUtil.getInstance().getUserInfo();
+        JsonEntity<Object> jsonEntity = friendManagerService.removeFriend(user.getId(),removeUserId);
+        ThreadLocalUtil.getInstance().remove();
+        return jsonEntity;
     }
 
     /**
@@ -72,9 +78,12 @@ public class FriendManageController {
      * @return
      */
     @ApiOperation(value = "通过好友申请")
-    @RequestMapping(value = "/api/friend/manager/pass/{userId}", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public JsonEntity<Object> passRoomAuth(@PathVariable("userId") Long userId){
-        return null;
+    @RequestMapping(value = "/api/friend/manager/pass/{passUserId}", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public JsonEntity<Object> passFriend(@PathVariable("passUserId") Long passUserId){
+        User user = ThreadLocalUtil.getInstance().getUserInfo();
+        JsonEntity<Object> jsonEntity = friendManagerService.passFriend(user.getId(),passUserId);
+        ThreadLocalUtil.getInstance().remove();
+        return jsonEntity;
     }
 
 

@@ -15,4 +15,11 @@ public interface RoomRecordCacheService {
      */
     RoomRecord findOneById(Long id);
 
+    /**
+     * 根据房间记录id查询开房人的id
+     * @param roomId
+     * @return
+     */
+    Long findRoomAuthIdByRoomId(Long roomId);
+
 }

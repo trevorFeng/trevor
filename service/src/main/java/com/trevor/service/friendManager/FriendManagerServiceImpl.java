@@ -2,9 +2,13 @@ package com.trevor.service.friendManager;
 
 import com.google.common.collect.Lists;
 import com.trevor.bo.FriendInfo;
+import com.trevor.bo.JsonEntity;
+import com.trevor.bo.ResponseHelper;
+import com.trevor.common.MessageCodeEnum;
 import com.trevor.dao.FriendManageMapper;
 import com.trevor.domain.FriendsManage;
 import com.trevor.domain.User;
+import com.trevor.service.cache.RoomRecordCacheService;
 import com.trevor.service.user.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,12 +34,15 @@ public class FriendManagerServiceImpl implements FriendManagerService {
     @Resource
     private UserService userService;
 
+    @Resource
+    private RoomRecordCacheService roomRecordCacheService;
+
     /**
      * 查询好友（申请通过和未通过的）
      * @return
      */
     @Override
-    public List<FriendInfo> findRecevedCardRecord(User user) {
+    public List<FriendInfo> queryFriends(User user) {
         List<FriendsManage> list =friendManageMapper.findByUserId(user.getId());
         List<Long> ids = list.stream().map(friendsManage -> friendsManage.getManageFriendId()).collect(Collectors.toList());
         Map<Long ,Integer> map = list.stream().collect(Collectors.toMap(FriendsManage::getManageFriendId ,FriendsManage::getAllowFlag));
@@ -50,5 +57,42 @@ public class FriendManagerServiceImpl implements FriendManagerService {
             friendInfos.add(friendInfo);
         });
         return friendInfos;
+    }
+
+    /**
+     * 申请好友
+     * @param roomId
+     * @param applyUserId
+     * @return
+     */
+    @Override
+    public JsonEntity<Object> applyFriend(Long roomId ,Long applyUserId) {
+        Long roomAuthId = roomRecordCacheService.findRoomAuthIdByRoomId(roomId);
+        friendManageMapper.applyFriend(roomAuthId ,applyUserId);
+        return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.HANDLER_SUCCESS);
+    }
+
+    /**
+     * 通过好友申请
+     * @param userId
+     * @param passUserId
+     * @return
+     */
+    @Override
+    public JsonEntity<Object> passFriend(Long userId ,Long passUserId) {
+        friendManageMapper.passFriend(userId ,passUserId);
+        return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.HANDLER_SUCCESS);
+    }
+
+    /**
+     * 提出好友
+     * @param userId
+     * @param removeUserId
+     * @return
+     */
+    @Override
+    public JsonEntity<Object> removeFriend(Long userId ,Long removeUserId) {
+        friendManageMapper.removeFriend(userId ,removeUserId);
+        return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.HANDLER_SUCCESS);
     }
 }

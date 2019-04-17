@@ -24,4 +24,11 @@ public interface RoomRecordMapper {
      * @return
      */
     Long insertOne(@Param("roomRecord") RoomRecord roomRecord);
+
+    /**
+     * 根据开放记录id查询开房人的id
+     * @param roomId
+     * @return
+     */
+    Long findRoomAuthIdByRoomId(@Param("roomId") Long roomId);
 }

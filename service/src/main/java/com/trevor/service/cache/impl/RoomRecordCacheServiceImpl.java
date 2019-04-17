@@ -26,4 +26,15 @@ public class RoomRecordCacheServiceImpl implements RoomRecordCacheService {
     public RoomRecord findOneById(Long id) {
         return roomRecordMapper.findOneById(id);
     }
+
+
+    /**
+     * 根据开放记录id查询开房人的id
+     * @param roomId
+     * @return
+     */
+    @Override
+    public Long findRoomAuthIdByRoomId(Long roomId) {
+        return roomRecordMapper.findRoomAuthIdByRoomId(roomId);
+    }
 }

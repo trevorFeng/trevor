@@ -1,8 +1,8 @@
-package com.trevor.service.cache.impl;
+package com.trevor.service;
 
 import com.trevor.dao.RoomRecordMapper;
 import com.trevor.domain.RoomRecord;
-import com.trevor.service.cache.RoomRecordCacheService;
+import com.trevor.service.RoomRecordCacheService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;

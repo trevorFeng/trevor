@@ -4,12 +4,10 @@ package com.trevor.web.controller.login;
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.LoginUser;
 import com.trevor.bo.ResponseHelper;
-import com.trevor.bo.WebKeys;
 import com.trevor.common.MessageCodeEnum;
 import com.trevor.domain.User;
 import com.trevor.service.PersonalCardService;
 import com.trevor.service.user.UserService;
-import com.trevor.util.CookieUtils;
 import com.trevor.util.ThreadLocalUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -19,8 +17,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * 一句话描述该类作用:【】

@@ -1,7 +1,7 @@
-package com.trevor.service.websocket;
+package com.trevor.websocket;
 
 import com.trevor.bo.RoomPoke;
-import com.trevor.task.CountdownTask;
+import com.trevor.websocket.task.CountdownTask;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;

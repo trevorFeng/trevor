@@ -1,4 +1,4 @@
-package com.trevor.web.websocket.jinhua;
+package com.trevor.web.websocket.bo;
 
 public enum Action {
     /**

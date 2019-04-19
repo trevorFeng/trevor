@@ -4,6 +4,7 @@ package com.trevor.web.interceptor;
 import com.trevor.bo.WebKeys;
 import com.trevor.domain.User;
 import com.trevor.service.user.UserService;
+import com.trevor.util.SessionUtil;
 import com.trevor.util.ThreadLocalUtil;
 import com.trevor.util.TokenUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -38,8 +39,15 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
             response.sendRedirect(redirectUrl);
             return false;
         }
-        // 取得客户端浏览器的类型
-        String browserType = request.getHeader("user-agent").toLowerCase();
+//        String sessionToken = SessionUtil.getToken();
+//        if (sessionToken == null) {
+//            response.sendRedirect(redirectUrl);
+//            return false;
+//        }
+//        if (!Objects.equals(token ,sessionToken)) {
+//            response.sendRedirect(redirectUrl);
+//            return false;
+//        }
         try {
             //解析token
             Map<String, Object> claims = TokenUtil.getClaimsFromToken(token);

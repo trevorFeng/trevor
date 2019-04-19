@@ -1,7 +1,6 @@
-package com.trevor.task;
+package com.trevor.websocket.task;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.ResponseHelper;
 import com.trevor.bo.RoomPoke;

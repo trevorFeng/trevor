@@ -1,4 +1,4 @@
-package com.trevor.service.cache;
+package com.trevor.service;
 
 import com.trevor.domain.RoomRecord;
 

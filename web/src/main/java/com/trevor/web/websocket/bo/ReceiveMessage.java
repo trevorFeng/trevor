@@ -10,6 +10,9 @@ import lombok.Data;
 @Data
 public class ReceiveMessage {
 
+    /**
+     *
+     */
     private Integer messageType;
 
     private String message;

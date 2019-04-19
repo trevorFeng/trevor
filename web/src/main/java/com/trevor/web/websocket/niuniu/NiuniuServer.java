@@ -7,6 +7,10 @@ import com.trevor.bo.WebKeys;
 import com.trevor.domain.User;
 import com.trevor.service.niuniu.NiuniuService;
 import com.trevor.util.WebsocketUtil;
+import com.trevor.web.websocket.bo.ReturnMessage;
+import com.trevor.web.websocket.config.NiuniuServerConfigurator;
+import com.trevor.web.websocket.decoder.MessageDecoder;
+import com.trevor.web.websocket.encoder.MessageEncoder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -19,13 +23,19 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
+
 /**
  * 一句话描述该类作用:【牛牛服务端,每次建立链接就新建了一个对象】
  *
  * @author: trevor
  * @create: 2019-03-05 22:29
  **/
-@ServerEndpoint("/niuniu/{rooId}")
+@ServerEndpoint(
+        value = "/niuniu/{rooId}",
+        configurator = NiuniuServerConfigurator.class,
+        encoders= {MessageEncoder.class},
+        decoders = {MessageDecoder.class}
+        )
 @Component
 @Slf4j
 public class NiuniuServer {
@@ -34,7 +44,7 @@ public class NiuniuServer {
     private  NiuniuService niuniuService;
 
     @Resource(name = "niuniuRooms")
-    private Map<Long ,Set<Session>> niuniuRomms;
+    private Map<Long , Set<Session>> niuniuRomms;
 
     private Session session;
 
@@ -45,7 +55,7 @@ public class NiuniuServer {
      * @param rooId
      */
     @OnOpen
-    public void onOpen(Session session ,EndpointConfig config ,@PathParam("rooId") String rooId) throws IOException {
+    public void onOpen(Session session , EndpointConfig config , @PathParam("rooId") String rooId) throws IOException {
         this.session = session;
         HttpSession httpSession = (HttpSession) config.getUserProperties().get(HttpSession.class.getName());
         User user = (User) httpSession.getAttribute(WebKeys.SESSION_USER_KEY);
@@ -58,13 +68,14 @@ public class NiuniuServer {
                 niuniuRomms.get(Long.valueOf(rooId)).add(session);
             }
         }
-        jsonString = JSON.toJSONString(jsonEntity);
         if (jsonEntity.getCode() < 0) {
-            WebsocketUtil.sendBasicMessage(session , jsonString);
+            SocketSessionUser socketSessionUser = jsonEntity.getData();
+            ReturnMessage returnMessage = new ReturnMessage();
+            //WebsocketUtil.sendBasicMessage(session , jsonString);
             session.close();
         }else {
             session.getUserProperties().put(WebKeys.SESSION_USER_KEY ,jsonEntity.getData());
-            WebsocketUtil.sendAllBasicMessage(niuniuRomms.get(Long.valueOf(rooId)) ,jsonString);
+            //WebsocketUtil.sendAllBasicMessage(niuniuRomms.get(Long.valueOf(rooId)) ,jsonString);
         }
     }
 
@@ -79,7 +90,6 @@ public class NiuniuServer {
             niuniuRomms.get(roomName).remove(session);
             log.info("断开连接");
         }
-        System.out.println("a client has disconnected!");
     }
 
     @OnError

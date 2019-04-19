@@ -11,14 +11,14 @@ import lombok.Data;
 public class ReturnMessage {
 
     /**
-     * 消息类型，1为加入新的聊天用户，2为聊天内容，3为图片
+     * 消息类型
+     * 1-打牌用户新增
+     * 2-用户准备
+     * 3-选择倍数
+     * 4-发牌
+     * 5-押倍数
      */
     private Integer messageType;
-
-    /**
-     * 是否是自己的聊天内容，1为是，0为否
-     */
-    private Integer isMyself;
 
     /**
      * 消息

@@ -1,4 +1,4 @@
-package com.trevor.service.websocket;
+package com.trevor.websocket;
 
 /**
  * @author trevor

@@ -10,6 +10,7 @@ import com.trevor.domain.PersonalCard;
 import com.trevor.domain.User;
 import com.trevor.service.user.UserService;
 import com.trevor.util.RandomUtils;
+import com.trevor.util.SessionUtil;
 import com.trevor.util.TokenUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -68,6 +69,7 @@ public class TestLoginController {
         claims.put("timestamp" ,System.currentTimeMillis());
         String token = TokenUtil.generateToken(claims);
 
+        //SessionUtil.setToken(token);
         return ResponseHelper.createInstance(token ,MessageCodeEnum.HANDLER_SUCCESS);
     }
 }

@@ -1,4 +1,4 @@
-package com.trevor.task;
+package com.trevor.websocket.task;
 
 import org.springframework.stereotype.Service;
 

@@ -11,7 +11,7 @@ import com.trevor.common.SpecialEnum;
 import com.trevor.dao.FriendManageMapper;
 import com.trevor.domain.RoomRecord;
 import com.trevor.domain.User;
-import com.trevor.service.cache.RoomRecordCacheService;
+import com.trevor.service.RoomRecordCacheService;
 import com.trevor.service.createRoom.bo.NiuniuRoomParameter;
 import com.trevor.service.niuniu.bo.NiuniuAction;
 import com.trevor.service.user.UserService;
@@ -83,7 +83,7 @@ public class NiuniuServiceImpl implements NiuniuService{
     public JsonEntity<SocketSessionUser> dealReceiveMessage(String message, SocketSessionUser socketSessionUser) {
         //接收到准备的消息
         if (Objects.equals(Integer.valueOf(message) ,NiuniuAction.READY.getCode())) {
-            socketSessionUser.setIsReady(Boolean.TRUE);
+            //socketSessionUser.setIsReady(Boolean.TRUE);
             return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.READY_SUCCESS);
         }else if (Objects.equals(Integer.valueOf(message) ,NiuniuAction.FAPAI.getCode())) {
 
@@ -142,15 +142,15 @@ public class NiuniuServiceImpl implements NiuniuService{
         //允许观战
         if (niuniuRoomParameter.getSpecial().contains(SpecialEnum.CAN_SEE.getCode())) {
             if (sessions.size() < RoomTypeEnum.getRoomNumByType(niuniuRoomParameter.getRoomType())) {
-                socketSessionUser.setIsGuanZhan(Boolean.FALSE);
+                socketSessionUser.setIsChiGuaPeople(Boolean.FALSE);
             }else {
-                socketSessionUser.setIsGuanZhan(Boolean.TRUE);
+                socketSessionUser.setIsChiGuaPeople(Boolean.TRUE);
             }
             return ResponseHelper.createInstance(socketSessionUser,MessageCodeEnum.JOIN_ROOM);
             //不允许观战
         }else {
             if (sessions.size() < RoomTypeEnum.getRoomNumByType(niuniuRoomParameter.getRoomType())) {
-                socketSessionUser.setIsGuanZhan(Boolean.FALSE);
+                socketSessionUser.setIsChiGuaPeople(Boolean.FALSE);
                 return ResponseHelper.createInstance(socketSessionUser,MessageCodeEnum.JOIN_ROOM);
             }else {
                 return ResponseHelper.createInstance(socketSessionUser,MessageCodeEnum.ROOM_FULL);

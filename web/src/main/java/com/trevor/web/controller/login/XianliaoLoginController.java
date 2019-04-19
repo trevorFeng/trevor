@@ -49,6 +49,7 @@ public class XianliaoLoginController {
         JsonEntity<String> jsonEntity = xianliaoService.weixinAuth(code);
         //授权成功
         if(jsonEntity.getCode() > 0){
+            //SessionUtil.setToken(jsonEntity.getData());
             return jsonEntity;
         }else {
             return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.AUTH_FAILED);

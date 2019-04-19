@@ -8,7 +8,7 @@ import com.trevor.common.MessageCodeEnum;
 import com.trevor.dao.FriendManageMapper;
 import com.trevor.domain.FriendsManage;
 import com.trevor.domain.User;
-import com.trevor.service.cache.RoomRecordCacheService;
+import com.trevor.service.RoomRecordCacheService;
 import com.trevor.service.user.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

@@ -27,6 +27,16 @@ public class RoomConfig {
         return niuniuRooms;
     }
 
+//    /**
+//     * 注入牛牛的房间
+//     * @return
+//     */
+//    @Bean(name = "niuniuRooms")
+//    public Map<Long , Set<Session>> generateNiuNiuRoomMap(){
+//        Map<Long, Set<Session>> niuniuRooms = new ConcurrentHashMap(2<<15);
+//        return niuniuRooms;
+//    }
+
     /**
      * 注入线程池
      * @return

@@ -1,4 +1,4 @@
-package com.trevor.bo;
+package com.trevor.websocket.bo;
 
 import com.trevor.domain.User;
 import lombok.Data;
@@ -9,7 +9,7 @@ import lombok.Data;
  * @date 2019/3/4 11:28
  */
 @Data
-public class SocketSessionUser {
+public class SocketUser {
 
     /**
      * id
@@ -30,10 +30,4 @@ public class SocketSessionUser {
      * 是否是吃瓜群众
      */
     private Boolean isChiGuaPeople;
-
-    public SocketSessionUser(User user) {
-        this.id = user.getId();
-        this.name = user.getAppName();
-        this.picture = user.getAppPictureUrl();
-    }
 }

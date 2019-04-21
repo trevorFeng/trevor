@@ -34,6 +34,9 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        if (request.getMethod().equals("OPTIONS")) {
+            return true;
+        }
         String token = request.getHeader(WebKeys.TOKEN);
         if (token == null) {
             response.sendRedirect(redirectUrl);

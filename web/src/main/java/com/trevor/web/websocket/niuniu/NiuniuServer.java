@@ -1,12 +1,10 @@
 package com.trevor.web.websocket.niuniu;
 
-import com.alibaba.fastjson.JSON;
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.SocketSessionUser;
 import com.trevor.bo.WebKeys;
 import com.trevor.domain.User;
 import com.trevor.service.niuniu.NiuniuService;
-import com.trevor.util.WebsocketUtil;
 import com.trevor.web.websocket.bo.ReturnMessage;
 import com.trevor.web.websocket.config.NiuniuServerConfigurator;
 import com.trevor.web.websocket.decoder.MessageDecoder;
@@ -60,8 +58,6 @@ public class NiuniuServer {
         HttpSession httpSession = (HttpSession) config.getUserProperties().get(HttpSession.class.getName());
         User user = (User) httpSession.getAttribute(WebKeys.SESSION_USER_KEY);
         String tempRoomId = rooId.intern();
-        String jsonString;
-        JsonEntity<SocketSessionUser> jsonEntity;
         synchronized (tempRoomId) {
             jsonEntity = niuniuService.onOpenCheck(rooId, user);
             if (jsonEntity.getCode() > 0) {

@@ -111,11 +111,18 @@ public class NiuniuServiceImpl implements NiuniuService {
         //开始5s倒计时
         if (roomPoke.getUserReadyNum() == 2) {
             roomPoke.getLock().unlock();
+            //通知线程开始打牌任务
             countdownTask.coundDown(niuniuRooms.get(roomId) ,roomPoke);
+            //倒计时结束，先发4张牌，等待闲家下注
+
+
+            //
         }else {
             roomPoke.getLock().unlock();
         }
     }
+
+    private
 
     /**
      * 处理开通了好友管理

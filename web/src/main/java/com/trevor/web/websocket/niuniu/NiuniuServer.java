@@ -1,14 +1,17 @@
 package com.trevor.web.websocket.niuniu;
 
-import com.trevor.bo.JsonEntity;
-import com.trevor.bo.SocketSessionUser;
 import com.trevor.bo.WebKeys;
+import com.trevor.common.MessageCodeEnum;
 import com.trevor.domain.User;
-import com.trevor.service.niuniu.NiuniuService;
+import com.trevor.util.WebsocketUtil;
+import com.trevor.web.websocket.bo.Action;
 import com.trevor.web.websocket.bo.ReturnMessage;
 import com.trevor.web.websocket.config.NiuniuServerConfigurator;
 import com.trevor.web.websocket.decoder.MessageDecoder;
 import com.trevor.web.websocket.encoder.MessageEncoder;
+import com.trevor.websocket.bo.ReceiveMessage;
+import com.trevor.websocket.bo.SocketUser;
+import com.trevor.websocket.niuniu.NiuniuService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +22,7 @@ import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 
@@ -39,12 +43,14 @@ import java.util.Set;
 public class NiuniuServer {
 
     @Resource
-    private  NiuniuService niuniuService;
+    private NiuniuService niuniuService;
 
     @Resource(name = "niuniuRooms")
-    private Map<Long , Set<Session>> niuniuRomms;
+    private Map<Long , Set<Session>> sessions;
 
-    private Session session;
+    private Session mySession;
+
+    private HttpSession httpSession;
 
     /**
      * 连接时调用
@@ -53,37 +59,43 @@ public class NiuniuServer {
      * @param rooId
      */
     @OnOpen
-    public void onOpen(Session session , EndpointConfig config , @PathParam("rooId") String rooId) throws IOException {
-        this.session = session;
-        HttpSession httpSession = (HttpSession) config.getUserProperties().get(HttpSession.class.getName());
-        User user = (User) httpSession.getAttribute(WebKeys.SESSION_USER_KEY);
+    public void onOpen(Session session , EndpointConfig config , @PathParam("rooId") String rooId) throws IOException, EncodeException {
+        mySession = session;
+        httpSession = (HttpSession) config.getUserProperties().get(HttpSession.class.getName());
+        User user = (User) httpSession.getAttribute("user");
+        if (user == null) {
+            WebsocketUtil.sendBasicMessage(mySession , new ReturnMessage(MessageCodeEnum.SESSION_TIRED));
+            mySession.close();
+            return;
+        }
         String tempRoomId = rooId.intern();
+        ReturnMessage<SocketUser> returnMessage;
         synchronized (tempRoomId) {
-            jsonEntity = niuniuService.onOpenCheck(rooId, user);
-            if (jsonEntity.getCode() > 0) {
-                niuniuRomms.get(Long.valueOf(rooId)).add(session);
+            returnMessage = niuniuService.onOpenCheck(rooId, user);
+            if (returnMessage.getMessageCode() > 0) {
+                sessions.get(Long.valueOf(rooId)).add(mySession);
             }
         }
-        if (jsonEntity.getCode() < 0) {
-            SocketSessionUser socketSessionUser = jsonEntity.getData();
-            ReturnMessage returnMessage = new ReturnMessage();
-            //WebsocketUtil.sendBasicMessage(session , jsonString);
-            session.close();
+        if (returnMessage.getMessageCode() < 0) {
+            WebsocketUtil.sendBasicMessage(mySession , returnMessage);
+            mySession.close();
         }else {
-            session.getUserProperties().put(WebKeys.SESSION_USER_KEY ,jsonEntity.getData());
-            //WebsocketUtil.sendAllBasicMessage(niuniuRomms.get(Long.valueOf(rooId)) ,jsonString);
+            mySession.getUserProperties().put(WebKeys.SESSION_USER_KEY ,returnMessage.getT());
+            WebsocketUtil.sendAllBasicMessage(sessions.get(Long.valueOf(rooId)) ,returnMessage);
         }
     }
 
     @OnMessage
-    public void receiveMsg(@PathParam("rooId") String rooId, String msg) throws Exception {
-                                           SocketSessionUser socketSessionUser = (SocketSessionUser) session.getUserProperties().get(WebKeys.SESSION_USER_KEY);
+    public void receiveMsg(@PathParam("rooId") String rooId, ReceiveMessage receiveMessage) throws Exception {
+        if (Objects.equals(receiveMessage.getMessageCode() , Action.READY.getCode())) {
+
+        }
     }
 
     @OnClose
     public void disConnect(@PathParam("rooId") String roomName, Session session) {
-        if (niuniuRomms.containsKey(Long.valueOf(roomName))) {
-            niuniuRomms.get(roomName).remove(session);
+        if (sessions.containsKey(Long.valueOf(roomName))) {
+            sessions.get(roomName).remove(session);
             log.info("断开连接");
         }
     }

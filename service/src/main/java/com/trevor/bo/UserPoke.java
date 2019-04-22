@@ -20,4 +20,19 @@ public class UserPoke {
      * 玩家本局的poke牌
      */
     private List<String> pokes;
+
+    /**
+     * 本局是否准备
+     */
+    private Boolean isReady;
+
+    /**
+     * 本局的分数增减
+     */
+    private Integer thisScore;
+
+    /**
+     * 倍数
+     */
+    private Integer multiple;
 }

@@ -18,7 +18,7 @@ public class SessionUtil {
     /**
      * setToken
      */
-    public static void setToken(String token) {
+    public static void setUser(String token) {
         getSession().setAttribute("token" ,token);
     }
 

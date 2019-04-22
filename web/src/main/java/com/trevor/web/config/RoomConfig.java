@@ -1,5 +1,6 @@
 package com.trevor.web.config;
 
+import com.trevor.bo.RoomPoke;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -27,15 +28,15 @@ public class RoomConfig {
         return niuniuRooms;
     }
 
-//    /**
-//     * 注入牛牛的房间
-//     * @return
-//     */
-//    @Bean(name = "niuniuRooms")
-//    public Map<Long , Set<Session>> generateNiuNiuRoomMap(){
-//        Map<Long, Set<Session>> niuniuRooms = new ConcurrentHashMap(2<<15);
-//        return niuniuRooms;
-//    }
+    /**
+     * 注入牛牛的房间的牌
+     * @return
+     */
+    @Bean(name = "niuniuRoomPoke")
+    public Map<Long , RoomPoke> generateNiuNiuRoomPoke(){
+        Map<Long , RoomPoke> map = new ConcurrentHashMap<>(2<<15);
+        return map;
+    }
 
     /**
      * 注入线程池

@@ -13,13 +13,15 @@ public class ReturnMessage<T> {
 
     /**
      * 消息类型,负数为错误
-     * 1-打牌用户新增
+     * 0-session过期，需重新授权
+     * 1-加入房间
      * 2-用户准备
+     * 3-倒计时
      * 3-选择倍数
      * 4-发牌
      * 5-押倍数
      */
-    private Integer messageType;
+    private Integer messageCode;
 
     /**
      * 错误消息
@@ -36,17 +38,17 @@ public class ReturnMessage<T> {
      * @param messageCodeEnum
      */
     public ReturnMessage (MessageCodeEnum messageCodeEnum){
-        this.messageType = messageCodeEnum.getCode();
+        this.messageCode = messageCodeEnum.getCode();
         this.errorMessage = messageCodeEnum.getMessage();
     }
 
     /**
      * 正确消息构造器
      * @param t
-     * @param messageType
+     * @param messageCode
      */
-    public ReturnMessage (T t ,Integer messageType){
+    public ReturnMessage (T t ,Integer messageCode){
         this.t = t;
-        this.messageType = messageType;
+        this.messageCode = messageCode;
     }
 }

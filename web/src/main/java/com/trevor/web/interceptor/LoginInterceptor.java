@@ -66,7 +66,10 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
             //合法才通过
             User user = userService.findUserByOpenid(openid);
             if (user != null && Objects.equals(hash ,user.getHash())) {
-                ThreadLocalUtil.getInstance().bind(userService.findUserByOpenid(openid));
+                ThreadLocalUtil.getInstance().bind(user);
+                if (SessionUtil.getSession().getAttribute("user") == null) {
+                    SessionUtil.getSession().setAttribute("user" ,user);
+                }
                 return Boolean.TRUE;
             }else {
                 response.sendRedirect(redirectUrl);

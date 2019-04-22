@@ -3,7 +3,9 @@ package com.trevor.bo;
 import lombok.Data;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.locks.Lock;
 
 /**
@@ -26,7 +28,12 @@ public class RoomPoke {
     /**
      * 每一局的玩家的牌
      */
-    private List<List<UserPoke>> userPokes = new ArrayList<>(2<<4);
+    private List<Map<Long ,UserPoke>> userPokes = new ArrayList<>(2<<4);
+
+    /**
+     * 玩家玩完上一句后的分数
+     */
+    private Map<Long ,Integer> scoreMap = new HashMap<>(2<<4);
 
     /**
      * 当前准备玩家人数，每重开一局清零
@@ -44,7 +51,12 @@ public class RoomPoke {
     private volatile Boolean isReadyOver;
 
     /**
-     *
+     * 默认为0，开到第几局了
+     */
+    private Integer lastNum;
+
+    /**
+     * 总局数
      */
     private Integer totalNum;
 

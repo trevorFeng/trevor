@@ -9,22 +9,7 @@ public enum Action {
     /**
      * 准备
      */
-    READY(2 ,"准备"),
-
-    /**
-     * 看牌
-     */
-    LOOK_CARDS(3 ,"看牌"),
-
-    /**
-     * 丢牌
-     */
-    GIVE_UP(4 ,"丢牌"),
-
-    /**
-     * 比牌
-     */
-    COMPARISON_CARD(5 ,"比牌");
+    READY(2 ,"准备");
 
 
     private Integer code;
@@ -34,5 +19,13 @@ public enum Action {
     private Action(Integer code ,String des){
         this.code = code;
         this.des = des;
+    }
+
+    public Integer getCode() {
+        return code;
+    }
+
+    public String getDes() {
+        return des;
     }
 }

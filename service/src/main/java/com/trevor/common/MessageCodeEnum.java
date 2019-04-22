@@ -68,6 +68,11 @@ public enum MessageCodeEnum {
      */
     PARAM_ERROR(-50 ,"草，参数错误"),
 
+    /**
+     * session过期
+     */
+    SESSION_TIRED(0 ,"session 过期"),
+
 
     /**
      * 创建成功

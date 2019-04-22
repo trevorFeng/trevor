@@ -1,9 +1,8 @@
-package com.trevor.service.niuniu;
+package com.trevor.websocket.niuniu;
 
 import com.alibaba.fastjson.JSON;
-import com.trevor.bo.JsonEntity;
-import com.trevor.bo.ResponseHelper;
-import com.trevor.bo.SocketSessionUser;
+import com.trevor.bo.RoomPoke;
+import com.trevor.bo.UserPoke;
 import com.trevor.common.FriendManageEnum;
 import com.trevor.common.MessageCodeEnum;
 import com.trevor.common.RoomTypeEnum;
@@ -13,16 +12,16 @@ import com.trevor.domain.RoomRecord;
 import com.trevor.domain.User;
 import com.trevor.service.RoomRecordCacheService;
 import com.trevor.service.createRoom.bo.NiuniuRoomParameter;
-import com.trevor.service.niuniu.bo.NiuniuAction;
 import com.trevor.service.user.UserService;
+import com.trevor.web.websocket.bo.Action;
+import com.trevor.web.websocket.bo.ReturnMessage;
+import com.trevor.websocket.bo.SocketUser;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.websocket.Session;
 import java.io.IOException;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 一句话描述该类作用:【】
@@ -31,10 +30,13 @@ import java.util.Set;
  * @create: 2019-03-06 22:28
  **/
 @Service
-public class NiuniuServiceImpl implements NiuniuService{
+public class NiuniuServiceImpl implements NiuniuService {
 
     @Resource(name = "niuniuRooms")
     private Map<Long ,Set<Session>> niuniuRooms;
+
+    @Resource(name = "niuniuRoomPoke")
+    private Map<Long , RoomPoke> roomPokeMap;
 
     @Resource
     private RoomRecordCacheService roomRecordCacheService;
@@ -51,15 +53,15 @@ public class NiuniuServiceImpl implements NiuniuService{
      * @return
      */
     @Override
-    public JsonEntity<SocketSessionUser> onOpenCheck(String roomId , User user) throws IOException {
+    public ReturnMessage<SocketUser> onOpenCheck(String roomId , User user) throws IOException {
         //查出房间配置
         RoomRecord oneById = roomRecordCacheService.findOneById(Long.valueOf(roomId));
         if (oneById == null) {
-            return ResponseHelper.withErrorInstance(MessageCodeEnum.ROOM_NOT_EXIST);
+            return new ReturnMessage<>(MessageCodeEnum.ROOM_NOT_EXIST);
         }
         //房间已关闭
         if (niuniuRooms.get(Long.valueOf(roomId)) == null) {
-            return ResponseHelper.withErrorInstance(MessageCodeEnum.ROOM_CLOSE);
+            return new ReturnMessage<>(MessageCodeEnum.ROOM_CLOSE);
         }
         NiuniuRoomParameter niuniuRoomParameter = JSON.parseObject(oneById.getRoomConfig() ,NiuniuRoomParameter.class);
         //房主是否开启好友管理功能
@@ -74,21 +76,45 @@ public class NiuniuServiceImpl implements NiuniuService{
     }
 
     /**
-     * 处理接受到的新消息
-     * @param message
-     * @param socketSessionUser
+     * 处理准备的消息
+     * @param socketUser
      * @return
      */
     @Override
-    public JsonEntity<SocketSessionUser> dealReceiveMessage(String message, SocketSessionUser socketSessionUser) {
-        //接收到准备的消息
-        if (Objects.equals(Integer.valueOf(message) ,NiuniuAction.READY.getCode())) {
-            //socketSessionUser.setIsReady(Boolean.TRUE);
-            return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.READY_SUCCESS);
-        }else if (Objects.equals(Integer.valueOf(message) ,NiuniuAction.FAPAI.getCode())) {
-
+    public ReturnMessage<Object> dealReadyMessage(SocketUser socketUser ,Long roomId) {
+        RoomPoke roomPoke = roomPokeMap.get(roomId);
+        if (Objects.equals(roomPoke.getIsReadyOver() ,true)) {
+            return new ReturnMessage<Object>(MessageCodeEnum.ERROR_NUM_MAX);
         }
-        return null;
+        List<Map<Long , UserPoke>> userPokes = roomPoke.getUserPokes();
+        roomPoke.getLock().lock();
+        //初始化
+        if (roomPoke.getLastNum() == 0) {
+            if (userPokes.get(roomPoke.getLastNum()) == null) {
+                Map<Long , UserPoke> map = new HashMap<>(2<<4);
+                userPokes.add(map);
+            }
+        }else if (userPokes.get(roomPoke.getLastNum()-1) == null){
+            Map<Long , UserPoke> map = new HashMap<>(2<<4);
+            userPokes.add(map);
+        }
+        UserPoke userPoke = new UserPoke();
+        userPoke.setUserId(socketUser.getId());
+        userPoke.setIsReady(Boolean.TRUE);
+        if (roomPoke.getLastNum() == 0) {
+            userPoke.setTotalScore(0);
+        }else {
+            userPoke.setTotalScore(userPokes.get(roomPoke.getLastNum()-1).get());
+        }
+        roomPoke.setUserReadyNum(roomPoke.getUserReadyNum() + 1);
+
+        //开始5s倒计时
+        if (roomPoke.getUserReadyNum() == 2) {
+            roomPoke.getLock().unlock();
+            countdownTask.coundDown(niuniuRooms.get(roomId) ,roomPoke);
+        }else {
+            roomPoke.getLock().unlock();
+        }
     }
 
     /**
@@ -98,7 +124,7 @@ public class NiuniuServiceImpl implements NiuniuService{
      * @param roomId
      * @throws IOException
      */
-    private JsonEntity<SocketSessionUser> isFriendManage(NiuniuRoomParameter niuniuRoomParameter , RoomRecord oneById ,
+    private ReturnMessage<SocketUser> isFriendManage(NiuniuRoomParameter niuniuRoomParameter , RoomRecord oneById ,
                                                          User user, String roomId) throws IOException {
         //配置仅限好友
         if (niuniuRoomParameter.getSpecial().contains(SpecialEnum.JUST_FRIENDS.getCode())) {
@@ -118,12 +144,12 @@ public class NiuniuServiceImpl implements NiuniuService{
      * @param roomId
      * @throws IOException
      */
-    private JsonEntity<SocketSessionUser> justFriends(NiuniuRoomParameter niuniuRoomParameter , RoomRecord oneById ,
+    private ReturnMessage<SocketUser> justFriends(NiuniuRoomParameter niuniuRoomParameter , RoomRecord oneById ,
                                                       User user, String roomId) throws IOException {
         Long count = friendManageMapper.countRoomAuthFriendAllow(oneById.getRoomAuth(), user.getId());
         //不是房主的好友
         if (Objects.equals(count ,0L)) {
-            return ResponseHelper.withErrorInstance(MessageCodeEnum.NOT_FRIEND);
+            return new ReturnMessage<>(MessageCodeEnum.NOT_FRIEND);
         //是房主的好友
         }else {
             return this.dealCanSee(roomId , user,niuniuRoomParameter);
@@ -136,24 +162,27 @@ public class NiuniuServiceImpl implements NiuniuService{
      * @param niuniuRoomParameter
      * @throws IOException
      */
-    private JsonEntity<SocketSessionUser> dealCanSee(String roomId , User user, NiuniuRoomParameter niuniuRoomParameter) throws IOException {
-        SocketSessionUser socketSessionUser = new SocketSessionUser(user);
+    private ReturnMessage<SocketUser> dealCanSee(String roomId , User user, NiuniuRoomParameter niuniuRoomParameter) throws IOException {
+        SocketUser socketUser = new SocketUser();
+        socketUser.setId(user.getId());
+        socketUser.setName(user.getAppName());
+        socketUser.setPicture(user.getAppPictureUrl());
         Set<Session> sessions = niuniuRooms.get(Long.valueOf(roomId));
         //允许观战
         if (niuniuRoomParameter.getSpecial().contains(SpecialEnum.CAN_SEE.getCode())) {
             if (sessions.size() < RoomTypeEnum.getRoomNumByType(niuniuRoomParameter.getRoomType())) {
-                socketSessionUser.setIsChiGuaPeople(Boolean.FALSE);
+                socketUser.setIsChiGuaPeople(Boolean.FALSE);
             }else {
-                socketSessionUser.setIsChiGuaPeople(Boolean.TRUE);
+                socketUser.setIsChiGuaPeople(Boolean.TRUE);
             }
-            return ResponseHelper.createInstance(socketSessionUser,MessageCodeEnum.JOIN_ROOM);
+            return new ReturnMessage<SocketUser>(socketUser, Action.ENTER_ROOM.getCode());
             //不允许观战
         }else {
             if (sessions.size() < RoomTypeEnum.getRoomNumByType(niuniuRoomParameter.getRoomType())) {
-                socketSessionUser.setIsChiGuaPeople(Boolean.FALSE);
-                return ResponseHelper.createInstance(socketSessionUser,MessageCodeEnum.JOIN_ROOM);
+                socketUser.setIsChiGuaPeople(Boolean.FALSE);
+                return new ReturnMessage<SocketUser>(socketUser, Action.ENTER_ROOM.getCode());
             }else {
-                return ResponseHelper.createInstance(socketSessionUser,MessageCodeEnum.ROOM_FULL);
+                return new ReturnMessage<>(MessageCodeEnum.ROOM_FULL);
             }
 
         }

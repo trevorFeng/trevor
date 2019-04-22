@@ -1,8 +1,10 @@
-package com.trevor.service.niuniu;
+package com.trevor.websocket.niuniu;
 
 import com.trevor.domain.User;
 
 import java.io.IOException;
+import com.trevor.web.websocket.bo.ReturnMessage;
+import com.trevor.websocket.bo.SocketUser;
 
 /**
  * 一句话描述该类作用:【】
@@ -18,13 +20,13 @@ public interface NiuniuService {
      * @param roomId
      * @return
      */
-    ReturnMessage<Object> onOpenCheck(String roomId , User user) throws IOException;
+    ReturnMessage<SocketUser> onOpenCheck(String roomId , User user) throws IOException;
 
     /**
-     * 根据消息来处理
+     * 根据准备的消息
      * @return
      */
-    JsonEntity<SocketSessionUser> dealReceiveMessage(String message , SocketSessionUser socketSessionUser);
+    ReturnMessage<Object> dealReadyMessage(SocketUser socketUser ,Long roomId);
 
 
 

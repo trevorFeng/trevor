@@ -1,10 +1,6 @@
 package com.trevor.websocket.task;
 
-import com.alibaba.fastjson.JSON;
-import com.trevor.bo.JsonEntity;
-import com.trevor.bo.ResponseHelper;
 import com.trevor.bo.RoomPoke;
-import com.trevor.common.MessageCodeEnum;
 import com.trevor.util.WebsocketUtil;
 import com.trevor.websocket.bo.ReturnMessage;
 
@@ -48,6 +44,20 @@ public abstract class NiuNiuAbstractPlay {
         }
         roomPoke.setIsReadyOver(true);
     }
+
+    /**
+     * 准备结束发消息给客户端
+     */
+    protected void readyOver(CopyOnWriteArrayList<Session> sessions , RoomPoke roomPoke) throws InterruptedException, IOException, EncodeException {
+        for (int i = 5; i > 0 ; i--) {
+            ReturnMessage<Integer> returnMessage = new ReturnMessage<>(i ,3);
+            WebsocketUtil.sendAllBasicMessage(sessions , returnMessage);
+            Thread.sleep(1000);
+        }
+        roomPoke.setIsReadyOver(true);
+    }
+
+
 
     /**
      * 发牌

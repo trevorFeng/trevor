@@ -91,7 +91,9 @@ public class NiuniuServer {
         Integer messageCode = receiveMessage.getMessageCode();
         if (Objects.equals(messageCode , Action.READY.getCode())) {
 
-        }else if (Objects.equals(messageCode ,Action))
+        }else if (Objects.equals(messageCode ,Action.QIANG_ZHUANG.getCode())) {
+
+        }
     }
 
     @OnClose

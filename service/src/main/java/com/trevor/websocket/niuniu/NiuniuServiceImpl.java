@@ -100,18 +100,26 @@ public class NiuniuServiceImpl implements NiuniuService {
         userPokes.get(roomPoke.getRuningNum()-1).put(socketUser.getId() ,userPoke);
         Map<Long ,Integer> socreMap = roomPoke.getScoreMap();
         socreMap.putIfAbsent(socketUser.getId() ,0);
-        //开始5s倒计时
-        if (roomPoke.getUserReadyNum() == 2) {
-            roomPoke.getLock().unlock();
-            //通知线程开始打牌任务
-            countdownTask.coundDown(niuniuRooms.get(roomId) ,roomPoke);
-            //倒计时结束，先发4张牌，等待闲家下注
+//        //开始5s倒计时
+//        if (roomPoke.getUserReadyNum() == 2) {
+//            roomPoke.getLock().unlock();
+//            //通知线程开始打牌任务
+//            countdownTask.coundDown(niuniuRooms.get(roomId) ,roomPoke);
+//            //倒计时结束，先发4张牌，等待闲家下注
+//
+//
+//            //
+//        }else {
+//            roomPoke.getLock().unlock();
+//        }
+        return null;
+    }
 
+    /**
+     * 处理抢庄的消息
+     */
+    public void dealQiangZhuangMessage(SocketUser socketUser ,Long roomId ,Integer beishu){
 
-            //
-        }else {
-            roomPoke.getLock().unlock();
-        }
     }
 
 
@@ -165,7 +173,7 @@ public class NiuniuServiceImpl implements NiuniuService {
         socketUser.setId(user.getId());
         socketUser.setName(user.getAppName());
         socketUser.setPicture(user.getAppPictureUrl());
-        Set<Session> sessions = niuniuRooms.get(Long.valueOf(roomId));
+        CopyOnWriteArrayList<Session> sessions = niuniuRooms.get(Long.valueOf(roomId));
         //允许观战
         if (niuniuRoomParameter.getSpecial().contains(SpecialEnum.CAN_SEE.getCode())) {
             if (sessions.size() < RoomTypeEnum.getRoomNumByType(niuniuRoomParameter.getRoomType())) {

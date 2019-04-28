@@ -9,9 +9,12 @@ public enum Action {
     /**
      * 准备
      */
-    READY(2 ,"准备");
+    READY(2 ,"准备"),
 
-    qiangzhuang
+    /**
+     * 抢庄
+     */
+    QIANG_ZHUANG(3 ,"抢庄");
 
 
     private Integer code;

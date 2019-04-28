@@ -14,7 +14,7 @@ import com.trevor.service.RoomRecordCacheService;
 import com.trevor.service.createRoom.bo.NiuniuRoomParameter;
 import com.trevor.service.user.UserService;
 import com.trevor.web.websocket.bo.Action;
-import com.trevor.web.websocket.bo.ReturnMessage;
+import com.trevor.websocket.bo.ReturnMessage;
 import com.trevor.websocket.bo.SocketUser;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +22,7 @@ import javax.annotation.Resource;
 import javax.websocket.Session;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * 一句话描述该类作用:【】
@@ -33,7 +34,7 @@ import java.util.*;
 public class NiuniuServiceImpl implements NiuniuService {
 
     @Resource(name = "niuniuRooms")
-    private Map<Long ,Set<Session>> niuniuRooms;
+    private Map<Long ,CopyOnWriteArrayList<Session>> niuniuRooms;
 
     @Resource(name = "niuniuRoomPoke")
     private Map<Long , RoomPoke> roomPokeMap;
@@ -89,25 +90,16 @@ public class NiuniuServiceImpl implements NiuniuService {
         List<Map<Long , UserPoke>> userPokes = roomPoke.getUserPokes();
         roomPoke.getLock().lock();
         //初始化
-        if (roomPoke.getLastNum() == 0) {
-            if (userPokes.get(roomPoke.getLastNum()) == null) {
-                Map<Long , UserPoke> map = new HashMap<>(2<<4);
-                userPokes.add(map);
-            }
-        }else if (userPokes.get(roomPoke.getLastNum()-1) == null){
+        roomPoke.setRuningNum(roomPoke.getRuningNum()+1);
+        if (userPokes.get(roomPoke.getRuningNum()-1) == null) {
             Map<Long , UserPoke> map = new HashMap<>(2<<4);
             userPokes.add(map);
         }
         UserPoke userPoke = new UserPoke();
         userPoke.setUserId(socketUser.getId());
-        userPoke.setIsReady(Boolean.TRUE);
-        if (roomPoke.getLastNum() == 0) {
-            userPoke.setTotalScore(0);
-        }else {
-            userPoke.setTotalScore(userPokes.get(roomPoke.getLastNum()-1).get());
-        }
-        roomPoke.setUserReadyNum(roomPoke.getUserReadyNum() + 1);
-
+        userPokes.get(roomPoke.getRuningNum()-1).put(socketUser.getId() ,userPoke);
+        Map<Long ,Integer> socreMap = roomPoke.getScoreMap();
+        socreMap.putIfAbsent(socketUser.getId() ,0);
         //开始5s倒计时
         if (roomPoke.getUserReadyNum() == 2) {
             roomPoke.getLock().unlock();
@@ -122,7 +114,6 @@ public class NiuniuServiceImpl implements NiuniuService {
         }
     }
 
-    private
 
     /**
      * 处理开通了好友管理

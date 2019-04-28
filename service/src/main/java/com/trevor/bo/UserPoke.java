@@ -22,11 +22,6 @@ public class UserPoke {
     private List<String> pokes;
 
     /**
-     * 本局是否准备
-     */
-    private Boolean isReady;
-
-    /**
      * 本局的分数增减
      */
     private Integer thisScore;
@@ -35,4 +30,14 @@ public class UserPoke {
      * 倍数
      */
     private Integer multiple;
+
+    /**
+     * 是否抢庄
+     */
+    private Boolean isQiangZhuang;
+
+    /**
+     * 是否是庄家
+     */
+    private Boolean isZhuangJia;
 }

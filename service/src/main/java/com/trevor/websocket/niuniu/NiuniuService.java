@@ -3,7 +3,8 @@ package com.trevor.websocket.niuniu;
 import com.trevor.domain.User;
 
 import java.io.IOException;
-import com.trevor.web.websocket.bo.ReturnMessage;
+
+import com.trevor.websocket.bo.ReturnMessage;
 import com.trevor.websocket.bo.SocketUser;
 
 /**

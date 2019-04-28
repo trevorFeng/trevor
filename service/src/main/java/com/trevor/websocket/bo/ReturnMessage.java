@@ -1,4 +1,4 @@
-package com.trevor.web.websocket.bo;
+package com.trevor.websocket.bo;
 
 import com.trevor.common.MessageCodeEnum;
 import lombok.Data;

@@ -31,7 +31,7 @@ public class RoomPoke {
     private List<Map<Long ,UserPoke>> userPokes = new ArrayList<>(2<<4);
 
     /**
-     * 玩家玩完上一句后的分数
+     * 玩家玩完上一局后的分数
      */
     private Map<Long ,Integer> scoreMap = new HashMap<>(2<<4);
 
@@ -53,7 +53,7 @@ public class RoomPoke {
     /**
      * 默认为0，开到第几局了
      */
-    private Integer lastNum;
+    private Integer runingNum = 0;
 
     /**
      * 总局数

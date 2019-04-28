@@ -11,6 +11,8 @@ public enum Action {
      */
     READY(2 ,"准备");
 
+    qiangzhuang
+
 
     private Integer code;
 

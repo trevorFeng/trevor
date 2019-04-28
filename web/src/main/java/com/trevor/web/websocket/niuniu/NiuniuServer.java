@@ -5,11 +5,11 @@ import com.trevor.common.MessageCodeEnum;
 import com.trevor.domain.User;
 import com.trevor.util.WebsocketUtil;
 import com.trevor.web.websocket.bo.Action;
-import com.trevor.web.websocket.bo.ReturnMessage;
 import com.trevor.web.websocket.config.NiuniuServerConfigurator;
 import com.trevor.web.websocket.decoder.MessageDecoder;
 import com.trevor.web.websocket.encoder.MessageEncoder;
 import com.trevor.websocket.bo.ReceiveMessage;
+import com.trevor.websocket.bo.ReturnMessage;
 import com.trevor.websocket.bo.SocketUser;
 import com.trevor.websocket.niuniu.NiuniuService;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 
 /**
@@ -46,7 +47,7 @@ public class NiuniuServer {
     private NiuniuService niuniuService;
 
     @Resource(name = "niuniuRooms")
-    private Map<Long , Set<Session>> sessions;
+    private Map<Long , CopyOnWriteArrayList<Session>> sessions;
 
     private Session mySession;
 
@@ -87,9 +88,10 @@ public class NiuniuServer {
 
     @OnMessage
     public void receiveMsg(@PathParam("rooId") String rooId, ReceiveMessage receiveMessage) throws Exception {
-        if (Objects.equals(receiveMessage.getMessageCode() , Action.READY.getCode())) {
+        Integer messageCode = receiveMessage.getMessageCode();
+        if (Objects.equals(messageCode , Action.READY.getCode())) {
 
-        }
+        }else if (Objects.equals(messageCode ,Action))
     }
 
     @OnClose

@@ -9,6 +9,7 @@ import javax.websocket.Session;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 
 /**
@@ -23,8 +24,8 @@ public class RoomConfig {
      * @return
      */
     @Bean(name = "niuniuRooms")
-    public Map<Long , Set<Session>> generateNiuNiuRoomMap(){
-        Map<Long, Set<Session>> niuniuRooms = new ConcurrentHashMap(2<<15);
+    public Map<Long , CopyOnWriteArrayList<Session>> generateNiuNiuRoomMap(){
+        Map<Long, CopyOnWriteArrayList<Session>> niuniuRooms = new ConcurrentHashMap(2<<15);
         return niuniuRooms;
     }
 

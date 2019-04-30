@@ -37,4 +37,13 @@ public class RandomUtils {
         }
         return randNum;
     }
+
+    /**
+     * 生成小于几的随机数
+     * @return
+     */
+    public static Integer getRandNumMax(Integer maxNum){
+        Random random = new Random();
+        return random.nextInt(maxNum);
+    }
 }

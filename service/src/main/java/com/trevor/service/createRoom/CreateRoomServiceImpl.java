@@ -2,6 +2,7 @@ package com.trevor.service.createRoom;
 
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.ResponseHelper;
+import com.trevor.bo.RoomPoke;
 import com.trevor.common.ConsumCardEnum;
 import com.trevor.common.MessageCodeEnum;
 import com.trevor.dao.CardConsumRecordMapper;
@@ -15,10 +16,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.websocket.Session;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author trevor
@@ -27,8 +25,8 @@ import java.util.Set;
 @Service
 public class CreateRoomServiceImpl implements CreateRoomService{
 
-    @Resource(name = "niuniuRooms")
-    private Map<Long , Set<Session>> niuniuRooms;
+    @Resource(name = "niuniuRoomPoke")
+    private Map<Long , RoomPoke> niuniuRoomPoke;
 
     @Resource
     private RoomRecordMapper roomRecordMapper;
@@ -65,7 +63,14 @@ public class CreateRoomServiceImpl implements CreateRoomService{
         roomRecord.generateRoomRecordBase(niuniuRoomParameter.getRoomType() ,niuniuRoomParameter , user.getId());
         Long roomRecordId = roomRecordMapper.insertOne(roomRecord);
         //将房间放入map中
-        niuniuRooms.put(roomRecordId ,new HashSet<>(2<<4));
+        RoomPoke roomPoke = new RoomPoke();
+        roomPoke.setRoomRecordId(roomRecord.getId());
+        if (niuniuRoomParameter.getConsumCardNum() == 1) {
+            roomPoke.setTotalNum(12);
+        }else if (niuniuRoomParameter.getConsumCardNum() == 2) {
+            roomPoke.setTotalNum(24);
+        }
+        niuniuRoomPoke.put(roomRecordId ,roomPoke);
         //生成房卡消费记录
         CardConsumRecord cardConsumRecord = new CardConsumRecord();
         cardConsumRecord.generateCardConsumRecordBase(roomRecordId , user.getId() ,consumCardNum);

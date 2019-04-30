@@ -28,9 +28,9 @@ public class UserPoke {
     private Integer thisScore = 0;
 
     /**
-     * 倍数
+     * 抢庄倍数
      */
-    private Integer multiple = 1;
+    private Integer qiangZhuangMultiple;
 
     /**
      * 是否抢庄
@@ -41,4 +41,6 @@ public class UserPoke {
      * 是否是庄家
      */
     private Boolean isZhuangJia = false;
+
+    private Integer xianJiaMultiple = 1;
 }

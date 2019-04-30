@@ -14,6 +14,7 @@ import com.trevor.service.RoomRecordCacheService;
 import com.trevor.service.createRoom.bo.NiuniuRoomParameter;
 import com.trevor.service.user.UserService;
 import com.trevor.web.websocket.bo.Action;
+import com.trevor.websocket.bo.ReceiveMessage;
 import com.trevor.websocket.bo.ReturnMessage;
 import com.trevor.websocket.bo.SocketUser;
 import org.springframework.stereotype.Service;
@@ -82,10 +83,10 @@ public class NiuniuServiceImpl implements NiuniuService {
      * @return
      */
     @Override
-    public ReturnMessage<Object> dealReadyMessage(SocketUser socketUser ,Long roomId) {
+    public ReturnMessage<SocketUser> dealReadyMessage(SocketUser socketUser ,Long roomId ,Session mySession) {
         RoomPoke roomPoke = roomPokeMap.get(roomId);
         if (Objects.equals(roomPoke.getIsReadyOver() ,true)) {
-            return new ReturnMessage<Object>(MessageCodeEnum.ERROR_NUM_MAX);
+            return new ReturnMessage<SocketUser>(MessageCodeEnum.ERROR_NUM_MAX);
         }
         List<Map<Long , UserPoke>> userPokes = roomPoke.getUserPokes();
         roomPoke.getLock().lock();
@@ -100,26 +101,27 @@ public class NiuniuServiceImpl implements NiuniuService {
         userPokes.get(roomPoke.getRuningNum()-1).put(socketUser.getId() ,userPoke);
         Map<Long ,Integer> socreMap = roomPoke.getScoreMap();
         socreMap.putIfAbsent(socketUser.getId() ,0);
-//        //开始5s倒计时
-//        if (roomPoke.getUserReadyNum() == 2) {
-//            roomPoke.getLock().unlock();
-//            //通知线程开始打牌任务
-//            countdownTask.coundDown(niuniuRooms.get(roomId) ,roomPoke);
-//            //倒计时结束，先发4张牌，等待闲家下注
-//
-//
-//            //
-//        }else {
-//            roomPoke.getLock().unlock();
-//        }
+
+        CopyOnWriteArrayList<Session> sessions = niuniuRooms.get(roomId);
+        for (Session session : sessions) {
+            if (Objects.equals(session ,mySession)) {
+                session.getUserProperties().put("ready" ,Boolean.TRUE);
+                break;
+            }
+        }
         return null;
     }
 
     /**
      * 处理抢庄的消息
      */
-    public void dealQiangZhuangMessage(SocketUser socketUser ,Long roomId ,Integer beishu){
-
+    public void dealQiangZhuangMessage(SocketUser socketUser , Long roomId , ReceiveMessage receiveMessage){
+        RoomPoke roomPoke = roomPokeMap.get(roomId);
+        List<Map<Long , UserPoke>> userPokes = roomPoke.getUserPokes();
+        Map<Long ,UserPoke> userPokeMap = userPokes.get(roomPoke.getRuningNum()-1);
+        UserPoke userPoke = userPokeMap.get(socketUser.getId());
+        userPoke.setIsQiangZhuang(Boolean.TRUE);
+        userPoke.setQiangZhuangMultiple(receiveMessage.getQiangZhuangMultiple());
     }
 
 

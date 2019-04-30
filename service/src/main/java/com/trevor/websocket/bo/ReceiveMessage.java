@@ -11,14 +11,16 @@ public class ReceiveMessage {
 
     /**
      * 消息类型
-     * 2-准备
-     * 3-抢庄消息
-     * 4-闲家下注
+     * 1-准备
+     * 2-抢庄消息
+     * 3-闲家下注
      */
     private Integer messageCode;
 
+
     /**
-     * 消息
+     * 抢庄的倍数
      */
-    private String message;
+    private Integer qiangZhuangMultiple;
+
 }

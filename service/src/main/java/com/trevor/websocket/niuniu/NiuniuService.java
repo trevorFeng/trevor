@@ -27,7 +27,7 @@ public interface NiuniuService {
      * 根据准备的消息
      * @return
      */
-    ReturnMessage<Object> dealReadyMessage(SocketUser socketUser ,Long roomId);
+    ReturnMessage<SocketUser> dealReadyMessage(SocketUser socketUser ,Long roomId);
 
 
 

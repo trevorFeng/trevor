@@ -17,9 +17,12 @@ public class ReturnMessage<T> {
      * 1-加入房间
      * 2-用户准备
      * 3-倒计时
-     * 3-选择倍数
-     * 4-发牌
-     * 5-押倍数
+     * 4-准备抢庄
+     * 5-庄家确定
+     * 6-发4张牌
+     * 7-闲家下注
+     * 8-再发一张牌
+     * 9-
      */
     private Integer messageCode;
 

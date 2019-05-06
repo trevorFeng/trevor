@@ -1,5 +1,8 @@
 package com.trevor.util;
 
+import com.google.common.collect.Lists;
+
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -45,5 +48,22 @@ public class RandomUtils {
     public static Integer getRandNumMax(Integer maxNum){
         Random random = new Random();
         return random.nextInt(maxNum);
+    }
+
+    /**
+     * 生成0到maxNum-1的数,每5个放在一起
+     * @return
+     */
+    public static List<List<Integer>> getSplitListByMax(Integer maxNum){
+        List<List<Integer>> lists = Lists.newArrayList();
+        List<Integer> list = Lists.newArrayList();
+        for (int i = 0;i<maxNum;i++) {
+            list.add(i);
+            if (list.size()==5) {
+                lists.add(list);
+                list = Lists.newArrayList();
+            }
+        }
+        return lists;
     }
 }

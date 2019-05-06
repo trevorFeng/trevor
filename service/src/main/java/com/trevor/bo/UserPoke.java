@@ -42,5 +42,8 @@ public class UserPoke {
      */
     private Boolean isZhuangJia = false;
 
+    /**
+     * 闲家下注的倍数，默认为1倍
+     */
     private Integer xianJiaMultiple = 1;
 }

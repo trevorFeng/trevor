@@ -1,13 +1,14 @@
 package com.trevor.websocket.niuniu.process;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.trevor.bo.RoomPoke;
 import com.trevor.bo.UserPoke;
 import com.trevor.util.PokeUtil;
 import com.trevor.util.RandomUtils;
 import com.trevor.util.WebsocketUtil;
 import com.trevor.websocket.bo.ReturnMessage;
-import org.apache.tomcat.jni.Thread;
+import org.w3c.dom.stylesheets.LinkStyle;
 
 import javax.annotation.Resource;
 import javax.websocket.EncodeException;
@@ -60,13 +61,27 @@ public abstract class NiuNiuAbstractPlay {
         WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage1);
         //先发四张牌
         List<String> pokes = PokeUtil.generatePoke5();
-
+        List<List<Integer>> lists = RandomUtils.getSplitListByMax(userPokeMap.size() * 5);
+        int i = 0;
+        Map<Long ,List<String>> userPokesMap = Maps.newHashMap();
+        for (Map.Entry<Long, UserPoke> entry : userPokeMap.entrySet()) {
+            List<Integer> list = lists.get(i);
+            List<String> userPokes = Lists.newArrayList();
+            list.forEach(index -> {
+                userPokes.add(pokes.get(index));
+            });
+            entry.getValue().setPokes(userPokes);
+            userPokesMap.put(entry.getKey() ,userPokes);
+            i++;
+        }
+        ReturnMessage<Map<Long ,List<String>>> returnMessage2 = new ReturnMessage<>(userPokesMap ,6);
+        WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage2);
         //闲家下注倒计时
         countDown(sessions ,roomPokeMap.get(rommId));
-
-
         //再发一张牌
+        for (Map.Entry<Long, UserPoke> entry : userPokeMap.entrySet()) {
 
+        }
 
         //计算分数得失
 

@@ -23,4 +23,9 @@ public class ReceiveMessage {
      */
     private Integer qiangZhuangMultiple;
 
+    /**
+     * 闲家下注的倍数
+     */
+    private Integer xianJiaMultiple;
+
 }

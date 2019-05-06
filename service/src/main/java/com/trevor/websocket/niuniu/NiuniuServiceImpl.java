@@ -124,6 +124,17 @@ public class NiuniuServiceImpl implements NiuniuService {
         userPoke.setQiangZhuangMultiple(receiveMessage.getQiangZhuangMultiple());
     }
 
+    /**
+     * 处理闲家下注的消息
+     */
+    public void dealXianJiaXiaZhuMessage(SocketUser socketUser , Long roomId , ReceiveMessage receiveMessage){
+        RoomPoke roomPoke = roomPokeMap.get(roomId);
+        List<Map<Long , UserPoke>> userPokes = roomPoke.getUserPokes();
+        Map<Long ,UserPoke> userPokeMap = userPokes.get(roomPoke.getRuningNum()-1);
+        UserPoke userPoke = userPokeMap.get(socketUser.getId());
+        userPoke.setXianJiaMultiple(receiveMessage.getXianJiaMultiple());
+    }
+
 
     /**
      * 处理开通了好友管理

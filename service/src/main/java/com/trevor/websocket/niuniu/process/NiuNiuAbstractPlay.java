@@ -112,12 +112,43 @@ public abstract class NiuNiuAbstractPlay {
         roomPoke.setIsReadyOver(true);
     }
 
+    private void jugePaiXing(List<String> pokes){
+        int ii = 0;
+        int jj = 0;
+        int kk = 0;
+        boolean isNiu = Boolean.FALSE;
+        for (int i = 0; i < pokes.size(); i++) {
+            if (i > 3) {
+                break;
+            }
+            for (int j = i+1; j < pokes.size(); j++) {
+                for (int k = j+1; k < pokes.size(); k++) {
+                    int num = Integer.valueOf(pokes.get(i).indexOf(1)) +
+                            Integer.valueOf(pokes.get(j).indexOf(1)) +
+                            Integer.valueOf(pokes.get(k).indexOf(1));
+                    if (num == 10 || num == 20 || num == 30) {
+                        ii = i;
+                        jj = j;
+                        kk = k;
+                        isNiu = Boolean.TRUE;
+                        break;
+                    }
+                }
+            }
+        }
+        if (!isNiu) {
 
+        }else {
+            int num = 0;
+            for (int i = 0; i < pokes.size(); i++) {
+                if (i != ii && i != jj && i != kk) {
+                    num += Integer.valueOf(pokes.get(i).indexOf(1));
+                }
+            }
+            if (num == 10 || num == 20) {
 
-    /**
-     * 发牌
-     */
-    protected void fapai(){
+            }
+        }
 
     }
 

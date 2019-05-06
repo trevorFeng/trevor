@@ -1,14 +1,18 @@
 package com.trevor.websocket.bo;
 
+import lombok.Data;
+
 /**
  * 一句话描述该类作用:【】
  *
  * @author: trevor
  * @create: 2019-05-05 22:21
  **/
-
 public enum NiuNiuPaiXingEnum {
 
+    /**
+     * 没牛
+     */
     NIU_10(10 ,"牛牛"),
 
     NIU_9(9 ,"牛九"),
@@ -27,7 +31,9 @@ public enum NiuNiuPaiXingEnum {
 
     NIU_2(2 ,"牛二"),
 
-    NIU_1(1 ,"牛一");
+    NIU_1(1 ,"牛一"),
+
+    NIU_0(0 ,"没牛");
 
     Integer paiXingCode;
 
@@ -37,4 +43,9 @@ public enum NiuNiuPaiXingEnum {
         this.paiXingCode = paiXingCode;
         this.desc = desc;
     }
+
+    public Integer getPaiXingCode(){
+        return paiXingCode;
+    }
+
 }

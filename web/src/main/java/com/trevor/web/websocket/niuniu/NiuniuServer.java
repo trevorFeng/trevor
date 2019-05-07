@@ -81,7 +81,7 @@ public class NiuniuServer {
             WebsocketUtil.sendBasicMessage(mySession , returnMessage);
             mySession.close();
         }else {
-            mySession.getUserProperties().put(WebKeys.WEBSOCKET_USER_KEY ,returnMessage.getT());
+            mySession.getUserProperties().put(WebKeys.WEBSOCKET_USER_KEY ,returnMessage.getData());
             WebsocketUtil.sendAllBasicMessage(sessions.get(Long.valueOf(rooId)) ,returnMessage);
         }
     }

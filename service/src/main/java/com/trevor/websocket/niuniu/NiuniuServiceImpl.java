@@ -126,7 +126,7 @@ public class NiuniuServiceImpl implements NiuniuService {
             roomPoke.getLock().unlock();
         }
         CopyOnWriteArrayList<Session> sessions = niuniuRooms.get(roomId);
-        ReturnMessage<String> returnMessage = new ReturnMessage<>(MessageCodeEnum.READY);
+        ReturnMessage<String> returnMessage = new ReturnMessage<>(null ,2);
         WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage);
     }
 
@@ -228,11 +228,13 @@ public class NiuniuServiceImpl implements NiuniuService {
             for (Session session : sessions) {
                 SocketUser socketUser = (SocketUser) session.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
                 if (Objects.equals(entry.getKey() ,socketUser.getId())) {
-                    ReturnMessage<String> returnMessage3 = new ReturnMessage<>(entry.getValue().getPokes().get(4) ,8);
+                    ReturnMessage<String> returnMessage3 = new ReturnMessage<>(entry.getValue().getPokes().get(4) ,7);
                     WebsocketUtil.sendBasicMessage(session ,returnMessage3);
                 }
             }
         }
+        //准备摊牌倒计时
+        countDown(false ,sessions ,roomPokeMap.get(rommId));
         //计算分数得失
         UserPoke zhuangJia = null;
         for (Map.Entry<Long, UserPoke> entry : userPokeMap.entrySet()) {
@@ -299,7 +301,7 @@ public class NiuniuServiceImpl implements NiuniuService {
             niuNiuResult.setScore(entry.getValue().getThisScore());
             niuNiuResult.setTotal(scoreMap.get(entry.getKey()));
         }
-        ReturnMessage<List<NiuNiuResult>> returnMessage3 = new ReturnMessage<>(niuNiuResultList ,9);
+        ReturnMessage<List<NiuNiuResult>> returnMessage3 = new ReturnMessage<>(niuNiuResultList ,8);
         WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage3);
     }
 
@@ -429,12 +431,12 @@ public class NiuniuServiceImpl implements NiuniuService {
             }else {
                 socketUser.setIsChiGuaPeople(Boolean.TRUE);
             }
-            return new ReturnMessage<>(socketUser, MessageCodeEnum.ENTER_ROOM.getCode());
+            return new ReturnMessage<>(socketUser, 1);
             //不允许观战
         }else {
             if (sessions.size() < RoomTypeEnum.getRoomNumByType(niuniuRoomParameter.getRoomType())) {
                 socketUser.setIsChiGuaPeople(Boolean.FALSE);
-                return new ReturnMessage<>(socketUser, MessageCodeEnum.ENTER_ROOM.getCode());
+                return new ReturnMessage<>(socketUser, 1);
             }else {
                 return new ReturnMessage<>(MessageCodeEnum.ROOM_FULL);
             }

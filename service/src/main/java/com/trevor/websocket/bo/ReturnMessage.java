@@ -20,21 +20,20 @@ public class ReturnMessage<T> {
      * 4-准备抢庄
      * 5-庄家确定
      * 6-发4张牌
-     * 7-闲家下注
-     * 8-再发一张牌
-     * 9-计算得分结果
+     * 7-再发一张牌
+     * 8-得分结果
      */
     private Integer messageCode;
 
     /**
      * 错误消息
      */
-    private String errorMessage;
+    private String message;
 
     /**
      * 消息
      */
-    private T t;
+    private T data;
 
     /**
      * 错误消息构造器
@@ -42,7 +41,7 @@ public class ReturnMessage<T> {
      */
     public ReturnMessage (MessageCodeEnum messageCodeEnum){
         this.messageCode = messageCodeEnum.getCode();
-        this.errorMessage = messageCodeEnum.getMessage();
+        this.message = messageCodeEnum.getMessage();
     }
 
     /**
@@ -51,7 +50,7 @@ public class ReturnMessage<T> {
      * @param messageCode
      */
     public ReturnMessage (T t ,Integer messageCode){
-        this.t = t;
+        this.data = t;
         this.messageCode = messageCode;
     }
 }

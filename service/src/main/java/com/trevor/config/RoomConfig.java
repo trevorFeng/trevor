@@ -1,4 +1,4 @@
-package com.trevor.web.config;
+package com.trevor.config;
 
 import com.trevor.bo.RoomPoke;
 import org.springframework.context.annotation.Bean;
@@ -7,7 +7,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import javax.websocket.Session;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;

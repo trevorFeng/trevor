@@ -23,6 +23,11 @@ public class UserPoke {
     private List<String> pokes = new ArrayList<>(2<<3);
 
     /**
+     * 牌型
+     */
+    private String paiXing;
+
+    /**
      * 本局的分数增减
      */
     private Integer thisScore = 0;

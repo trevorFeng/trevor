@@ -4,7 +4,6 @@ import com.trevor.bo.WebKeys;
 import com.trevor.common.MessageCodeEnum;
 import com.trevor.domain.User;
 import com.trevor.util.WebsocketUtil;
-import com.trevor.web.websocket.bo.Action;
 import com.trevor.web.websocket.config.NiuniuServerConfigurator;
 import com.trevor.web.websocket.decoder.MessageDecoder;
 import com.trevor.web.websocket.encoder.MessageEncoder;
@@ -23,7 +22,6 @@ import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 
@@ -53,6 +51,8 @@ public class NiuniuServer {
 
     private HttpSession httpSession;
 
+
+
     /**
      * 连接时调用
      * @param session
@@ -63,7 +63,7 @@ public class NiuniuServer {
     public void onOpen(Session session , EndpointConfig config , @PathParam("rooId") String rooId) throws IOException, EncodeException {
         mySession = session;
         httpSession = (HttpSession) config.getUserProperties().get(HttpSession.class.getName());
-        User user = (User) httpSession.getAttribute("user");
+        User user = (User) httpSession.getAttribute(WebKeys.SESSION_USER_KEY);
         if (user == null) {
             WebsocketUtil.sendBasicMessage(mySession , new ReturnMessage(MessageCodeEnum.SESSION_TIRED));
             mySession.close();
@@ -81,18 +81,22 @@ public class NiuniuServer {
             WebsocketUtil.sendBasicMessage(mySession , returnMessage);
             mySession.close();
         }else {
-            mySession.getUserProperties().put(WebKeys.SESSION_USER_KEY ,returnMessage.getT());
+            mySession.getUserProperties().put(WebKeys.WEBSOCKET_USER_KEY ,returnMessage.getT());
             WebsocketUtil.sendAllBasicMessage(sessions.get(Long.valueOf(rooId)) ,returnMessage);
         }
     }
 
     @OnMessage
-    public void receiveMsg(@PathParam("rooId") String rooId, ReceiveMessage receiveMessage) throws Exception {
+    public void receiveMsg(@PathParam("rooId") String roomId, ReceiveMessage receiveMessage) throws InterruptedException, EncodeException, IOException {
         Integer messageCode = receiveMessage.getMessageCode();
-        if (Objects.equals(messageCode , Action.READY.getCode())) {
-
-        }else if (Objects.equals(messageCode ,Action.QIANG_ZHUANG.getCode())) {
-
+        SocketUser socketUser = (SocketUser) mySession.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
+        Long roomIdNum = Long.valueOf(roomId);
+        if (Objects.equals(messageCode , MessageCodeEnum.READY.getCode())) {
+            niuniuService.dealReadyMessage( socketUser,roomIdNum);
+        }else if (Objects.equals(messageCode ,MessageCodeEnum.QIANG_ZHUANG.getCode())) {
+            niuniuService.dealQiangZhuangMessage(socketUser ,roomIdNum ,receiveMessage);
+        }else if (Objects.equals(messageCode ,MessageCodeEnum.XIAN_JIA_XIA_ZHU.getCode())) {
+            niuniuService.dealXianJiaXiaZhuMessage(socketUser ,roomIdNum ,receiveMessage);
         }
     }
 

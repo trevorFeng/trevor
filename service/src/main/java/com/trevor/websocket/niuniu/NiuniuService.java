@@ -4,8 +4,11 @@ import com.trevor.domain.User;
 
 import java.io.IOException;
 
+import com.trevor.websocket.bo.ReceiveMessage;
 import com.trevor.websocket.bo.ReturnMessage;
 import com.trevor.websocket.bo.SocketUser;
+
+import javax.websocket.EncodeException;
 
 /**
  * 一句话描述该类作用:【】
@@ -27,8 +30,22 @@ public interface NiuniuService {
      * 根据准备的消息
      * @return
      */
-    ReturnMessage<SocketUser> dealReadyMessage(SocketUser socketUser ,Long roomId);
+    void dealReadyMessage(SocketUser socketUser ,Long roomId) throws InterruptedException, EncodeException, IOException;
+
+    /**
+     * 处理抢庄的消息
+     * @param socketUser
+     * @param roomId
+     * @param receiveMessage
+     */
+    void dealQiangZhuangMessage(SocketUser socketUser , Long roomId , ReceiveMessage receiveMessage);
 
 
-
+    /**
+     * 处理闲家下注的消息
+     * @param socketUser
+     * @param roomId
+     * @param receiveMessage
+     */
+    void dealXianJiaXiaZhuMessage(SocketUser socketUser , Long roomId , ReceiveMessage receiveMessage);
 }

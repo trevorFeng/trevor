@@ -22,7 +22,7 @@ public class ReturnMessage<T> {
      * 6-发4张牌
      * 7-闲家下注
      * 8-再发一张牌
-     * 9-
+     * 9-计算得分结果
      */
     private Integer messageCode;
 

@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import javax.websocket.Session;
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author trevor
@@ -70,6 +71,7 @@ public class CreateRoomServiceImpl implements CreateRoomService{
         }else if (niuniuRoomParameter.getConsumCardNum() == 2) {
             roomPoke.setTotalNum(24);
         }
+        roomPoke.setLock(new ReentrantLock());
         niuniuRoomPoke.put(roomRecordId ,roomPoke);
         //生成房卡消费记录
         CardConsumRecord cardConsumRecord = new CardConsumRecord();

@@ -36,11 +36,6 @@ public class RoomPoke {
     private Map<Long ,Integer> scoreMap = new HashMap<>(2<<4);
 
     /**
-     * 当前准备玩家人数，每重开一局清零
-     */
-    private Integer userReadyNum;
-
-    /**
      * 每局房间的锁
      */
     private Lock lock;

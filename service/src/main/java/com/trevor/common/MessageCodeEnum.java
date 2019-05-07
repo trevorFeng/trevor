@@ -138,24 +138,24 @@ public enum MessageCodeEnum {
     NOT_FRIEND(-104 ,"您不是房主的好友"),
 
     /**
-     * 加入房间成功
+     * 进入房间成功
      */
-    JOIN_ROOM(101 ,"加入房间成功"),
+    ENTER_ROOM(100 ,"进入房间成功"),
 
     /**
      * 准备成功
      */
-    READY_SUCCESS(102 ,"准备成功"),
+    READY(101 ,"准备成功"),
 
     /**
-     * 正在倒计时
+     * 抢庄
      */
-    COUNT_DOWN(103 ,"正在倒计时"),
+    QIANG_ZHUANG(102 ,"抢庄"),
 
     /**
-     * 准备抢庄
+     * 闲家下注
      */
-    READY_QIANG_ZHUANG(104 ,"倒计时结束，准备抢庄");
+    XIAN_JIA_XIA_ZHU(103, "闲家下注");
 
 
     private Integer code;

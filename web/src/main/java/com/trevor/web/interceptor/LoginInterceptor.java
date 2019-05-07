@@ -67,8 +67,8 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
             User user = userService.findUserByOpenid(openid);
             if (user != null && Objects.equals(hash ,user.getHash())) {
                 ThreadLocalUtil.getInstance().bind(user);
-                if (SessionUtil.getSession().getAttribute("user") == null) {
-                    SessionUtil.getSession().setAttribute("user" ,user);
+                if (SessionUtil.getSession().getAttribute(WebKeys.SESSION_USER_KEY) == null) {
+                    SessionUtil.getSession().setAttribute(WebKeys.SESSION_USER_KEY ,user);
                 }
                 return Boolean.TRUE;
             }else {

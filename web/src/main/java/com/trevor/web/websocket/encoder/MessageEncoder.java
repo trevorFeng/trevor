@@ -1,7 +1,7 @@
 package com.trevor.web.websocket.encoder;
 
 import com.alibaba.fastjson.JSON;
-import com.trevor.web.websocket.bo.ReturnMessage;
+import com.trevor.websocket.bo.ReturnMessage;
 
 import javax.websocket.EndpointConfig;
 

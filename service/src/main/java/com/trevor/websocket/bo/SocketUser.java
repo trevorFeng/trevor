@@ -1,6 +1,5 @@
 package com.trevor.websocket.bo;
 
-import com.trevor.domain.User;
 import lombok.Data;
 
 /**
@@ -27,7 +26,12 @@ public class SocketUser {
     private String picture;
 
     /**
-     * 是否是吃瓜群众
+     * 是否是观众，可以参与打牌
+     */
+    private Boolean isGuanZhong;
+
+    /**
+     * 是否是吃瓜群众，不可以参与打牌，只能看
      */
     private Boolean isChiGuaPeople;
 }

@@ -36,14 +36,14 @@ public class RoomPoke {
     private Map<Long ,Integer> scoreMap = new HashMap<>(2<<4);
 
     /**
-     * 每局房间的锁
-     */
-    private Lock lock;
-
-    /**
      * 是否准备完毕
      */
     private volatile Boolean isReadyOver;
+
+    /**
+     * 每局房间的锁
+     */
+    private Lock lock;
 
     /**
      * 默认为0，开到第几局了

@@ -100,6 +100,7 @@ public class NiuniuServiceImpl implements NiuniuService {
             return;
         }
         List<Map<Long , UserPoke>> userPokes = roomPoke.getUserPokes();
+        CopyOnWriteArrayList<Session> sessions = niuniuRooms.get(roomId);
         roomPoke.getLock().lock();
         //初始化
         roomPoke.setRuningNum(roomPoke.getRuningNum()+1);
@@ -113,6 +114,13 @@ public class NiuniuServiceImpl implements NiuniuService {
         Map<Long ,Integer> socreMap = roomPoke.getScoreMap();
         socreMap.putIfAbsent(socketUser.getId() ,0);
         //是否准备的人数为两人，是则开始自动打牌
+//        int peopleNum = 0;
+//        for (Session session : sessions) {
+//            SocketUser socketUser1 = (SocketUser) session.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
+//            if (!socketUser1.getIsChiGuaPeople()) {
+//                peopleNum ++;
+//            }
+//        }
         if (userPokes.get(roomPoke.getRuningNum()-1).size() == 2) {
             roomPoke.getLock().unlock();
             executor.execute(() -> {
@@ -125,7 +133,7 @@ public class NiuniuServiceImpl implements NiuniuService {
         }else {
             roomPoke.getLock().unlock();
         }
-        CopyOnWriteArrayList<Session> sessions = niuniuRooms.get(roomId);
+
         ReturnMessage<String> returnMessage = new ReturnMessage<>(null ,2);
         WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage);
     }
@@ -174,18 +182,41 @@ public class NiuniuServiceImpl implements NiuniuService {
         CopyOnWriteArrayList<Session> sessions = niuniuRooms.get(rommId);
         //准备的倒计时
         countDown(true ,sessions ,roomPokeMap.get(rommId));
-        //倒计时结束通知开始抢庄
-        ReturnMessage<String> returnMessage = new ReturnMessage<>("准备抢庄" ,3);
-        for (Session session : sessions) {
-            if (session.getUserProperties().get("ready") != null) {
-                WebsocketUtil.sendBasicMessage(session ,returnMessage);
+        //先发四张牌
+        RoomPoke roomPoke = roomPokeMap.get(rommId);
+        Map<Long, UserPoke> userPokeMap = roomPoke.getUserPokes().get(roomPoke.getRuningNum() - 1);
+        List<String> pokes = PokeUtil.generatePoke5();
+        List<List<Integer>> lists = RandomUtils.getSplitListByMax(userPokeMap.size() * 5);
+        int i = 0;
+        for (Map.Entry<Long, UserPoke> entry : userPokeMap.entrySet()) {
+            List<Integer> list = lists.get(i);
+            List<String> userPokes = Lists.newArrayList();
+            list.forEach(index -> {
+                userPokes.add(pokes.get(index));
+            });
+            entry.getValue().setPokes(userPokes);
+            i++;
+        }
+        for (Map.Entry<Long, UserPoke> entry : userPokeMap.entrySet()) {
+            for (Session session : sessions) {
+                SocketUser socketUser = (SocketUser) session.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
+                if (Objects.equals(entry.getKey() ,socketUser.getId())) {
+                    ReturnMessage<List<String>> returnMessage3 = new ReturnMessage<>(entry.getValue().getPokes().subList(0,4),4);
+                    WebsocketUtil.sendBasicMessage(session ,returnMessage3);
+                }
             }
         }
+        //WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage2);
+//        //通知开始抢庄
+//        ReturnMessage<String> returnMessage = new ReturnMessage<>("准备抢庄" ,3);
+//        for (Session session : sessions) {
+//            if (session.getUserProperties().get("ready") != null) {
+//                WebsocketUtil.sendBasicMessage(session ,returnMessage);
+//            }
+//        }
         //开始抢庄倒计时
         countDown(false ,sessions ,roomPokeMap.get(rommId));
         //选取庄家
-        RoomPoke roomPoke = roomPokeMap.get(rommId);
-        Map<Long, UserPoke> userPokeMap = roomPoke.getUserPokes().get(roomPoke.getRuningNum() - 1);
         List<Long> qiangZhuangUserIds = Lists.newArrayList();
         userPokeMap.forEach((id ,userPoke) -> {
             if (userPoke.getIsQiangZhuang()) {
@@ -196,31 +227,6 @@ public class NiuniuServiceImpl implements NiuniuService {
         userPokeMap.get(qiangZhuangUserIds.get(randNum)).setIsQiangZhuang(Boolean.TRUE);
         ReturnMessage<Long> returnMessage1 = new ReturnMessage<>(qiangZhuangUserIds.get(randNum) ,5);
         WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage1);
-        //先发四张牌
-        List<String> pokes = PokeUtil.generatePoke5();
-        List<List<Integer>> lists = RandomUtils.getSplitListByMax(userPokeMap.size() * 5);
-        int i = 0;
-        Map<Long ,List<String>> userPokesMap = Maps.newHashMap();
-        Map<Long ,List<String>> fourPokeMap = Maps.newHashMap();
-        for (Map.Entry<Long, UserPoke> entry : userPokeMap.entrySet()) {
-            List<Integer> list = lists.get(i);
-            List<String> userPokes = Lists.newArrayList();
-            List<String> fourPokes = Lists.newArrayList();
-            list.forEach(index -> {
-                userPokes.add(pokes.get(index));
-            });
-            for (int j = 0; j < userPokes.size(); j++) {
-                if (j < userPokes.size() - 1) {
-                    fourPokes.add(userPokes.get(i));
-                }
-            }
-            fourPokeMap.put(entry.getKey() ,fourPokes);
-            entry.getValue().setPokes(userPokes);
-            userPokesMap.put(entry.getKey() ,userPokes);
-            i++;
-        }
-        ReturnMessage<Map<Long ,List<String>>> returnMessage2 = new ReturnMessage<>(fourPokeMap ,6);
-        WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage2);
         //闲家下注倒计时
         countDown(false ,sessions ,roomPokeMap.get(rommId));
         //再发一张牌
@@ -228,7 +234,7 @@ public class NiuniuServiceImpl implements NiuniuService {
             for (Session session : sessions) {
                 SocketUser socketUser = (SocketUser) session.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
                 if (Objects.equals(entry.getKey() ,socketUser.getId())) {
-                    ReturnMessage<String> returnMessage3 = new ReturnMessage<>(entry.getValue().getPokes().get(4) ,7);
+                    ReturnMessage<String> returnMessage3 = new ReturnMessage<>(entry.getValue().getPokes().get(4) ,6);
                     WebsocketUtil.sendBasicMessage(session ,returnMessage3);
                 }
             }
@@ -301,7 +307,7 @@ public class NiuniuServiceImpl implements NiuniuService {
             niuNiuResult.setScore(entry.getValue().getThisScore());
             niuNiuResult.setTotal(scoreMap.get(entry.getKey()));
         }
-        ReturnMessage<List<NiuNiuResult>> returnMessage3 = new ReturnMessage<>(niuNiuResultList ,8);
+        ReturnMessage<List<NiuNiuResult>> returnMessage3 = new ReturnMessage<>(niuNiuResultList ,7);
         WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage3);
     }
 
@@ -427,6 +433,7 @@ public class NiuniuServiceImpl implements NiuniuService {
         //允许观战
         if (niuniuRoomParameter.getSpecial().contains(SpecialEnum.CAN_SEE.getCode())) {
             if (sessions.size() < RoomTypeEnum.getRoomNumByType(niuniuRoomParameter.getRoomType())) {
+                socketUser.setIsGuanZhong(false);
                 socketUser.setIsChiGuaPeople(Boolean.FALSE);
             }else {
                 socketUser.setIsChiGuaPeople(Boolean.TRUE);
@@ -435,6 +442,7 @@ public class NiuniuServiceImpl implements NiuniuService {
             //不允许观战
         }else {
             if (sessions.size() < RoomTypeEnum.getRoomNumByType(niuniuRoomParameter.getRoomType())) {
+                socketUser.setIsGuanZhong(false);
                 socketUser.setIsChiGuaPeople(Boolean.FALSE);
                 return new ReturnMessage<>(socketUser, 1);
             }else {

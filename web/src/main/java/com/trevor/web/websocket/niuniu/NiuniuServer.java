@@ -41,11 +41,20 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Slf4j
 public class NiuniuServer {
 
+
+    private static NiuniuService niuniuService;
+
     @Resource
-    private NiuniuService niuniuService;
+    public void setNiuniuService (NiuniuService niuniuService) {
+        NiuniuServer.niuniuService = niuniuService;
+    }
+    
+    private static Map<Long , CopyOnWriteArrayList<Session>> sessions;
 
     @Resource(name = "niuniuRooms")
-    private Map<Long , CopyOnWriteArrayList<Session>> sessions;
+    public void setSessions (Map<Long , CopyOnWriteArrayList<Session>> sessions) {
+        NiuniuServer.sessions = sessions;
+    }
 
     private Session mySession;
 

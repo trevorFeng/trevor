@@ -3,6 +3,7 @@ package com.trevor.websocket.niuniu;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.trevor.bo.NiuniuSituation;
 import com.trevor.bo.RoomPoke;
 import com.trevor.bo.UserPoke;
 import com.trevor.bo.WebKeys;
@@ -11,6 +12,8 @@ import com.trevor.common.MessageCodeEnum;
 import com.trevor.common.RoomTypeEnum;
 import com.trevor.common.SpecialEnum;
 import com.trevor.dao.FriendManageMapper;
+import com.trevor.dao.GameSituationMapper;
+import com.trevor.domain.GameSituation;
 import com.trevor.domain.RoomRecord;
 import com.trevor.domain.User;
 import com.trevor.service.RoomRecordCacheService;
@@ -22,6 +25,7 @@ import com.trevor.util.WebsocketUtil;
 import com.trevor.websocket.bo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import springfox.documentation.spring.web.json.Json;
 
 import javax.annotation.Resource;
 import javax.websocket.EncodeException;
@@ -59,6 +63,9 @@ public class NiuniuServiceImpl implements NiuniuService {
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private GameSituationMapper gameSituationMapper;
 
     /**
      * 在websocket连接时检查房间是否存在以及房间人数是否已满
@@ -309,6 +316,29 @@ public class NiuniuServiceImpl implements NiuniuService {
         }
         ReturnMessage<List<NiuNiuResult>> returnMessage3 = new ReturnMessage<>(niuNiuResultList ,7);
         WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage3);
+
+        GameSituation gameSituation = new GameSituation();
+        gameSituation.setRoomRecordId(rommId);
+        gameSituation.setGameNum(roomPoke.getRuningNum());
+        //保存结果
+        List<NiuniuSituation> niuniuSituations = Lists.newArrayList();
+        for (Map.Entry<Long ,UserPoke> entry : userPokeMap.entrySet()) {
+            NiuniuSituation niuniuSituation = new NiuniuSituation();
+            UserPoke userPoke = entry.getValue();
+            niuniuSituation.setIsZhuangJia(userPoke.getIsZhuangJia());
+            niuniuSituation.setPokes(userPoke.getPokes());
+            if (userPoke.getIsQiangZhuang()) {
+                niuniuSituation.setBeiShu(userPoke.getQiangZhuangMultiple());
+            }else {
+                niuniuSituation.setBeiShu(userPoke.getXianJiaMultiple());
+            }
+            niuniuSituation.setPokesDesc("牛牛");
+
+            niuniuSituations.add(niuniuSituation);
+        }
+        String niuniuSituationsStr = JSON.toJSONString(niuniuSituations);
+        gameSituation.setGameSituation(niuniuSituationsStr);
+        gameSituationMapper.insertOne(gameSituation);
     }
 
 

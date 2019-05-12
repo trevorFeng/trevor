@@ -22,9 +22,15 @@ public class GameSituation {
     private Long roomRecordId;
 
     /**
+     * 第几局
+     */
+    private Integer gameNum;
+
+    /**
      * 对局情况，为json字符串
      */
     private String gameSituation;
+
 
 
 }

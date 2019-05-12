@@ -62,6 +62,7 @@ public class CreateRoomServiceImpl implements CreateRoomService{
         //生成房间，将房间信息存入数据库
         RoomRecord roomRecord = new RoomRecord();
         roomRecord.generateRoomRecordBase(niuniuRoomParameter.getRoomType() ,niuniuRoomParameter , user.getId());
+        roomRecord.setState(1);
         Long roomRecordId = roomRecordMapper.insertOne(roomRecord);
         //将房间放入map中
         RoomPoke roomPoke = new RoomPoke();

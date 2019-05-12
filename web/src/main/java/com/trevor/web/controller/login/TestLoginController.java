@@ -12,6 +12,7 @@ import com.trevor.service.user.UserService;
 import com.trevor.util.RandomUtils;
 import com.trevor.util.SessionUtil;
 import com.trevor.util.TokenUtil;
+import com.trevor.web.controller.login.bo.TestLogin;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +43,7 @@ public class TestLoginController {
 
     @ApiOperation("只需点一下就可以登录了，转到/api/login/user获取用户信息")
     @RequestMapping(value = "/api/testLogin/login", method = {RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public JsonEntity<String> weixinAuth(){
+    public JsonEntity<TestLogin> weixinAuth(){
         String openid = System.currentTimeMillis() + "";
         String hash = RandomUtils.getRandomChars(20);
 
@@ -69,7 +70,9 @@ public class TestLoginController {
         claims.put("timestamp" ,System.currentTimeMillis());
         String token = TokenUtil.generateToken(claims);
 
-        //SessionUtil.setToken(token);
-        return ResponseHelper.createInstance(token ,MessageCodeEnum.HANDLER_SUCCESS);
+        TestLogin testLogin = new TestLogin();
+        testLogin.setToken(token);
+        testLogin.setUserId(user.getId());
+        return ResponseHelper.createInstance(testLogin ,MessageCodeEnum.HANDLER_SUCCESS);
     }
 }

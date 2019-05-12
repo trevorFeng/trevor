@@ -6,7 +6,7 @@
     <insert id="insertOne">
         insert into
         `room_record`(`get_room_time` ,`room_auth` ,`room_state` ,`room_type` ,`room_config`)
-        values (#{roomRecord.id} ,#{roomRecord.getRoomTime} ,#{roomRecord.roomAuth} ,#{roomRecord.state} ,#{roomRecord.roomType} ,#{roomRecord.roomConfig})
+        values (#{roomRecord.getRoomTime} ,#{roomRecord.roomAuth} ,#{roomRecord.state} ,#{roomRecord.roomType} ,#{roomRecord.roomConfig})
     </insert>
 
     <!-- 根据主键查询一条记录 -->

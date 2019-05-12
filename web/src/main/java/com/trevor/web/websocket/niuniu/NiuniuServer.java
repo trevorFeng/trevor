@@ -32,7 +32,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @create: 2019-03-05 22:29
  **/
 @ServerEndpoint(
-        value = "/niuniu/{rooId}",
+            value = "/niuniu/{rooId}",
         configurator = NiuniuServerConfigurator.class,
         encoders= {MessageEncoder.class},
         decoders = {MessageDecoder.class}

@@ -3,7 +3,7 @@
 <mapper namespace="com.trevor.dao.RoomRecordMapper">
 
     <!-- 插入一条记录并返回主键 -->
-    <insert id="insertOne">
+    <insert id="insertOne" useGeneratedKeys="true" keyProperty="id">
         insert into
         `room_record`(`get_room_time` ,`room_auth` ,`room_state` ,`room_type` ,`room_config`)
         values (#{roomRecord.getRoomTime} ,#{roomRecord.roomAuth} ,#{roomRecord.state} ,#{roomRecord.roomType} ,#{roomRecord.roomConfig})

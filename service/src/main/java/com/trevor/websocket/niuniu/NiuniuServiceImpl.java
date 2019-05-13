@@ -461,7 +461,7 @@ public class NiuniuServiceImpl implements NiuniuService {
         socketUser.setPicture(user.getAppPictureUrl());
         CopyOnWriteArrayList<Session> sessions = niuniuRooms.get(Long.valueOf(roomId));
         //允许观战
-        if (niuniuRoomParameter.getSpecial().contains(SpecialEnum.CAN_SEE.getCode())) {
+        if (niuniuRoomParameter.getSpecial()!= null && niuniuRoomParameter.getSpecial().contains(SpecialEnum.CAN_SEE.getCode())) {
             if (sessions.size() < RoomTypeEnum.getRoomNumByType(niuniuRoomParameter.getRoomType())) {
                 socketUser.setIsGuanZhong(false);
                 socketUser.setIsChiGuaPeople(Boolean.FALSE);

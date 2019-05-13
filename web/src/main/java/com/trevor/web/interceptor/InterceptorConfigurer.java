@@ -40,9 +40,9 @@ public class InterceptorConfigurer implements WebMvcConfigurer{
                 //排除微信转发到微信登录页面/检查微信授权地址
                 .excludePathPatterns("/front/xianliao/login/**")
                 //手机端登录
-                .excludePathPatterns("/front/phone/**")
-                //充值通过
-                .excludePathPatterns("/api/recharge/card");
+                .excludePathPatterns("/front/phone/**");
+//                //充值通过
+//                .excludePathPatterns("/api/recharge/card");
 
     }
 

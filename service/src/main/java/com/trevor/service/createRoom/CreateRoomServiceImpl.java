@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import javax.websocket.Session;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -28,6 +29,9 @@ public class CreateRoomServiceImpl implements CreateRoomService{
 
     @Resource(name = "niuniuRoomPoke")
     private Map<Long , RoomPoke> niuniuRoomPoke;
+
+    @Resource(name = "niuniuRooms")
+    private Map<Long ,CopyOnWriteArrayList<Session>> niuniuRooms;
 
     @Resource
     private RoomRecordMapper roomRecordMapper;
@@ -63,7 +67,7 @@ public class CreateRoomServiceImpl implements CreateRoomService{
         RoomRecord roomRecord = new RoomRecord();
         roomRecord.generateRoomRecordBase(niuniuRoomParameter.getRoomType() ,niuniuRoomParameter , user.getId());
         roomRecord.setState(1);
-        Long roomRecordId = roomRecordMapper.insertOne(roomRecord);
+        roomRecordMapper.insertOne(roomRecord);
         //将房间放入map中
         RoomPoke roomPoke = new RoomPoke();
         roomPoke.setRoomRecordId(roomRecord.getId());
@@ -73,13 +77,15 @@ public class CreateRoomServiceImpl implements CreateRoomService{
             roomPoke.setTotalNum(24);
         }
         roomPoke.setLock(new ReentrantLock());
-        niuniuRoomPoke.put(roomRecordId ,roomPoke);
+        niuniuRoomPoke.put(roomRecord.getId() ,roomPoke);
+
+        niuniuRooms.put(roomRecord.getId() ,new CopyOnWriteArrayList<>());
         //生成房卡消费记录
         CardConsumRecord cardConsumRecord = new CardConsumRecord();
-        cardConsumRecord.generateCardConsumRecordBase(roomRecordId , user.getId() ,consumCardNum);
+        cardConsumRecord.generateCardConsumRecordBase(roomRecord.getId() , user.getId() ,consumCardNum);
         cardConsumRecordMapper.insertOne(cardConsumRecord);
         //更新玩家的房卡数量信息
         personalCardMapper.updatePersonalCardNum(user.getId() ,cardNumByUserId - consumCardNum);
-        return ResponseHelper.createInstance(roomRecordId , MessageCodeEnum.CREATE_SUCCESS);
+        return ResponseHelper.createInstance(roomRecord.getId() , MessageCodeEnum.CREATE_SUCCESS);
     }
 }

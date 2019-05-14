@@ -18,21 +18,15 @@ import java.util.concurrent.Executor;
 @Configuration
 public class RoomConfig {
 
-    /**
-     * 注入牛牛的房间
-     * @return
-     */
-    @Bean(name = "niuniuRooms")
+
+    @Bean(name = "sessionsMap")
     public Map<Long , CopyOnWriteArrayList<Session>> generateNiuNiuRoomMap(){
-        Map<Long, CopyOnWriteArrayList<Session>> niuniuRooms = new ConcurrentHashMap(2<<15);
-        return niuniuRooms;
+        Map<Long, CopyOnWriteArrayList<Session>> sessionsMap = new ConcurrentHashMap(2<<15);
+        return sessionsMap;
     }
 
-    /**
-     * 注入牛牛的房间的牌
-     * @return
-     */
-    @Bean(name = "niuniuRoomPoke")
+
+    @Bean(name = "roomPokeMap")
     public Map<Long , RoomPoke> generateNiuNiuRoomPoke(){
         Map<Long , RoomPoke> map = new ConcurrentHashMap<>(2<<15);
         return map;

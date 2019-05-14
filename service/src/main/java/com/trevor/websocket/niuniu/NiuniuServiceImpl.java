@@ -2,7 +2,6 @@ package com.trevor.websocket.niuniu;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.trevor.bo.NiuniuSituation;
 import com.trevor.bo.RoomPoke;
 import com.trevor.bo.UserPoke;
@@ -25,7 +24,6 @@ import com.trevor.util.WebsocketUtil;
 import com.trevor.websocket.bo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import springfox.documentation.spring.web.json.Json;
 
 import javax.annotation.Resource;
 import javax.websocket.EncodeException;
@@ -46,10 +44,10 @@ import java.util.stream.Collectors;
 @Slf4j
 public class NiuniuServiceImpl implements NiuniuService {
 
-    @Resource(name = "niuniuRooms")
-    private Map<Long ,CopyOnWriteArrayList<Session>> niuniuRooms;
+    @Resource(name = "sessionsMap")
+    private Map<Long ,CopyOnWriteArrayList<Session>> sessionsMap;
 
-    @Resource(name = "niuniuRoomPoke")
+    @Resource(name = "roomPokeMap")
     private Map<Long , RoomPoke> roomPokeMap;
 
     @Resource(name = "executor")
@@ -80,7 +78,7 @@ public class NiuniuServiceImpl implements NiuniuService {
             return new ReturnMessage<>(MessageCodeEnum.ROOM_NOT_EXIST);
         }
         //房间已关闭
-        if (niuniuRooms.get(Long.valueOf(roomId)) == null) {
+        if (sessionsMap.get(Long.valueOf(roomId)) == null) {
             return new ReturnMessage<>(MessageCodeEnum.ROOM_CLOSE);
         }
         NiuniuRoomParameter niuniuRoomParameter = JSON.parseObject(oneById.getRoomConfig() ,NiuniuRoomParameter.class);
@@ -107,7 +105,7 @@ public class NiuniuServiceImpl implements NiuniuService {
             return;
         }
         List<Map<Long , UserPoke>> userPokes = roomPoke.getUserPokes();
-        CopyOnWriteArrayList<Session> sessions = niuniuRooms.get(roomId);
+        CopyOnWriteArrayList<Session> sessions = sessionsMap.get(roomId);
         roomPoke.getLock().lock();
         //初始化
         roomPoke.setRuningNum(roomPoke.getRuningNum()+1);
@@ -185,7 +183,7 @@ public class NiuniuServiceImpl implements NiuniuService {
      * @throws IOException
      */
     private void playPoke(Long rommId) throws InterruptedException, EncodeException, IOException {
-        CopyOnWriteArrayList<Session> sessions = niuniuRooms.get(rommId);
+        CopyOnWriteArrayList<Session> sessions = sessionsMap.get(rommId);
         //准备的倒计时
         countDown(true ,sessions ,roomPokeMap.get(rommId));
         //先发四张牌
@@ -458,7 +456,7 @@ public class NiuniuServiceImpl implements NiuniuService {
         socketUser.setId(user.getId());
         socketUser.setName(user.getAppName());
         socketUser.setPicture(user.getAppPictureUrl());
-        CopyOnWriteArrayList<Session> sessions = niuniuRooms.get(Long.valueOf(roomId));
+        CopyOnWriteArrayList<Session> sessions = sessionsMap.get(Long.valueOf(roomId));
         //允许观战
         if (niuniuRoomParameter.getSpecial()!= null && niuniuRoomParameter.getSpecial().contains(SpecialEnum.CAN_SEE.getCode())) {
             if (sessions.size() < RoomTypeEnum.getRoomNumByType(niuniuRoomParameter.getRoomType())) {

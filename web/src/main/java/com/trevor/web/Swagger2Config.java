@@ -1,4 +1,4 @@
-package com.trevor.web.config;
+package com.trevor.web;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.trevor.dao.RoomPokeMapper">
+
+    <insert id="insertOne">
+        INSERT  INTO
+        `room_poke`(room_record_id ,room_poke)
+        VALUES (#{roomPokeInit.roomRecordId} ,#{roomPokeInit.roomPoke})
+    </insert>
+
+    <select id="findAll" resultType="com.trevor.domain.RoomPokeInit">
+        select
+        room_record_id roomRecordId,
+        room_poke roomPoke
+        from
+        room_poke
+    </select>
+
+    <delete id="deleteByRoomRecordId">
+        delete from
+        room_poke
+        where
+        room_record_id=#{roomRecordId}
+    </delete>
+
+
+</mapper>

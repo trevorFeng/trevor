@@ -1,7 +1,9 @@
 package com.trevor.bo;
 
+import com.trevor.bo.UserPoke;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,7 +15,7 @@ import java.util.concurrent.locks.Lock;
  * @date 2019/3/13 17:41
  */
 @Data
-public class RoomPoke {
+public class RoomPoke implements Serializable {
 
     /**
      * 房间id
@@ -28,7 +30,7 @@ public class RoomPoke {
     /**
      * 每一局的玩家的牌
      */
-    private List<Map<Long ,UserPoke>> userPokes = new ArrayList<>(2<<4);
+    private List<Map<Long , UserPoke>> userPokes = new ArrayList<>(2<<4);
 
     /**
      * 玩家玩完上一局后的分数

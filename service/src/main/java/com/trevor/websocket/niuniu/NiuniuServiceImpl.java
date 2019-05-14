@@ -77,10 +77,10 @@ public class NiuniuServiceImpl implements NiuniuService {
         if (oneById == null) {
             return new ReturnMessage<>(MessageCodeEnum.ROOM_NOT_EXIST);
         }
-        //房间已关闭
-        if (sessionsMap.get(Long.valueOf(roomId)) == null) {
-            return new ReturnMessage<>(MessageCodeEnum.ROOM_CLOSE);
-        }
+//        //房间已关闭
+//        if (sessionsMap.get(Long.valueOf(roomId)) == null) {
+//            return new ReturnMessage<>(MessageCodeEnum.ROOM_CLOSE);
+//        }
         NiuniuRoomParameter niuniuRoomParameter = JSON.parseObject(oneById.getRoomConfig() ,NiuniuRoomParameter.class);
         //房主是否开启好友管理功能
         Boolean isFriendManage = Objects.equals(userService.isFriendManage(oneById.getRoomAuth()) , FriendManageEnum.YES.getCode());

@@ -51,7 +51,7 @@ public class NiuniuServer {
     
     private static Map<Long , CopyOnWriteArrayList<Session>> sessions;
 
-    @Resource(name = "niuniuRooms")
+    @Resource(name = "sessionsMap")
     public void setSessions (Map<Long , CopyOnWriteArrayList<Session>> sessions) {
         NiuniuServer.sessions = sessions;
     }

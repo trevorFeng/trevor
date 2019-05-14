@@ -140,7 +140,6 @@ public class NiuniuServiceImpl implements NiuniuService {
         }else {
             roomPoke.getLock().unlock();
         }
-
         ReturnMessage<String> returnMessage = new ReturnMessage<>(null ,2);
         WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage);
     }

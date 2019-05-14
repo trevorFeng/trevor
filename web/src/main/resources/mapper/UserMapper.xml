@@ -98,7 +98,7 @@
         select
         id id,
         app_name appName,
-        app_picture_url appPictureUrl,
+        app_picture_url appPictureUrl
         from
         `user`
         where

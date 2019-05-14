@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -44,16 +45,19 @@ public class FriendManagerServiceImpl implements FriendManagerService {
     @Override
     public List<FriendInfo> queryFriends(User user) {
         List<FriendsManage> list =friendManageMapper.findByUserId(user.getId());
+        if (list.isEmpty()) {
+            return new ArrayList<>();
+        }
         List<Long> ids = list.stream().map(friendsManage -> friendsManage.getManageFriendId()).collect(Collectors.toList());
         Map<Long ,Integer> map = list.stream().collect(Collectors.toMap(FriendsManage::getManageFriendId ,FriendsManage::getAllowFlag));
         List<User> users = userService.findUsersByIds(ids);
         List<FriendInfo> friendInfos = Lists.newArrayList();
         users.forEach(user1 -> {
             FriendInfo friendInfo = new FriendInfo();
-            friendInfo.setUserId(user.getId());
-            friendInfo.setAppName(user.getAppName());
-            friendInfo.setPictureUrl(user.getAppPictureUrl());
-            friendInfo.setAllowFlag(map.get(user.getId()));
+            friendInfo.setUserId(user1.getId());
+            friendInfo.setAppName(user1.getAppName());
+            friendInfo.setPictureUrl(user1.getAppPictureUrl());
+            friendInfo.setAllowFlag(map.get(user1.getId()));
             friendInfos.add(friendInfo);
         });
         return friendInfos;

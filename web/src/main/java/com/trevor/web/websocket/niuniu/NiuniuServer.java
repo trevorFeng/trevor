@@ -100,11 +100,11 @@ public class NiuniuServer {
         Integer messageCode = receiveMessage.getMessageCode();
         SocketUser socketUser = (SocketUser) mySession.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
         Long roomIdNum = Long.valueOf(roomId);
-        if (Objects.equals(messageCode , MessageCodeEnum.READY.getCode())) {
+        if (Objects.equals(messageCode , 1)) {
             niuniuService.dealReadyMessage( socketUser,roomIdNum);
-        }else if (Objects.equals(messageCode ,MessageCodeEnum.QIANG_ZHUANG.getCode())) {
+        }else if (Objects.equals(messageCode ,2)) {
             niuniuService.dealQiangZhuangMessage(socketUser ,roomIdNum ,receiveMessage);
-        }else if (Objects.equals(messageCode ,MessageCodeEnum.XIAN_JIA_XIA_ZHU.getCode())) {
+        }else if (Objects.equals(messageCode ,3)) {
             niuniuService.dealXianJiaXiaZhuMessage(socketUser ,roomIdNum ,receiveMessage);
         }
     }

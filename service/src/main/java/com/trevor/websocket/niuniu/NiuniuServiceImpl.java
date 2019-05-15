@@ -77,10 +77,10 @@ public class NiuniuServiceImpl implements NiuniuService {
         if (oneById == null) {
             return new ReturnMessage<>(MessageCodeEnum.ROOM_NOT_EXIST);
         }
-//        //房间已关闭
-//        if (sessionsMap.get(Long.valueOf(roomId)) == null) {
-//            return new ReturnMessage<>(MessageCodeEnum.ROOM_CLOSE);
-//        }
+        //房间已关闭
+        if (Objects.equals(oneById.getState() ,0)) {
+            return new ReturnMessage<>(MessageCodeEnum.ROOM_CLOSE);
+        }
         NiuniuRoomParameter niuniuRoomParameter = JSON.parseObject(oneById.getRoomConfig() ,NiuniuRoomParameter.class);
         //房主是否开启好友管理功能
         Boolean isFriendManage = Objects.equals(userService.isFriendManage(oneById.getRoomAuth()) , FriendManageEnum.YES.getCode());
@@ -119,13 +119,6 @@ public class NiuniuServiceImpl implements NiuniuService {
         Map<Long ,Integer> socreMap = roomPoke.getScoreMap();
         socreMap.putIfAbsent(socketUser.getId() ,0);
         //是否准备的人数为两人，是则开始自动打牌
-//        int peopleNum = 0;
-//        for (Session session : sessions) {
-//            SocketUser socketUser1 = (SocketUser) session.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
-//            if (!socketUser1.getIsChiGuaPeople()) {
-//                peopleNum ++;
-//            }
-//        }
         if (userPokes.get(roomPoke.getRuningNum()-1).size() == 2) {
             roomPoke.getLock().unlock();
             executor.execute(() -> {

@@ -1,9 +1,12 @@
 package com.trevor.dao;
 
+import com.trevor.bo.ReturnCard;
 import com.trevor.domain.PersonalCard;
 import com.trevor.domain.UserProposals;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 /**
  * 一句话描述该类作用:【】
@@ -33,4 +36,6 @@ public interface PersonalCardMapper {
      * @param personalCard
      */
     void insertOne(@Param("personalCard") PersonalCard personalCard);
+
+    void updatePersonalCardNumByUserIds(@Param("returnCards") List<ReturnCard> returnCards);
 }

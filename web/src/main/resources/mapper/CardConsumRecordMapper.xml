@@ -9,4 +9,14 @@
         room_auth=#{cardConsumRecord.roomAuth},
         consum_num=#{cardConsumRecord.consumNum}
     </insert>
+    <delete id="deleteByRoomRecordIds">
+        delete
+        from
+        card_consum_record
+        where
+        room_record_id in
+        <foreach collection="roomRecordIds" item="id"  open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
 </mapper>

@@ -4,6 +4,8 @@ import com.trevor.domain.CardConsumRecord;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
  * @author trevor
  * @date 2019/3/8 16:23
@@ -17,4 +19,6 @@ public interface CardConsumRecordMapper {
      * @return
      */
     Long insertOne(@Param("cardConsumRecord") CardConsumRecord cardConsumRecord);
+
+    void deleteByRoomRecordIds(@Param("roomRecordIds") List<Long> roomRecordIds);
 }

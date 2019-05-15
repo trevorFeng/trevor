@@ -17,6 +17,8 @@ public interface RoomPokeMapper {
 
     List<RoomPokeInit> findAll();
 
+    List<Long> findByByRoomRecordId(List<Long> ids);
+
     void deleteByRoomRecordId(@Param("roomRecordId") Long roomRecordId);
 
     void updateByRoomRecordId(@Param("roomRecordId") Long roomRecordId);

@@ -28,7 +28,7 @@ public class RoomRecord {
     private Long roomAuth;
 
     /**
-     * 房间状态，1为可用，2为已完成（打完牌后），3-已过期（半小时之内没人打牌）
+     * 房间状态，0-已过期（半小时之内没人打牌）,1为可用
      */
     private Integer state;
 
@@ -47,10 +47,10 @@ public class RoomRecord {
      * @param roomType
      * @return
      */
-    public void generateRoomRecordBase(Integer roomType , NiuniuRoomParameter niuniuRoomParameter ,Long roomAuth){
+    public void generateRoomRecordBase(Integer roomType , NiuniuRoomParameter niuniuRoomParameter ,Long roomAuth ,Long currentTime){
         this.setRoomType(roomType);
         this.setRoomAuth(roomAuth);
-        this.setGetRoomTime(System.currentTimeMillis());
+        this.setGetRoomTime(currentTime);
         this.setRoomConfig(JSON.toJSONString(niuniuRoomParameter));
     }
 

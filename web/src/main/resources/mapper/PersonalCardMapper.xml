@@ -11,6 +11,16 @@
         user_id = #{userId}
     </update>
 
+    <update id="updatePersonalCardNumByUserIds">
+        <foreach collection="returnCards" item="item" index="index" open="" close="" separator=";">
+            update `personal_card`
+            <set>
+                return_card_num=return_card_num + #{item.returnCardNum}
+            </set>
+            where user_id = #{item.userId}
+        </foreach>
+    </update>
+
     <!-- 根据玩家查询玩家拥有的房卡数量 -->
     <select id="findCardNumByUserId" resultType="java.lang.Integer">
       select room_card_num

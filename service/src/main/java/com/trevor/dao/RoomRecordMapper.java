@@ -4,6 +4,8 @@ import com.trevor.domain.RoomRecord;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
  * @author trevor
  * @date 2019/3/7 12:50
@@ -31,4 +33,10 @@ public interface RoomRecordMapper {
      * @return
      */
     Long findRoomAuthIdByRoomId(@Param("roomId") Long roomId);
+
+    List<Long> findByGetRoomTime(@Param("time") Long time);
+
+    void updateState(@Param("ids") List<Long> ids);
+
+    List<RoomRecord> findByIds(@Param("ids") List<Long> ids);
 }

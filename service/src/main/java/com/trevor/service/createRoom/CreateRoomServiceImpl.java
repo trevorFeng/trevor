@@ -7,8 +7,10 @@ import com.trevor.common.ConsumCardEnum;
 import com.trevor.common.MessageCodeEnum;
 import com.trevor.dao.CardConsumRecordMapper;
 import com.trevor.dao.PersonalCardMapper;
+import com.trevor.dao.RoomPokeMapper;
 import com.trevor.dao.RoomRecordMapper;
 import com.trevor.domain.CardConsumRecord;
+import com.trevor.domain.RoomPokeInit;
 import com.trevor.domain.RoomRecord;
 import com.trevor.domain.User;
 import com.trevor.service.createRoom.bo.NiuniuRoomParameter;
@@ -27,11 +29,11 @@ import java.util.concurrent.locks.ReentrantLock;
 @Service
 public class CreateRoomServiceImpl implements CreateRoomService{
 
-    @Resource(name = "niuniuRoomPoke")
-    private Map<Long , RoomPoke> niuniuRoomPoke;
+    @Resource(name = "roomPokeMap")
+    private Map<Long , RoomPoke> roomPokeMap;
 
-    @Resource(name = "niuniuRooms")
-    private Map<Long ,CopyOnWriteArrayList<Session>> niuniuRooms;
+    @Resource(name = "sessionsMap")
+    private Map<Long ,CopyOnWriteArrayList<Session>> sessionsMap;
 
     @Resource
     private RoomRecordMapper roomRecordMapper;
@@ -41,6 +43,9 @@ public class CreateRoomServiceImpl implements CreateRoomService{
 
     @Resource
     private CardConsumRecordMapper cardConsumRecordMapper;
+
+    @Resource
+    private RoomPokeMapper roomPokeMapper;
 
     /**
      * 创建一个房间,返回主键,将房间放入Map中
@@ -64,11 +69,12 @@ public class CreateRoomServiceImpl implements CreateRoomService{
             }
         }
         //生成房间，将房间信息存入数据库
+        Long currentTime = System.currentTimeMillis();
         RoomRecord roomRecord = new RoomRecord();
-        roomRecord.generateRoomRecordBase(niuniuRoomParameter.getRoomType() ,niuniuRoomParameter , user.getId());
+        roomRecord.generateRoomRecordBase(niuniuRoomParameter.getRoomType() ,niuniuRoomParameter , user.getId() ,currentTime);
         roomRecord.setState(1);
         roomRecordMapper.insertOne(roomRecord);
-        //将房间放入map中
+
         RoomPoke roomPoke = new RoomPoke();
         roomPoke.setRoomRecordId(roomRecord.getId());
         if (niuniuRoomParameter.getConsumCardNum() == 1) {
@@ -77,9 +83,19 @@ public class CreateRoomServiceImpl implements CreateRoomService{
             roomPoke.setTotalNum(24);
         }
         roomPoke.setLock(new ReentrantLock());
-        niuniuRoomPoke.put(roomRecord.getId() ,roomPoke);
 
-        niuniuRooms.put(roomRecord.getId() ,new CopyOnWriteArrayList<>());
+        RoomPokeInit roomPokeInit = new RoomPokeInit();
+        roomPokeInit.setStatus(0);
+        roomPokeInit.setEntryDate(currentTime);
+        roomPokeInit.setRoomPoke();
+
+
+
+
+
+        roomPokeMap.put(roomRecord.getId() ,roomPoke);
+
+        //niuniuRooms.put(roomRecord.getId() ,new CopyOnWriteArrayList<>());
         //生成房卡消费记录
         CardConsumRecord cardConsumRecord = new CardConsumRecord();
         cardConsumRecord.generateCardConsumRecordBase(roomRecord.getId() , user.getId() ,consumCardNum);

@@ -11,11 +11,15 @@ import java.util.List;
  * @date 05/14/19 18:05
  */
 @Repository
-public interface RoomPokeMapper {
+public interface RoomPokeInitMapper {
 
     void insertOne(@Param("roomPokeInit") RoomPokeInit roomPokeInit);
 
-    List<RoomPokeInit> findAll();
+    List<RoomPokeInit> findStatus_0();
+
+    List<Long> findRoomRecordIdsStatus_0AndRoomRecordIds(List<Long> roomRecordIds);
+
+    void updateStatus_3(List<Long> roomRecordIds);
 
     List<Long> findByByRoomRecordId(List<Long> ids);
 

@@ -34,9 +34,9 @@ public interface RoomRecordMapper {
      */
     Long findRoomAuthIdByRoomId(@Param("roomId") Long roomId);
 
-    List<Long> findByGetRoomTime(@Param("time") Long time);
+    List<Long> findByGetRoomTimeAndState_1(@Param("time") Long time);
 
-    void updateState(@Param("ids") List<Long> ids);
+    void updateState_0(@Param("ids") List<Long> ids);
 
     List<RoomRecord> findByIds(@Param("ids") List<Long> ids);
 }

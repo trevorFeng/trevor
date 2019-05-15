@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.trevor.dao.RoomPokeMapper">
+<mapper namespace="com.trevor.dao.RoomPokeInitMapper">
 
     <insert id="insertOne">
         INSERT  INTO
-        `room_poke`(room_record_id ,room_poke)
+        `room_poke`(room_record_id ,room_poke ,)
         VALUES (#{roomPokeInit.roomRecordId} ,#{roomPokeInit.roomPoke})
     </insert>
 
@@ -13,12 +13,13 @@
 
     </update>
 
-    <select id="findAll" resultType="com.trevor.domain.RoomPokeInit">
+    <select id="findStatus_0" resultType="com.trevor.domain.RoomPokeInit">
         select
-        room_record_id roomRecordId,
-        room_poke roomPoke
+        *
         from
-        room_poke
+        `room_poke_init`
+        where
+        status=0
     </select>
 
     <select id="findByByRoomRecordId" resultType="java.lang.Long">

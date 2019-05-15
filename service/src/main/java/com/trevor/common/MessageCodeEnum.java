@@ -155,7 +155,12 @@ public enum MessageCodeEnum {
     /**
      * 闲家下注
      */
-    XIAN_JIA_XIA_ZHU(103, "闲家下注");
+    XIAN_JIA_XIA_ZHU(103, "闲家下注"),
+
+    /**
+     * token 错误
+     */
+    TOKEN_ERROR(-401 ,"token 错误");
 
 
     private Integer code;

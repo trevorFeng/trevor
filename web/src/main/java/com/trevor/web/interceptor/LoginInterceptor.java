@@ -42,15 +42,6 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
             response.sendRedirect(redirectUrl);
             return false;
         }
-//        String sessionToken = SessionUtil.getToken();
-//        if (sessionToken == null) {
-//            response.sendRedirect(redirectUrl);
-//            return false;
-//        }
-//        if (!Objects.equals(token ,sessionToken)) {
-//            response.sendRedirect(redirectUrl);
-//            return false;
-//        }
         try {
             //解析token
             Map<String, Object> claims = TokenUtil.getClaimsFromToken(token);

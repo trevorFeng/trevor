@@ -1,6 +1,9 @@
 package com.trevor.init;
 
-import com.trevor.dao.RoomPokeMapper;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
+import com.trevor.bo.UserPoke;
+import com.trevor.dao.RoomPokeInitMapper;
 import com.trevor.bo.RoomPoke;
 import com.trevor.domain.RoomPokeInit;
 import com.trevor.util.ByteToBlobUtil;
@@ -9,13 +12,13 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.io.BufferedInputStream;
+import javax.websocket.Session;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.sql.Blob;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author trevor
@@ -28,31 +31,29 @@ public class Init implements ApplicationRunner {
     private Map<Long , RoomPoke> roomPokeMap;
 
     @Resource
-    private RoomPokeMapper roomPokeMapper;
+    private RoomPokeInitMapper roomPokeInitMapper;
 
+    @Resource(name = "sessionsMap")
+    private Map<Long , CopyOnWriteArrayList<Session>> sessionsMap;
+
+    /**
+     * 初始化roomPoke到roomPokeMap中,初始化sessionsMap
+     * @param args
+     */
     @Override
     public void run(ApplicationArguments args) {
-        //init roomPoke
-        List<RoomPokeInit> roomPokeInits = roomPokeMapper.findAll();
+        List<RoomPokeInit> roomPokeInits = roomPokeInitMapper.findStatus_0();
         for (RoomPokeInit roomPokeInit : roomPokeInits) {
-            ByteArrayInputStream byteInt = new ByteArrayInputStream(ByteToBlobUtil.blobToBytes(roomPokeInit.getRoomPoke()));
-            ObjectInputStream objInt= null;
-            try {
-                objInt = new ObjectInputStream(byteInt);
-                RoomPoke roomPoke = (RoomPoke) objInt.readObject();
-                roomPokeMap.put(roomPokeInit.getRoomRecordId() ,roomPoke);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }finally {
-                try {
-                    byteInt.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            RoomPoke roomPoke = new RoomPoke();
+            roomPoke.setRoomRecordId(roomPokeInit.getRoomRecordId());
+            roomPoke.setUserPokes(JSON.parseObject(roomPokeInit.getUserPokes() ,new TypeReference<List<Map<Long ,UserPoke>>>(){}));
+            roomPoke.setScoreMap(JSON.parseObject(roomPokeInit.getScoreMap() ,new TypeReference<Map<Long ,Integer>>(){}));
+            roomPoke.setRuningNum(roomPokeInit.getRuningNum());
+            roomPoke.setTotalNum(roomPokeInit.getTotalNum());
+            roomPokeMap.put(roomPokeInit.getRoomRecordId() ,roomPoke);
+
+            sessionsMap.put(roomPokeInit.getRoomRecordId() ,new CopyOnWriteArrayList<>());
         }
-
-
     }
 
 

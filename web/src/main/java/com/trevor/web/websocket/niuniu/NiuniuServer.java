@@ -3,6 +3,8 @@ package com.trevor.web.websocket.niuniu;
 import com.trevor.bo.WebKeys;
 import com.trevor.common.MessageCodeEnum;
 import com.trevor.domain.User;
+import com.trevor.service.user.UserService;
+import com.trevor.util.TokenUtil;
 import com.trevor.util.WebsocketUtil;
 import com.trevor.web.websocket.config.NiuniuServerConfigurator;
 import com.trevor.web.websocket.decoder.MessageDecoder;
@@ -56,9 +58,14 @@ public class NiuniuServer {
         NiuniuServer.sessions = sessions;
     }
 
-    private Session mySession;
+    private static UserService userService;
 
-    private HttpSession httpSession;
+    @Resource
+    public void setUserService (UserService userService) {
+        NiuniuServer.userService = userService;
+    }
+
+    private Session mySession;
 
 
 
@@ -71,13 +78,29 @@ public class NiuniuServer {
     @OnOpen
     public void onOpen(Session session , EndpointConfig config , @PathParam("rooId") String rooId) throws IOException, EncodeException {
         mySession = session;
-        httpSession = (HttpSession) config.getUserProperties().get(HttpSession.class.getName());
-        User user = (User) httpSession.getAttribute(WebKeys.SESSION_USER_KEY);
-        if (user == null) {
-            WebsocketUtil.sendBasicMessage(mySession , new ReturnMessage(MessageCodeEnum.SESSION_TIRED));
-            mySession.close();
+        //从token中得到token
+        String token = session.getRequestParameterMap().get(WebKeys.TOKEN).get(0);
+        if (token == null) {
+            log.info("有人瞎鸡巴占用老子的连接数，时间是：" + System.currentTimeMillis());
+            this.mySession.close();
             return;
         }
+        Map<String, Object> claims = TokenUtil.getClaimsFromToken(token);
+        String openid = (String) claims.get(WebKeys.OPEN_ID);
+        String hash = (String) claims.get("hash");
+        Long timestamp = (Long) claims.get("timestamp");
+        if (openid == null || hash == null || timestamp == null) {
+            log.info("有人想黑爸爸，时间是：" + System.currentTimeMillis());
+            this.mySession.close();
+            return;
+        }
+        User user = userService.findUserByOpenid(openid);
+        if(user == null || !Objects.equals(user.getHash() ,hash)){
+            log.info("有人想黑爸爸，时间是：" + System.currentTimeMillis());
+            this.mySession.close();
+            return;
+        }
+        //连接时检查
         String tempRoomId = rooId.intern();
         ReturnMessage<SocketUser> returnMessage;
         synchronized (tempRoomId) {
@@ -86,10 +109,12 @@ public class NiuniuServer {
                 sessions.get(Long.valueOf(rooId)).add(mySession);
             }
         }
+        //检查不能连接
         if (returnMessage.getMessageCode() < 0) {
             WebsocketUtil.sendBasicMessage(mySession , returnMessage);
             mySession.close();
         }else {
+            //将用户放入mySession中
             mySession.getUserProperties().put(WebKeys.WEBSOCKET_USER_KEY ,returnMessage.getData());
             WebsocketUtil.sendAllBasicMessage(sessions.get(Long.valueOf(rooId)) ,returnMessage);
         }

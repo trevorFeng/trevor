@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author trevor
@@ -30,22 +31,12 @@ public class RoomPoke implements Serializable {
     /**
      * 每一局的玩家的牌
      */
-    private List<Map<Long , UserPoke>> userPokes = new ArrayList<>(2<<4);
+    private List<UserPokesIndex> userPokes = new ArrayList<>(2<<4);
 
     /**
-     * 玩家玩完上一局后的分数
+     * 玩家分数情况
      */
-    private Map<Long ,Integer> scoreMap = new HashMap<>(2<<4);
-
-    /**
-     * 是否准备完毕
-     */
-    private volatile Boolean isReadyOver;
-
-    /**
-     * 每局房间的锁
-     */
-    private Lock lock;
+    private List<UserScore> userScores = new ArrayList<>(2<<4);
 
     /**
      * 默认为0，开到第几局了
@@ -56,6 +47,16 @@ public class RoomPoke implements Serializable {
      * 总局数
      */
     private Integer totalNum;
+
+    /**
+     * 是否准备完毕
+     */
+    private volatile Boolean isReadyOver = false;
+
+    /**
+     * 每局房间的锁
+     */
+    private Lock lock = new ReentrantLock();
 
 
 }

@@ -1,5 +1,6 @@
 package com.trevor.service.createRoom;
 
+import com.alibaba.fastjson.JSON;
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.ResponseHelper;
 import com.trevor.bo.RoomPoke;
@@ -7,7 +8,7 @@ import com.trevor.common.ConsumCardEnum;
 import com.trevor.common.MessageCodeEnum;
 import com.trevor.dao.CardConsumRecordMapper;
 import com.trevor.dao.PersonalCardMapper;
-import com.trevor.dao.RoomPokeMapper;
+import com.trevor.dao.RoomPokeInitMapper;
 import com.trevor.dao.RoomRecordMapper;
 import com.trevor.domain.CardConsumRecord;
 import com.trevor.domain.RoomPokeInit;
@@ -45,7 +46,7 @@ public class CreateRoomServiceImpl implements CreateRoomService{
     private CardConsumRecordMapper cardConsumRecordMapper;
 
     @Resource
-    private RoomPokeMapper roomPokeMapper;
+    private RoomPokeInitMapper roomPokeInitMapper;
 
     /**
      * 创建一个房间,返回主键,将房间放入Map中
@@ -75,6 +76,7 @@ public class CreateRoomServiceImpl implements CreateRoomService{
         roomRecord.setState(1);
         roomRecordMapper.insertOne(roomRecord);
 
+        //生成roomPoke放入roomPokeMap
         RoomPoke roomPoke = new RoomPoke();
         roomPoke.setRoomRecordId(roomRecord.getId());
         if (niuniuRoomParameter.getConsumCardNum() == 1) {
@@ -83,23 +85,26 @@ public class CreateRoomServiceImpl implements CreateRoomService{
             roomPoke.setTotalNum(24);
         }
         roomPoke.setLock(new ReentrantLock());
-
-        RoomPokeInit roomPokeInit = new RoomPokeInit();
-        roomPokeInit.setStatus(0);
-        roomPokeInit.setEntryDate(currentTime);
-        roomPokeInit.setRoomPoke();
-
-
-
-
-
         roomPokeMap.put(roomRecord.getId() ,roomPoke);
 
-        //niuniuRooms.put(roomRecord.getId() ,new CopyOnWriteArrayList<>());
+        //放入sesionsMap
+        sessionsMap.put(roomRecord.getId() ,new CopyOnWriteArrayList<>());
+
+        //生成roomPokeInit插入数据库
+        RoomPokeInit roomPokeInit = new RoomPokeInit();
+        roomPokeInit.setRoomRecordId(roomRecord.getId());
+        roomPokeInit.setUserPokes(JSON.toJSONString(roomPoke.getUserPokes()));
+        roomPokeInit.setScoreMap(JSON.toJSONString(roomPoke.getScoreMap()));
+        roomPokeInit.setTotalNum(roomPoke.getTotalNum());
+        roomPokeInit.setStatus(0);
+        roomPokeInit.setEntryDate(currentTime);
+        roomPokeInitMapper.insertOne(roomPokeInit);
+
         //生成房卡消费记录
         CardConsumRecord cardConsumRecord = new CardConsumRecord();
         cardConsumRecord.generateCardConsumRecordBase(roomRecord.getId() , user.getId() ,consumCardNum);
         cardConsumRecordMapper.insertOne(cardConsumRecord);
+
         //更新玩家的房卡数量信息
         personalCardMapper.updatePersonalCardNum(user.getId() ,cardNumByUserId - consumCardNum);
         return ResponseHelper.createInstance(roomRecord.getId() , MessageCodeEnum.CREATE_SUCCESS);

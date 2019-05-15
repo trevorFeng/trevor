@@ -2,10 +2,7 @@ package com.trevor.websocket.niuniu;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
-import com.trevor.bo.NiuniuSituation;
-import com.trevor.bo.RoomPoke;
-import com.trevor.bo.UserPoke;
-import com.trevor.bo.WebKeys;
+import com.trevor.bo.*;
 import com.trevor.common.FriendManageEnum;
 import com.trevor.common.MessageCodeEnum;
 import com.trevor.common.RoomTypeEnum;
@@ -104,22 +101,51 @@ public class NiuniuServiceImpl implements NiuniuService {
         if (Objects.equals(roomPoke.getIsReadyOver() ,true)) {
             return;
         }
-        List<Map<Long , UserPoke>> userPokes = roomPoke.getUserPokes();
+        List<UserPokesIndex> userPokes = roomPoke.getUserPokes();
         CopyOnWriteArrayList<Session> sessions = sessionsMap.get(roomId);
+
         roomPoke.getLock().lock();
-        //初始化
+        //算上这一局是第几局
         roomPoke.setRuningNum(roomPoke.getRuningNum()+1);
-        if (userPokes.get(roomPoke.getRuningNum()-1) == null) {
-            Map<Long , UserPoke> map = new HashMap<>(2<<4);
-            userPokes.add(map);
+
+        //设置userPokesIndex
+        List<UserPokesIndex> userPokesIndexList = roomPoke.getUserPokes();
+        if (!userPokesIndexList.isEmpty()) {
+            for (UserPokesIndex userPokesIndex : userPokesIndexList) {
+                if (Objects.equals(userPokesIndex.getIndex() ,roomPoke.getRuningNum())) {
+                    UserPoke userPoke = new UserPoke();
+                    userPoke.setUserId(socketUser.getId());
+                    userPokesIndex.getUserPokeList().add(userPoke);
+                    break;
+                }
+            }
+        }else {
+            UserPokesIndex userPokesIndex = new UserPokesIndex();
+            userPokesIndex.setIndex(roomPoke.getRuningNum());
+            UserPoke userPoke = new UserPoke();
+            userPoke.setUserId(socketUser.getId());
+            userPokesIndex.getUserPokeList().add(userPoke);
+            userPokesIndexList.add(userPokesIndex);
         }
-        UserPoke userPoke = new UserPoke();
-        userPoke.setUserId(socketUser.getId());
-        userPokes.get(roomPoke.getRuningNum()-1).put(socketUser.getId() ,userPoke);
-        Map<Long ,Integer> socreMap = roomPoke.getScoreMap();
-        socreMap.putIfAbsent(socketUser.getId() ,0);
+
+
+        //设置userScores
+        List<Long> userScoreIds = roomPoke.getUserScores().stream().map(userScore -> userScore.getUserId()).collect(Collectors.toList());
+        if (!userScoreIds.contains(socketUser.getId())) {
+            UserScore userScore = new UserScore();
+            userScore.setUserId(socketUser.getId());
+            roomPoke.getUserScores().add(userScore);
+        }
+
         //是否准备的人数为两人，是则开始自动打牌
-        if (userPokes.get(roomPoke.getRuningNum()-1).size() == 2) {
+        UserPokesIndex thisUserPokesIndex = null;
+        for (UserPokesIndex userPokesIndex : userPokesIndexList) {
+            if (Objects.equals(userPokesIndex.getIndex() ,roomPoke.getRuningNum())) {
+                thisUserPokesIndex = userPokesIndex;
+                break;
+            }
+        }
+        if (thisUserPokesIndex.getUserPokeList().size() == 2) {
             roomPoke.getLock().unlock();
             executor.execute(() -> {
                 try {

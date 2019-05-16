@@ -1,7 +1,6 @@
 package com.trevor.web.websocket.niuniu;
 
 import com.trevor.bo.WebKeys;
-import com.trevor.common.MessageCodeEnum;
 import com.trevor.domain.User;
 import com.trevor.service.user.UserService;
 import com.trevor.util.TokenUtil;
@@ -17,11 +16,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpSession;
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -67,14 +66,6 @@ public class NiuniuServer {
 
     private Session mySession;
 
-
-
-    /**
-     * 连接时调用
-     * @param session
-     * @param config
-     * @param rooId
-     */
     @OnOpen
     public void onOpen(Session session , EndpointConfig config , @PathParam("rooId") String rooId) throws IOException, EncodeException {
         mySession = session;
@@ -136,9 +127,19 @@ public class NiuniuServer {
 
     @OnClose
     public void disConnect(@PathParam("rooId") String roomName, Session session) {
-        if (sessions.containsKey(Long.valueOf(roomName))) {
-            sessions.get(roomName).remove(session);
-            log.info("断开连接");
+        CopyOnWriteArrayList<Session> sessionList = sessions.get(Long.valueOf(roomName));
+        if (sessionList == null) {
+            return;
+        }
+        Iterator<Session> itrSession = sessionList.iterator();
+        while (itrSession.hasNext()) {
+            Session targetSession = itrSession.next();
+            if (targetSession.equals(this.mySession)) {
+                SocketUser user = (SocketUser) targetSession.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
+                log.info("用户断开，用户id:"+user.getId());
+                sessions.remove(targetSession);
+                break;
+            }
         }
     }
 

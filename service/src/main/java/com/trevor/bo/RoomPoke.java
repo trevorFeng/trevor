@@ -58,5 +58,10 @@ public class RoomPoke implements Serializable {
      */
     private Lock lock = new ReentrantLock();
 
+    /**
+     * 准备的人数
+     */
+    private Integer readyNum = 0;
+
 
 }

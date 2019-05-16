@@ -111,23 +111,29 @@ public class NiuniuServiceImpl implements NiuniuService {
         roomPoke.getLock().lock();
         List<UserPokesIndex> userPokesIndexList = roomPoke.getUserPokes();
         //算上这一局是第几局
-        if (userPokesIndexList.isEmpty()) {
+        if (Objects.equals(roomPoke.getReadyNum() ,0)) {
             roomPoke.setRuningNum(roomPoke.getRuningNum()+1);
-        }else {
-            List<Integer> indexList = userPokesIndexList.stream().map(u -> u.getIndex()).collect(Collectors.toList());
-            if (!indexList.contains(roomPoke.getRuningNum())) {
-                roomPoke.setRuningNum(roomPoke.getRuningNum()+1);
-            }
         }
+
 
         //设置userPokesIndex
         if (!userPokesIndexList.isEmpty()) {
-            for (UserPokesIndex userPokesIndex : userPokesIndexList) {
-                if (Objects.equals(userPokesIndex.getIndex() ,roomPoke.getRuningNum())) {
-                    UserPoke userPoke = new UserPoke();
-                    userPoke.setUserId(socketUser.getId());
-                    userPokesIndex.getUserPokeList().add(userPoke);
-                    break;
+            if (Objects.equals(roomPoke.getReadyNum() ,0)) {
+                UserPokesIndex userPokesIndex = new UserPokesIndex();
+                userPokesIndex.setIndex(roomPoke.getRuningNum());
+                UserPoke userPoke = new UserPoke();
+                userPoke.setUserId(socketUser.getId());
+                userPokesIndex.getUserPokeList().add(userPoke);
+                userPokesIndexList.add(userPokesIndex);
+                userPokesIndexList.add(userPokesIndex);
+            }else {
+                for (UserPokesIndex userPokesIndex : userPokesIndexList) {
+                    if (Objects.equals(userPokesIndex.getIndex() ,roomPoke.getRuningNum())) {
+                        UserPoke userPoke = new UserPoke();
+                        userPoke.setUserId(socketUser.getId());
+                        userPokesIndex.getUserPokeList().add(userPoke);
+                        break;
+                    }
                 }
             }
         }else {
@@ -146,7 +152,7 @@ public class NiuniuServiceImpl implements NiuniuService {
             userScore.setUserId(socketUser.getId());
             roomPoke.getUserScores().add(userScore);
         }
-
+        roomPoke.setReadyNum(roomPoke.getReadyNum() + 1);
         //是否准备的人数为两人，是则开始自动打牌
         UserPokesIndex thisUserPokesIndex = null;
         for (UserPokesIndex userPokesIndex : userPokesIndexList) {
@@ -377,6 +383,7 @@ public class NiuniuServiceImpl implements NiuniuService {
                 });
             }
 
+            roomPoke.setReadyNum(0);
             //保存roomPoke
             RoomPokeInit roomPokeInit = new RoomPokeInit();
             roomPokeInit.setRoomRecordId(roomPoke.getRoomRecordId());

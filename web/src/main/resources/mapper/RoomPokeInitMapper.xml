@@ -11,8 +11,11 @@
 
     <update id="updateRoomPoke">
         update
-        room_poke_init (user_pokes ,user_scores ,runing_num)
-        set (#{roomPokeInit.userPokes},#{roomPokeInit.userScores},#{roomPokeInit.runningNum})
+        room_poke_init
+        set
+        user_pokes=#{roomPokeInit.userPokes},
+        user_scores=#{roomPokeInit.userScores},
+        runing_num=#{roomPokeInit.runingNum}
         where
         room_record_id=#{roomPokeInit.roomRecordId}
     </update>

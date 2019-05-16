@@ -52,7 +52,7 @@ public class Init implements ApplicationRunner {
             roomPokeMap.put(roomPokeInit.getRoomRecordId() ,roomPoke);
 
             sessionsMap.put(roomPokeInit.getRoomRecordId() ,new CopyOnWriteArrayList<>());
-            log.info("初始化roomPokeMap和sessionsMap成功");
+            log.info("初始化roomPokeMap和sessionsMap成功,房间id：" + roomPokeInit.getRoomRecordId());
         }
     }
 

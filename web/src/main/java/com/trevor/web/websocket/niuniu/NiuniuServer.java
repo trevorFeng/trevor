@@ -144,6 +144,7 @@ public class NiuniuServer {
 
     @OnError
     public void onError(Throwable t){
+        t.printStackTrace();
         log.error(t.getMessage());
     }
 

@@ -19,12 +19,12 @@ public class CheckRoomOverDateTask{
     @Resource
     private TaskService taskService;
 
-    @Scheduled(initialDelay = 8000 ,fixedRate = 5000)
+    @Scheduled(initialDelay = 8000 ,fixedRate = 5000 * 60)
     public void checkRoom(){
         log.info("检查房间开始");
         //房间半小时内未使用会被关闭
         try {
-            taskService.checkRoomRecord();
+            //taskService.checkRoomRecord();
         }catch (Exception e) {
             e.printStackTrace();
             log.error(e.toString());

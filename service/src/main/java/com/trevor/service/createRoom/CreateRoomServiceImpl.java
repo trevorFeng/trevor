@@ -16,6 +16,7 @@ import com.trevor.domain.RoomRecord;
 import com.trevor.domain.User;
 import com.trevor.service.createRoom.bo.NiuniuRoomParameter;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import javax.websocket.Session;
@@ -54,6 +55,7 @@ public class CreateRoomServiceImpl implements CreateRoomService{
      * @return
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public JsonEntity<Long> createRoom(NiuniuRoomParameter niuniuRoomParameter , User user) {
         //判断玩家拥有的房卡数量是否超过消耗的房卡数
         Integer cardNumByUserId = personalCardMapper.findCardNumByUserId(user.getId());

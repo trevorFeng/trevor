@@ -4,8 +4,8 @@
 
     <insert id="insertOne">
         INSERT INTO
-        `game_situation` (room_record_id ,`type` ,game_num ,game_situation)
+        `game_situation` (room_record_id ,game_num ,game_situation)
         VALUES
-        (#{gameSituation.roomRecordId},#{gameSituation.type},#{gameSituation.gameNum},#{gameSituation.gameSituation})
+        (#{gameSituation.roomRecordId},#{gameSituation.gameNum},#{gameSituation.gameSituation})
     </insert>
 </mapper>

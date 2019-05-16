@@ -109,11 +109,18 @@ public class NiuniuServiceImpl implements NiuniuService {
         }
         CopyOnWriteArrayList<Session> sessions = sessionsMap.get(roomId);
         roomPoke.getLock().lock();
+        List<UserPokesIndex> userPokesIndexList = roomPoke.getUserPokes();
         //算上这一局是第几局
-        roomPoke.setRuningNum(roomPoke.getRuningNum()+1);
+        if (userPokesIndexList.isEmpty()) {
+            roomPoke.setRuningNum(roomPoke.getRuningNum()+1);
+        }else {
+            List<Integer> indexList = userPokesIndexList.stream().map(u -> u.getIndex()).collect(Collectors.toList());
+            if (!indexList.contains(roomPoke.getRuningNum())) {
+                roomPoke.setRuningNum(roomPoke.getRuningNum()+1);
+            }
+        }
 
         //设置userPokesIndex
-        List<UserPokesIndex> userPokesIndexList = roomPoke.getUserPokes();
         if (!userPokesIndexList.isEmpty()) {
             for (UserPokesIndex userPokesIndex : userPokesIndexList) {
                 if (Objects.equals(userPokesIndex.getIndex() ,roomPoke.getRuningNum())) {
@@ -160,7 +167,7 @@ public class NiuniuServiceImpl implements NiuniuService {
         }else {
             roomPoke.getLock().unlock();
         }
-        ReturnMessage<String> returnMessage = new ReturnMessage<>(null ,2);
+        ReturnMessage<Long> returnMessage = new ReturnMessage<>(socketUser.getId() ,2);
         WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage);
     }
 
@@ -207,193 +214,215 @@ public class NiuniuServiceImpl implements NiuniuService {
      * @throws IOException
      */
     private void playPoke(Long rommId) throws InterruptedException, EncodeException, IOException {
-        RoomPoke roomPoke = roomPokeMap.get(rommId);
-        CopyOnWriteArrayList<Session> sessions = sessionsMap.get(rommId);
-        RoomRecord roomRecord = roomRecordCacheService.findOneById(rommId);
-        NiuniuRoomParameter niuniuRoomParameter = JSON.parseObject(roomRecord.getRoomConfig() ,NiuniuRoomParameter.class);
-        Integer juShu = 0;
-        if (Objects.equals(niuniuRoomParameter.getConsumCardNum() ,1)) {
-            juShu = 12;
-        }else {
-            juShu = 24;
-        }
-        //准备的倒计时
-        countDown(true ,sessions ,roomPokeMap.get(rommId));
-
-        //先发四张牌
-        List<UserPoke> userPokeList = roomPoke.getUserPokes().stream().filter(u -> Objects.equals(u.getIndex(), roomPoke.getRuningNum()))
-                .collect(Collectors.toList()).get(0).getUserPokeList();
-        List<String> rootPokes = PokeUtil.generatePoke5();
-        List<List<Integer>> lists = RandomUtils.getSplitListByMax(userPokeList.size() * 5);
-        //设置每个人的牌
-        for (int j = 0; j < userPokeList.size(); j++) {
-            UserPoke userPoke = userPokeList.get(j);
-            List<Integer> list = lists.get(j);
-            List<String> pokes = Lists.newArrayList();
-            list.forEach(index -> {
-                pokes.add(rootPokes.get(index));
-            });
-            userPoke.setPokes(pokes);
-        }
-        //给每个人发牌
-        userPokeList.forEach(u -> {
-            sessions.forEach(session -> {
-                SocketUser socketUser = (SocketUser) session.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
-                if (Objects.equals(u.getUserId() ,socketUser.getId())) {
-                    ReturnMessage<List<String>> returnMessage3 = new ReturnMessage<>(u.getPokes().subList(0,4),4);
-                    try {
-                        WebsocketUtil.sendBasicMessage(session ,returnMessage3);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-        });
-
-        //开始抢庄倒计时
-        countDown(false ,sessions ,roomPokeMap.get(rommId));
-
-        //选取庄家
-        List<Long> qiangZhuangUserIds = Lists.newArrayList();
-        userPokeList.forEach(u -> {
-            if (u.getIsQiangZhuang()) {
-                qiangZhuangUserIds.add(u.getUserId());
+        try {
+            RoomPoke roomPoke = roomPokeMap.get(rommId);
+            CopyOnWriteArrayList<Session> sessions = sessionsMap.get(rommId);
+            RoomRecord roomRecord = roomRecordCacheService.findOneById(rommId);
+            NiuniuRoomParameter niuniuRoomParameter = JSON.parseObject(roomRecord.getRoomConfig() ,NiuniuRoomParameter.class);
+            Integer juShu = 0;
+            if (Objects.equals(niuniuRoomParameter.getConsumCardNum() ,1)) {
+                juShu = 12;
+            }else {
+                juShu = 24;
             }
-        });
-        Integer randNum = RandomUtils.getRandNumMax(qiangZhuangUserIds.size());
-        userPokeList.forEach(u -> {
-            if (Objects.equals(qiangZhuangUserIds.get(randNum) ,u.getUserId())) {
-                u.setIsQiangZhuang(Boolean.TRUE);
+            //准备的倒计时
+            countDown(true ,sessions ,roomPokeMap.get(rommId));
+
+            //先发四张牌
+            List<UserPoke> userPokeList = roomPoke.getUserPokes().stream().filter(u -> Objects.equals(u.getIndex(), roomPoke.getRuningNum()))
+                    .collect(Collectors.toList()).get(0).getUserPokeList();
+            List<String> rootPokes = PokeUtil.generatePoke5();
+            List<List<Integer>> lists = RandomUtils.getSplitListByMax(userPokeList.size() * 5);
+            //设置每个人的牌
+            for (int j = 0; j < userPokeList.size(); j++) {
+                UserPoke userPoke = userPokeList.get(j);
+                List<Integer> list = lists.get(j);
+                List<String> pokes = Lists.newArrayList();
+                list.forEach(index -> {
+                    pokes.add(rootPokes.get(index));
+                });
+                userPoke.setPokes(pokes);
             }
-        });
-        ReturnMessage<Long> returnMessage1 = new ReturnMessage<>(qiangZhuangUserIds.get(randNum) ,5);
-        WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage1);
-
-        //闲家下注倒计时
-        countDown(false ,sessions ,roomPokeMap.get(rommId));
-
-        //再发一张牌
-        userPokeList.forEach(u -> {
-            sessions.forEach(session -> {
-                SocketUser socketUser = (SocketUser) session.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
-                if (Objects.equals(u.getUserId() ,socketUser.getId())) {
-                    ReturnMessage<String> returnMessage3 = new ReturnMessage<>(u.getPokes().get(4),4);
-                    try {
-                        WebsocketUtil.sendBasicMessage(session ,returnMessage3);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-        });
-        //准备摊牌倒计时
-        countDown(false ,sessions ,roomPokeMap.get(rommId));
-
-        //计算分数得失
-        UserPoke zhuangJia = null;
-        for (UserPoke userPoke : userPokeList) {
-            if (userPoke.getIsQiangZhuang()) {
-                zhuangJia = userPoke;
-                break;
-            }
-        }
-        Integer zhuangJiaNiu = isNiuNiu(zhuangJia.getPokes());
-        for (UserPoke userPoke : userPokeList) {
-            UserPoke xianJia = userPoke;
-            if (!xianJia.getIsQiangZhuang()) {
-                Integer xianJiaNiu = isNiuNiu(xianJia.getPokes());
-                Integer score = zhuangJia.getQiangZhuangMultiple() * xianJia.getXianJiaMultiple();
-                //庄家大于闲家
-                if (zhuangJiaNiu > xianJiaNiu) {
-                    zhuangJia.setThisScore(score);
-                    xianJia.setThisScore(-score);
-                //庄家小于闲家
-                }else if (zhuangJiaNiu < xianJiaNiu) {
-                    zhuangJia.setThisScore(-score);
-                    xianJia.setThisScore(score);
-                //牛牛
-                }else if (zhuangJiaNiu == 10) {
-                    zhuangJia.setThisScore(score);
-                    xianJia.setThisScore(-score);
-                //没牛
-                }else if (zhuangJiaNiu == 0){
-                    Boolean isZhuangJiaBoss = Boolean.TRUE;
-                    List<String> zhuangJiaPokes = zhuangJia.getPokes();
-                    List<String> xianJiaPokes = xianJia.getPokes();
-                    List<Integer> zhuangJiaNums = zhuangJiaPokes.stream().map(str -> Integer.valueOf(str.indexOf(1))
-                    ).collect(Collectors.toList());
-                    List<Integer> xianJiaNums = xianJiaPokes.stream().map(str -> Integer.valueOf(str.indexOf(1))
-                    ).collect(Collectors.toList());
-                    zhuangJiaNums.sort(Comparator.reverseOrder());
-                    xianJiaNums.sort(Comparator.reverseOrder());
-                    for (int j = 0; j < xianJiaNums.size(); j++) {
-                        if (xianJiaNums.get(j) > zhuangJiaNums.get(j)) {
-                            isZhuangJiaBoss = Boolean.FALSE;
-                            break;
+            //给每个人发牌
+            userPokeList.forEach(u -> {
+                sessions.forEach(session -> {
+                    SocketUser socketUser = (SocketUser) session.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
+                    if (Objects.equals(u.getUserId() ,socketUser.getId())) {
+                        ReturnMessage<List<String>> returnMessage3 = new ReturnMessage<>(u.getPokes().subList(0,4),4);
+                        try {
+                            WebsocketUtil.sendBasicMessage(session ,returnMessage3);
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
                     }
-                    if (isZhuangJiaBoss) {
-                        zhuangJia.setThisScore(score);
-                        xianJia.setThisScore(-score);
-                    }else {
-                        zhuangJia.setThisScore(-score);
-                        xianJia.setThisScore(score);
-                    }
-                }
+                });
+            });
 
-            }
-        }
-        //打完本局后计算各个玩家总分
-        List<UserScore> userScores = roomPoke.getUserScores();
-        for (UserScore userScore : userScores) {
+            //开始抢庄倒计时
+            countDown(false ,sessions ,roomPokeMap.get(rommId));
+
+            //选取庄家
+            List<Long> qiangZhuangUserIds = Lists.newArrayList();
             userPokeList.forEach(u -> {
-                if (Objects.equals(userScore.getUserId() ,u.getUserId())) {
-                    userScore.setScore(userScore.getScore() + u.getThisScore());
+                if (u.getIsQiangZhuang()) {
+                    qiangZhuangUserIds.add(u.getUserId());
                 }
             });
-        }
-
-        //保存roomPoke
-        RoomPokeInit roomPokeInit = new RoomPokeInit();
-        roomPokeInit.setRoomRecordId(roomPoke.getRoomRecordId());
-        roomPokeInit.setUserPokes(JSON.toJSONString(roomPoke.getUserPokes()));
-        roomPokeInit.setUserScores(JSON.toJSONString(roomPoke.getUserScores()));
-        roomPokeInit.setRuningNum(roomPoke.getRuningNum());
-        roomPokeInitMapper.updateRoomPoke(roomPokeInit);
-
-        final Map<Long, Integer> scoreMap = userScores.stream().collect(Collectors.toMap(UserScore::getUserId, UserScore::getScore, (k1, k2) -> k1));
-        //返回计算的结果
-        List<NiuNiuResult> niuNiuResultList = Lists.newArrayList();
-        for (UserPoke userPoke : userPokeList) {
-            NiuNiuResult niuNiuResult = new NiuNiuResult();
-            niuNiuResult.setUserId(userPoke.getUserId());
-            niuNiuResult.setScore(userPoke.getThisScore());
-            niuNiuResult.setTotal(scoreMap.get(userPoke.getUserId()));
-        }
-        ReturnMessage<List<NiuNiuResult>> returnMessage3 = new ReturnMessage<>(niuNiuResultList ,7);
-        WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage3);
-
-        GameSituation gameSituation = new GameSituation();
-        gameSituation.setRoomRecordId(rommId);
-        gameSituation.setGameNum(roomPoke.getRuningNum());
-        //保存结果
-        List<NiuniuSituation> niuniuSituations = Lists.newArrayList();
-        for (UserPoke userPoke : userPokeList) {
-            NiuniuSituation niuniuSituation = new NiuniuSituation();
-            niuniuSituation.setIsZhuangJia(userPoke.getIsZhuangJia());
-            niuniuSituation.setPokes(userPoke.getPokes());
-            if (userPoke.getIsQiangZhuang()) {
-                niuniuSituation.setBeiShu(userPoke.getQiangZhuangMultiple());
+            Integer randNum;
+            //没人抢庄
+            if (qiangZhuangUserIds.isEmpty()) {
+                randNum = RandomUtils.getRandNumMax(userPokeList.size());
+                userPokeList.forEach(u -> {
+                    if (Objects.equals(userPokeList.get(randNum).getUserId() ,u.getUserId())) {
+                        u.setIsQiangZhuang(Boolean.TRUE);
+                    }
+                });
             }else {
-                niuniuSituation.setBeiShu(userPoke.getXianJiaMultiple());
+                randNum = RandomUtils.getRandNumMax(qiangZhuangUserIds.size());
+                userPokeList.forEach(u -> {
+                    if (Objects.equals(qiangZhuangUserIds.get(randNum) ,u.getUserId())) {
+                        u.setIsQiangZhuang(Boolean.TRUE);
+                    }
+                });
             }
-            niuniuSituation.setPokesDesc("牛牛");
+            ReturnMessage<Long> returnMessage1;
+            if (qiangZhuangUserIds.isEmpty()) {
+                returnMessage1 = new ReturnMessage<>(userPokeList.get(randNum).getUserId() ,5);
+            }else {
+                returnMessage1 = new ReturnMessage<>(qiangZhuangUserIds.get(randNum) ,5);
+            }
+            WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage1);
 
-            niuniuSituations.add(niuniuSituation);
+            //闲家下注倒计时
+            countDown(false ,sessions ,roomPokeMap.get(rommId));
+
+            //再发一张牌
+            userPokeList.forEach(u -> {
+                sessions.forEach(session -> {
+                    SocketUser socketUser = (SocketUser) session.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
+                    if (Objects.equals(u.getUserId() ,socketUser.getId())) {
+                        ReturnMessage<String> returnMessage3 = new ReturnMessage<>(u.getPokes().get(4),6);
+                        try {
+                            WebsocketUtil.sendBasicMessage(session ,returnMessage3);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            });
+            //准备摊牌倒计时
+            countDown(false ,sessions ,roomPokeMap.get(rommId));
+
+            //计算分数得失
+            UserPoke zhuangJia = null;
+            for (UserPoke userPoke : userPokeList) {
+                if (userPoke.getIsQiangZhuang()) {
+                    zhuangJia = userPoke;
+                    break;
+                }
+            }
+            Integer zhuangJiaNiu = isNiuNiu(zhuangJia.getPokes());
+            for (UserPoke userPoke : userPokeList) {
+                UserPoke xianJia = userPoke;
+                if (!xianJia.getIsQiangZhuang()) {
+                    Integer xianJiaNiu = isNiuNiu(xianJia.getPokes());
+                    Integer score = zhuangJia.getQiangZhuangMultiple() * xianJia.getXianJiaMultiple();
+                    //庄家大于闲家
+                    if (zhuangJiaNiu > xianJiaNiu) {
+                        zhuangJia.setThisScore(score);
+                        xianJia.setThisScore(-score);
+                        //庄家小于闲家
+                    }else if (zhuangJiaNiu < xianJiaNiu) {
+                        zhuangJia.setThisScore(-score);
+                        xianJia.setThisScore(score);
+                        //牛牛
+                    }else if (zhuangJiaNiu == 10) {
+                        zhuangJia.setThisScore(score);
+                        xianJia.setThisScore(-score);
+                        //没牛
+                    }else if (zhuangJiaNiu == 0){
+                        Boolean isZhuangJiaBoss = Boolean.TRUE;
+                        List<String> zhuangJiaPokes = zhuangJia.getPokes();
+                        List<String> xianJiaPokes = xianJia.getPokes();
+                        List<Integer> zhuangJiaNums = zhuangJiaPokes.stream().map(str -> Integer.valueOf(str.indexOf(1))
+                        ).collect(Collectors.toList());
+                        List<Integer> xianJiaNums = xianJiaPokes.stream().map(str -> Integer.valueOf(str.indexOf(1))
+                        ).collect(Collectors.toList());
+                        zhuangJiaNums.sort(Comparator.reverseOrder());
+                        xianJiaNums.sort(Comparator.reverseOrder());
+                        for (int j = 0; j < xianJiaNums.size(); j++) {
+                            if (xianJiaNums.get(j) > zhuangJiaNums.get(j)) {
+                                isZhuangJiaBoss = Boolean.FALSE;
+                                break;
+                            }
+                        }
+                        if (isZhuangJiaBoss) {
+                            zhuangJia.setThisScore(score);
+                            xianJia.setThisScore(-score);
+                        }else {
+                            zhuangJia.setThisScore(-score);
+                            xianJia.setThisScore(score);
+                        }
+                    }
+
+                }
+            }
+            //打完本局后计算各个玩家总分
+            List<UserScore> userScores = roomPoke.getUserScores();
+            for (UserScore userScore : userScores) {
+                userPokeList.forEach(u -> {
+                    if (Objects.equals(userScore.getUserId() ,u.getUserId())) {
+                        userScore.setScore(userScore.getScore() + u.getThisScore());
+                    }
+                });
+            }
+
+            //保存roomPoke
+            RoomPokeInit roomPokeInit = new RoomPokeInit();
+            roomPokeInit.setRoomRecordId(roomPoke.getRoomRecordId());
+            roomPokeInit.setUserPokes(JSON.toJSONString(roomPoke.getUserPokes()));
+            roomPokeInit.setUserScores(JSON.toJSONString(roomPoke.getUserScores()));
+            roomPokeInit.setRuningNum(roomPoke.getRuningNum());
+            roomPokeInitMapper.updateRoomPoke(roomPokeInit);
+
+            final Map<Long, Integer> scoreMap = userScores.stream().collect(Collectors.toMap(UserScore::getUserId, UserScore::getScore, (k1, k2) -> k1));
+            //返回计算的结果
+            List<NiuNiuResult> niuNiuResultList = Lists.newArrayList();
+            for (UserPoke userPoke : userPokeList) {
+                NiuNiuResult niuNiuResult = new NiuNiuResult();
+                niuNiuResult.setUserId(userPoke.getUserId());
+                niuNiuResult.setScore(userPoke.getThisScore());
+                niuNiuResult.setTotal(scoreMap.get(userPoke.getUserId()));
+                niuNiuResultList.add(niuNiuResult);
+            }
+            ReturnMessage<List<NiuNiuResult>> returnMessage3 = new ReturnMessage<>(niuNiuResultList ,7);
+            WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage3);
+
+            GameSituation gameSituation = new GameSituation();
+            gameSituation.setRoomRecordId(rommId);
+            gameSituation.setGameNum(roomPoke.getRuningNum());
+            //保存结果
+            List<NiuniuSituation> niuniuSituations = Lists.newArrayList();
+            for (UserPoke userPoke : userPokeList) {
+                NiuniuSituation niuniuSituation = new NiuniuSituation();
+                niuniuSituation.setIsZhuangJia(userPoke.getIsZhuangJia());
+                niuniuSituation.setPokes(userPoke.getPokes());
+                if (userPoke.getIsQiangZhuang()) {
+                    niuniuSituation.setBeiShu(userPoke.getQiangZhuangMultiple());
+                }else {
+                    niuniuSituation.setBeiShu(userPoke.getXianJiaMultiple());
+                }
+                niuniuSituation.setPokesDesc("牛牛");
+
+                niuniuSituations.add(niuniuSituation);
+            }
+            String niuniuSituationsStr = JSON.toJSONString(niuniuSituations);
+            gameSituation.setGameSituation(niuniuSituationsStr);
+            gameSituationMapper.insertOne(gameSituation);
+        }catch (Exception e) {
+            e.printStackTrace();
         }
-        String niuniuSituationsStr = JSON.toJSONString(niuniuSituations);
-        gameSituation.setGameSituation(niuniuSituationsStr);
-        gameSituationMapper.insertOne(gameSituation);
+
     }
 
 

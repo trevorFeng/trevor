@@ -35,7 +35,7 @@ public class UserPoke {
     /**
      * 抢庄倍数
      */
-    private Integer qiangZhuangMultiple;
+    private Integer qiangZhuangMultiple = 1;
 
     /**
      * 是否抢庄

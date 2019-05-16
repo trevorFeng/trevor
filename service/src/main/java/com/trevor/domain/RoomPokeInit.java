@@ -22,9 +22,9 @@ public class RoomPokeInit {
     private String userPokes;
 
     /**
-     * 玩家玩完上一局后的分数
+     * 玩家的分数
      */
-    private String scoreMap;
+    private String userScores;
 
     /**
      * 默认为0，开到第几局了

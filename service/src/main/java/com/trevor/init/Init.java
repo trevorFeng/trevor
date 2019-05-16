@@ -2,20 +2,18 @@ package com.trevor.init;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-import com.trevor.bo.UserPoke;
-import com.trevor.dao.RoomPokeInitMapper;
 import com.trevor.bo.RoomPoke;
+import com.trevor.bo.UserPokesIndex;
+import com.trevor.bo.UserScore;
+import com.trevor.dao.RoomPokeInitMapper;
 import com.trevor.domain.RoomPokeInit;
-import com.trevor.util.ByteToBlobUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.websocket.Session;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -25,6 +23,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @date 05/14/19 17:58
  */
 @Component
+@Slf4j
 public class Init implements ApplicationRunner {
 
     @Resource(name = "roomPokeMap")
@@ -46,13 +45,14 @@ public class Init implements ApplicationRunner {
         for (RoomPokeInit roomPokeInit : roomPokeInits) {
             RoomPoke roomPoke = new RoomPoke();
             roomPoke.setRoomRecordId(roomPokeInit.getRoomRecordId());
-            roomPoke.setUserPokes(JSON.parseObject(roomPokeInit.getUserPokes() ,new TypeReference<List<Map<Long ,UserPoke>>>(){}));
-            roomPoke.setScoreMap(JSON.parseObject(roomPokeInit.getScoreMap() ,new TypeReference<Map<Long ,Integer>>(){}));
+            roomPoke.setUserPokes(JSON.parseObject(roomPokeInit.getUserPokes() ,new TypeReference<List<UserPokesIndex>>(){}));
+            roomPoke.setUserScores(JSON.parseObject(roomPokeInit.getUserScores() ,new TypeReference<List<UserScore>>(){}));
             roomPoke.setRuningNum(roomPokeInit.getRuningNum());
             roomPoke.setTotalNum(roomPokeInit.getTotalNum());
             roomPokeMap.put(roomPokeInit.getRoomRecordId() ,roomPoke);
 
             sessionsMap.put(roomPokeInit.getRoomRecordId() ,new CopyOnWriteArrayList<>());
+            log.info("初始化roomPokeMap和sessionsMap成功");
         }
     }
 

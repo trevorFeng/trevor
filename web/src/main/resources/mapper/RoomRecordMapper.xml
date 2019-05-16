@@ -9,7 +9,7 @@
         values (#{roomRecord.getRoomTime} ,#{roomRecord.roomAuth} ,#{roomRecord.state} ,#{roomRecord.roomType} ,#{roomRecord.roomConfig})
     </insert>
 
-    <update id="updateState">
+    <update id="updateState_0">
         update `room_record`
         set
         state=0
@@ -42,13 +42,13 @@
         where
         id=#{roomId}
     </select>
-    <select id="findByGetRoomTime" resultType="java.lang.Long">
+    <select id="findByGetRoomTimeAndState_1" resultType="java.lang.Long">
         select
         id id
         from
         `room_record`
         where
-        getRoomTime &lt; #{time}
+        get_room_time &lt; #{time}
         and
         state = 1
     </select>

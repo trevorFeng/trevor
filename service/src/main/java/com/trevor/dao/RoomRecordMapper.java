@@ -34,9 +34,26 @@ public interface RoomRecordMapper {
      */
     Long findRoomAuthIdByRoomId(@Param("roomId") Long roomId);
 
+    /**
+     * 超过半小时未使用的房间ids
+     * @param time
+     * @return
+     */
     List<Long> findByGetRoomTimeAndState_1(@Param("time") Long time);
 
+    /**
+     * 关闭房间，将房间状态置位0（已过期）
+     * @param ids
+     */
     void updateState_0(@Param("ids") List<Long> ids);
 
+    /**
+     * 根据ids查询房间，只包含
+     *          id,
+     *         roomAuth,
+     *         roomConfig
+     * @param ids
+     * @return
+     */
     List<RoomRecord> findByIds(@Param("ids") List<Long> ids);
 }

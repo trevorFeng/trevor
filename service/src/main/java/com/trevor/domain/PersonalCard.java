@@ -2,6 +2,9 @@ package com.trevor.domain;
 
 import lombok.Data;
 
+
+
+
 /**
  * 一句话描述该类作用:【个人房卡信息】
  *

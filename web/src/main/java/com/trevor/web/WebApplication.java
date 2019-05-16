@@ -6,6 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.util.List;
 
@@ -18,6 +20,8 @@ import java.util.List;
 @ComponentScan(basePackages = {"com.trevor"})
 @MapperScan("com.trevor.dao")
 @EnableCaching
+@EnableScheduling
+@Configuration
 public class WebApplication {
 
     public static void main(String[] args) {

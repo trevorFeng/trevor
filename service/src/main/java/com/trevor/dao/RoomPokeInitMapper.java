@@ -13,17 +13,35 @@ import java.util.List;
 @Repository
 public interface RoomPokeInitMapper {
 
+    /**
+     * 生成一条roomPoke记录
+     * @param roomPokeInit
+     */
     void insertOne(@Param("roomPokeInit") RoomPokeInit roomPokeInit);
 
+    /**
+     * 查询status为0的roomPoke（未激活）
+     * @return
+     */
     List<RoomPokeInit> findStatus_0();
 
-    List<Long> findRoomRecordIdsStatus_0AndRoomRecordIds(List<Long> roomRecordIds);
+    /**
+     * 根据status为0（未激活）和roomRecord的Ids查询
+     * @param roomRecordIds
+     * @return
+     */
+    List<Long> findRoomRecordIdsStatus_0AndRoomRecordIds(@Param("roomRecordIds") List<Long> roomRecordIds);
 
-    void updateStatus_3(List<Long> roomRecordIds);
+    /**
+     * 批量将roomPoke的状态设置为3（为房间未使用关闭）
+     * @param roomRecordIds
+     */
+    void updateStatus_3(@Param("roomRecordIds") List<Long> roomRecordIds);
 
-    List<Long> findByByRoomRecordId(List<Long> ids);
+    /**
+     * 每局打完牌更新
+     * @param roomPokeInit
+     */
+    void updateRoomPoke(@Param("roomPokeInit") RoomPokeInit roomPokeInit);
 
-    void deleteByRoomRecordId(@Param("roomRecordId") Long roomRecordId);
-
-    void updateByRoomRecordId(@Param("roomRecordId") Long roomRecordId);
 }

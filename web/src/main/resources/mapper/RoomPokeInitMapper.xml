@@ -4,12 +4,27 @@
 
     <insert id="insertOne">
         INSERT  INTO
-        `room_poke`(room_record_id ,room_poke ,)
-        VALUES (#{roomPokeInit.roomRecordId} ,#{roomPokeInit.roomPoke})
+        `room_poke_init`(room_record_id ,user_pokes ,user_scores,runing_num,total_num,status,entry_date)
+        VALUES (#{roomPokeInit.roomRecordId} ,#{roomPokeInit.userPokes} ,#{roomPokeInit.userScores}
+        ,#{roomPokeInit.runingNum},#{roomPokeInit.totalNum},#{roomPokeInit.status},#{roomPokeInit.entryDate})
     </insert>
 
-    <update id="updateByRoomRecordId">
+    <update id="updateRoomPoke">
+        update
+        room_poke_init (user_pokes ,user_scores ,runing_num)
+        set (#{roomPokeInit.userPokes},#{roomPokeInit.userScores},#{roomPokeInit.runningNum})
+        where
+        room_record_id=#{roomPokeInit.roomRecordId}
+    </update>
 
+    <update id="updateStatus_3">
+        <foreach collection="roomRecordIds" item="item" index="index" open="" close="" separator=";">
+            update room_poke_init
+            set
+            status=3
+            where
+            room_record_id=#{item}
+        </foreach>
 
     </update>
 
@@ -22,24 +37,18 @@
         status=0
     </select>
 
-    <select id="findByByRoomRecordId" resultType="java.lang.Long">
+    <select id="findRoomRecordIdsStatus_0AndRoomRecordIds" resultType="java.lang.Long">
         select
         room_record_id
         from
-        room_poke
+        room_poke_init
         where
+        status=0
+        and
         room_record_id in
-        <foreach collection="ids" item="id"  open="(" separator="," close=")">
+        <foreach collection="roomRecordIds" item="id"  open="(" separator="," close=")">
             #{id}
         </foreach>
     </select>
-
-    <delete id="deleteByRoomRecordId">
-        delete from
-        room_poke
-        where
-        room_record_id=#{roomRecordId}
-    </delete>
-
 
 </mapper>

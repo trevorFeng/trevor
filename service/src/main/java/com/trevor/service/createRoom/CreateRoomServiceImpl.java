@@ -94,7 +94,8 @@ public class CreateRoomServiceImpl implements CreateRoomService{
         RoomPokeInit roomPokeInit = new RoomPokeInit();
         roomPokeInit.setRoomRecordId(roomRecord.getId());
         roomPokeInit.setUserPokes(JSON.toJSONString(roomPoke.getUserPokes()));
-        roomPokeInit.setScoreMap(JSON.toJSONString(roomPoke.getScoreMap()));
+        roomPokeInit.setUserScores(JSON.toJSONString(roomPoke.getUserScores()));
+        roomPokeInit.setRuningNum(0);
         roomPokeInit.setTotalNum(roomPoke.getTotalNum());
         roomPokeInit.setStatus(0);
         roomPokeInit.setEntryDate(currentTime);

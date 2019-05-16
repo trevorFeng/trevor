@@ -37,5 +37,16 @@ public interface PersonalCardMapper {
      */
     void insertOne(@Param("personalCard") PersonalCard personalCard);
 
+    /**
+     * 批量更新玩家的房卡
+     * @param returnCards
+     */
     void updatePersonalCardNumByUserIds(@Param("returnCards") List<ReturnCard> returnCards);
+
+    /**
+     * 根据玩家id集合查询个人房卡
+     * @param userIds
+     * @return
+     */
+    List<PersonalCard> findByUserIds(@Param("userIds") List<Long> userIds);
 }

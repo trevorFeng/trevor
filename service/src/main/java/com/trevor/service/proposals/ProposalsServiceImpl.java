@@ -14,6 +14,7 @@ import com.trevor.util.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -76,6 +77,7 @@ public class ProposalsServiceImpl implements ProposalsService{
      * @return
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public JsonEntity<Object> submitProposals(ProposalContent proposalContent ,Long userId) {
         UserProposals userProposals = new UserProposals();
         userProposals.setUserId(userId);
@@ -91,6 +93,7 @@ public class ProposalsServiceImpl implements ProposalsService{
      * @return
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public JsonEntity<Object> realNameAuth(Authentication authentication, Long userId) {
         userService.realNameAuth(userId ,authentication);
         return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.HANDLER_SUCCESS);

@@ -6,6 +6,7 @@ import com.trevor.common.MessageCodeEnum;
 import com.trevor.domain.User;
 import com.trevor.service.user.UserService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 
@@ -26,6 +27,7 @@ public class BindingPhoneServiceImpl implements BindingPhoneService{
      * @return
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public JsonEntity<String> bindingPhone(Long userId, String phoneNum) {
         User user = new User();
         user.setUserId(userId);

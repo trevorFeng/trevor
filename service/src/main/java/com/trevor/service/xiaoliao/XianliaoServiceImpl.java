@@ -14,6 +14,7 @@ import com.trevor.util.TokenUtil;
 import com.trevor.util.XianliaoAuthUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.io.IOException;
@@ -40,6 +41,7 @@ public class XianliaoServiceImpl implements XianliaoService{
      * @return
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public JsonEntity<String> weixinAuth(String code) throws IOException {
         //获取access_token
         Map<String, String> accessTokenMap = XianliaoAuthUtils.getXianliaoToken(code);

@@ -75,7 +75,7 @@ public class CardTransServiceImpl implements CardTransService{
      * @return
      */
     @Override
-        public JsonEntity<List<CardTrans>> findSendCardRecord(User user) {
+    public JsonEntity<List<CardTrans>> findSendCardRecord(User user) {
         List<CardTrans> cardTrans = this.cardTransMapper.findSendCardRecord(user.getId());
         return ResponseHelper.createInstance(cardTrans ,MessageCodeEnum.QUERY_SUCCESS);
     }

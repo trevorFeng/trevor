@@ -12,6 +12,7 @@ import com.trevor.service.RoomRecordCacheService;
 import com.trevor.service.user.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -70,6 +71,7 @@ public class FriendManagerServiceImpl implements FriendManagerService {
      * @return
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public JsonEntity<Object> applyFriend(Long roomId ,Long applyUserId) {
         Long roomAuthId = roomRecordCacheService.findRoomAuthIdByRoomId(roomId);
         friendManageMapper.applyFriend(roomAuthId ,applyUserId);
@@ -83,6 +85,7 @@ public class FriendManagerServiceImpl implements FriendManagerService {
      * @return
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public JsonEntity<Object> passFriend(Long userId ,Long passUserId) {
         friendManageMapper.passFriend(userId ,passUserId);
         return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.HANDLER_SUCCESS);
@@ -95,6 +98,7 @@ public class FriendManagerServiceImpl implements FriendManagerService {
      * @return
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public JsonEntity<Object> removeFriend(Long userId ,Long removeUserId) {
         friendManageMapper.removeFriend(userId ,removeUserId);
         return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.HANDLER_SUCCESS);

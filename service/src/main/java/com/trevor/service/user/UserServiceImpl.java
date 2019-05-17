@@ -4,6 +4,7 @@ import com.trevor.bo.Authentication;
 import com.trevor.dao.UserMapper;
 import com.trevor.domain.User;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -48,6 +49,7 @@ public class UserServiceImpl implements UserService{
      * @param user
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void insertOne(User user) {
         userMapper.insertOne(user);
     }
@@ -69,6 +71,7 @@ public class UserServiceImpl implements UserService{
      * 更新user
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void updateUser(User user) {
         userMapper.updateUser(user);
     }
@@ -104,6 +107,7 @@ public class UserServiceImpl implements UserService{
      * @param phoneNum
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void updatePhoneByUserId(Long userId, String phoneNum) {
         User user = new User();
         user.setId(userId);
@@ -118,6 +122,7 @@ public class UserServiceImpl implements UserService{
      * @return
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void realNameAuth(Long userId, Authentication authentication) {
         User user = new User();
         user.setUserId(userId);

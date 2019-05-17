@@ -1,6 +1,7 @@
 package com.trevor.service.createRoom;
 
 import com.alibaba.fastjson.JSON;
+import com.trevor.BizException;
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.ResponseHelper;
 import com.trevor.bo.RoomPoke;
@@ -57,6 +58,7 @@ public class CreateRoomServiceImpl implements CreateRoomService{
     @Override
     @Transactional(rollbackFor = Exception.class)
     public JsonEntity<Long> createRoom(NiuniuRoomParameter niuniuRoomParameter , User user) {
+        checkParm(niuniuRoomParameter);
         //判断玩家拥有的房卡数量是否超过消耗的房卡数
         Integer cardNumByUserId = personalCardMapper.findCardNumByUserId(user.getId());
         Integer consumCardNum;
@@ -112,4 +114,21 @@ public class CreateRoomServiceImpl implements CreateRoomService{
         personalCardMapper.updatePersonalCardNum(user.getId() ,cardNumByUserId - consumCardNum);
         return ResponseHelper.createInstance(roomRecord.getId() , MessageCodeEnum.CREATE_SUCCESS);
     }
+
+    private void checkParm(NiuniuRoomParameter niuniuRoomParameter){
+        Integer roomType = niuniuRoomParameter.getRoomType();
+        if (!Objects.equals(roomType ,1) && !Objects.equals(roomType ,2) && !Objects.equals(roomType ,3)) {
+            throw new BizException(-200 ,"roomType 错误");
+        }
+        Integer robZhuangType = niuniuRoomParameter.getRobZhuangType();
+        if (!Objects.equals(robZhuangType ,1) && !Objects.equals(robZhuangType ,2) &&
+                !Objects.equals(robZhuangType ,3) && !Objects.equals(robZhuangType ,4)) {
+            throw new BizException(-200 ,"robZhuangType 错误");
+        }
+        Integer basePoint = niuniuRoomParameter.getBasePoint();
+
+
+    }
+
+
 }

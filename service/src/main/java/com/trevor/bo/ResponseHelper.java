@@ -50,5 +50,19 @@ public class ResponseHelper {
         response.setMessage(messageCodeEnum.getMessage());
         return response;
     }
+
+    /**
+     * 异常信息的返回
+     * @param errorCode
+     * @param errorMessage
+     * @param <T>
+     * @return
+     */
+    public static <T> JsonEntity<T> withExceptionInstance(Integer errorCode ,String errorMessage) {
+        JsonEntity<T> response = new JsonEntity();
+        response.setCode(errorCode);
+        response.setMessage(errorMessage);
+        return response;
+    }
 }
 

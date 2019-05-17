@@ -1,5 +1,6 @@
 package com.trevor.web.exception;
 
+import com.trevor.BizException;
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.ResponseHelper;
 import com.trevor.common.MessageCodeEnum;
@@ -34,7 +35,11 @@ public class GlobalExceptionHandler {
             JsonEntity<Object> objectJsonEntity = ResponseHelper.withErrorInstance(MessageCodeEnum.PARAM_ERROR);
             objectJsonEntity.setMessage(defaultMessage);
             return objectJsonEntity;
-        } else {
+        } else if (e instanceof BizException){
+            BizException bizException = (BizException) e;
+            log.error("鸡巴，报错了:" + bizException.getErrorMessage(), bizException);
+            return ResponseHelper.withExceptionInstance(bizException.getErrorCode() ,bizException.getErrorMessage());
+        }else {
             log.error("鸡巴，报错了:" + e.getMessage(), e);
             return ResponseHelper.createInstance(e.getMessage() ,MessageCodeEnum.SYSTEM_ERROR);
         }

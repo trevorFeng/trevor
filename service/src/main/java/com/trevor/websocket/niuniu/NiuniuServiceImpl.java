@@ -221,16 +221,21 @@ public class NiuniuServiceImpl implements NiuniuService {
      */
     private void playPoke(Long rommId) throws InterruptedException, EncodeException, IOException {
         try {
-            RoomPoke roomPoke = roomPokeMap.get(rommId);
-            CopyOnWriteArrayList<Session> sessions = sessionsMap.get(rommId);
+            //检查目前是多少局，是否本房间结束
             RoomRecord roomRecord = roomRecordCacheService.findOneById(rommId);
             NiuniuRoomParameter niuniuRoomParameter = JSON.parseObject(roomRecord.getRoomConfig() ,NiuniuRoomParameter.class);
+            RoomPoke roomPoke = roomPokeMap.get(rommId);
             Integer juShu = 0;
             if (Objects.equals(niuniuRoomParameter.getConsumCardNum() ,1)) {
                 juShu = 12;
             }else {
                 juShu = 24;
             }
+            if (Objects.equals(juShu ,roomPoke.getRuningNum())) {
+                return;
+            }
+
+            CopyOnWriteArrayList<Session> sessions = sessionsMap.get(rommId);
             //准备的倒计时
             countDown(true ,sessions ,roomPokeMap.get(rommId));
 

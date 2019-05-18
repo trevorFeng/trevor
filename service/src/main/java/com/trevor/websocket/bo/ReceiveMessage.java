@@ -14,6 +14,7 @@ public class ReceiveMessage {
      * 1-准备
      * 2-抢庄消息
      * 3-闲家下注
+     * 4-摊牌的消息
      */
     private Integer messageCode;
 

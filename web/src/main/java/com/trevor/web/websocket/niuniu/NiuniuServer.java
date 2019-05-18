@@ -1,5 +1,6 @@
 package com.trevor.web.websocket.niuniu;
 
+import com.google.common.collect.Lists;
 import com.trevor.bo.WebKeys;
 import com.trevor.domain.User;
 import com.trevor.service.user.UserService;
@@ -21,6 +22,7 @@ import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -50,11 +52,11 @@ public class NiuniuServer {
         NiuniuServer.niuniuService = niuniuService;
     }
     
-    private static Map<Long , CopyOnWriteArrayList<Session>> sessions;
+    private static Map<Long , CopyOnWriteArrayList<Session>> sessionsMap;
 
     @Resource(name = "sessionsMap")
     public void setSessions (Map<Long , CopyOnWriteArrayList<Session>> sessions) {
-        NiuniuServer.sessions = sessions;
+        NiuniuServer.sessionsMap = sessions;
     }
 
     private static UserService userService;
@@ -94,20 +96,40 @@ public class NiuniuServer {
         //连接时检查
         String tempRoomId = rooId.intern();
         ReturnMessage<SocketUser> returnMessage;
+        CopyOnWriteArrayList<Session> sessions = sessionsMap.get(Long.valueOf(rooId));
         synchronized (tempRoomId) {
             returnMessage = niuniuService.onOpenCheck(rooId, user);
             if (returnMessage.getMessageCode() > 0) {
-                sessions.get(Long.valueOf(rooId)).add(mySession);
+                //加入sessionsMap
+                sessions.add(mySession);
             }
-        }
-        //检查不能连接
-        if (returnMessage.getMessageCode() < 0) {
-            WebsocketUtil.sendBasicMessage(mySession , returnMessage);
-            mySession.close();
-        }else {
-            //将用户放入mySession中
-            mySession.getUserProperties().put(WebKeys.WEBSOCKET_USER_KEY ,returnMessage.getData());
-            WebsocketUtil.sendAllBasicMessage(sessions.get(Long.valueOf(rooId)) ,returnMessage);
+            SocketUser socketUser = returnMessage.getData();
+            //检查不能连接
+            if (returnMessage.getMessageCode() < 0) {
+                WebsocketUtil.sendBasicMessage(mySession, returnMessage);
+                mySession.close();
+            } else {
+                //将用户放入mySession中
+                mySession.getUserProperties().put(WebKeys.WEBSOCKET_USER_KEY, socketUser);
+                //给自己发所有人信息的消息，给别人发自己的信息
+                List<SocketUser> mySocketUserList = Lists.newArrayList();
+                for (Session s : sessions) {
+                    SocketUser su = (SocketUser) s.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
+                    mySocketUserList.add(su);
+                }
+                ReturnMessage<List<SocketUser>> myReturnMessage = new ReturnMessage<>(mySocketUserList, 0);
+                WebsocketUtil.sendBasicMessage(mySession, myReturnMessage);
+                //给别人发自己的信息
+                for (Session s : sessions) {
+                    SocketUser su = (SocketUser) s.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
+                    if (!Objects.equals(su.getId() ,socketUser.getId())) {
+                        List<SocketUser> otherSocketUserList = Lists.newArrayList();
+                        otherSocketUserList.add(su);
+                        ReturnMessage<List<SocketUser>> otherReturnMessage = new ReturnMessage<>(otherSocketUserList, 1);
+                        WebsocketUtil.sendBasicMessage(s, otherReturnMessage);
+                    }
+                }
+            }
         }
     }
 
@@ -122,12 +144,14 @@ public class NiuniuServer {
             niuniuService.dealQiangZhuangMessage(socketUser ,roomIdNum ,receiveMessage);
         }else if (Objects.equals(messageCode ,3)) {
             niuniuService.dealXianJiaXiaZhuMessage(socketUser ,roomIdNum ,receiveMessage);
+        }else if (Objects.equals(messageCode ,4)) {
+
         }
     }
 
     @OnClose
     public void disConnect(@PathParam("rooId") String roomName, Session session) {
-        CopyOnWriteArrayList<Session> sessionList = sessions.get(Long.valueOf(roomName));
+        CopyOnWriteArrayList<Session> sessionList = sessionsMap.get(Long.valueOf(roomName));
         if (sessionList == null) {
             return;
         }
@@ -137,7 +161,7 @@ public class NiuniuServer {
             if (targetSession.equals(this.mySession)) {
                 SocketUser user = (SocketUser) targetSession.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
                 log.info("用户断开，用户id:"+user.getId());
-                sessions.remove(targetSession);
+                itrSession.remove();
                 break;
             }
         }

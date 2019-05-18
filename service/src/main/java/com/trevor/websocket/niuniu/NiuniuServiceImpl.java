@@ -153,6 +153,10 @@ public class NiuniuServiceImpl implements NiuniuService {
             roomPoke.getUserScores().add(userScore);
         }
         roomPoke.setReadyNum(roomPoke.getReadyNum() + 1);
+        //给所有人发自己加入准备的消息
+        ReturnMessage<Long> returnMessage = new ReturnMessage<>(socketUser.getId() ,2);
+        WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage);
+        roomPoke.getLock().unlock();
         //是否准备的人数为两人，是则开始自动打牌
         UserPokesIndex thisUserPokesIndex = null;
         for (UserPokesIndex userPokesIndex : userPokesIndexList) {
@@ -162,7 +166,6 @@ public class NiuniuServiceImpl implements NiuniuService {
             }
         }
         if (thisUserPokesIndex.getUserPokeList().size() == 2) {
-            roomPoke.getLock().unlock();
             executor.execute(() -> {
                 try {
                     playPoke(roomId);
@@ -170,30 +173,60 @@ public class NiuniuServiceImpl implements NiuniuService {
                     log.error(e.getMessage());
                 }
             });
-        }else {
-            roomPoke.getLock().unlock();
         }
-        ReturnMessage<Long> returnMessage = new ReturnMessage<>(socketUser.getId() ,2);
-        WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage);
     }
 
     /**
      * 处理抢庄的消息
      */
     @Override
-    public void dealQiangZhuangMessage(SocketUser socketUser , Long roomId , ReceiveMessage receiveMessage){
+    public void dealQiangZhuangMessage(SocketUser socketUser , Long roomId , ReceiveMessage receiveMessage) throws IOException, EncodeException {
         UserPoke userPoke = getUserPoke(roomId ,socketUser);
         userPoke.setIsQiangZhuang(Boolean.TRUE);
         userPoke.setQiangZhuangMultiple(receiveMessage.getQiangZhuangMultiple());
+        //给其他玩家发抢庄的消息
+        QiangZhuangMessage qiangZhuangMessage = new QiangZhuangMessage();
+        qiangZhuangMessage.setUserId(userPoke.getUserId());
+        qiangZhuangMessage.setQiangZhuangMultiple(receiveMessage.getQiangZhuangMultiple());
+        ReturnMessage<QiangZhuangMessage> returnMessage = new ReturnMessage<>(qiangZhuangMessage ,8);
+        CopyOnWriteArrayList<Session> sessions = sessionsMap.get(roomId);
+        for (Session s : sessions) {
+            SocketUser su = (SocketUser)s.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
+            if (!Objects.equals(su.getId() ,userPoke.getUserId())) {
+                WebsocketUtil.sendBasicMessage(s ,returnMessage);
+            }
+        }
     }
 
     /**
      * 处理闲家下注的消息
      */
     @Override
-    public void dealXianJiaXiaZhuMessage(SocketUser socketUser , Long roomId , ReceiveMessage receiveMessage){
+    public void dealXianJiaXiaZhuMessage(SocketUser socketUser , Long roomId , ReceiveMessage receiveMessage) throws IOException, EncodeException {
         UserPoke userPoke = getUserPoke(roomId ,socketUser);
         userPoke.setXianJiaMultiple(receiveMessage.getXianJiaMultiple());
+        //给其他玩家发抢庄的消息
+        XianJiaXiaZhuMessage xianJiaXiaZhuMessage = new XianJiaXiaZhuMessage();
+        xianJiaXiaZhuMessage.setUserId(userPoke.getUserId());
+        xianJiaXiaZhuMessage.setXianJiaXiaZhuultiple(receiveMessage.getXianJiaMultiple());
+        ReturnMessage<XianJiaXiaZhuMessage> returnMessage = new ReturnMessage<>(xianJiaXiaZhuMessage ,8);
+        CopyOnWriteArrayList<Session> sessions = sessionsMap.get(roomId);
+        for (Session s : sessions) {
+            SocketUser su = (SocketUser)s.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
+            if (!Objects.equals(su.getId() ,userPoke.getUserId())) {
+                WebsocketUtil.sendBasicMessage(s ,returnMessage);
+            }
+        }
+    }
+
+    /**
+     * 处理摊牌的消息
+     * @param socketUser
+     */
+    @Override
+    public void dealTanPaiMessage(SocketUser socketUser ,Long roomId) {
+        RoomPoke roomPoke = roomPokeMap.get(roomId);
+        List<UserPoke> userPokes
     }
 
     /**
@@ -238,6 +271,7 @@ public class NiuniuServiceImpl implements NiuniuService {
             CopyOnWriteArrayList<Session> sessions = sessionsMap.get(rommId);
             //准备的倒计时
             countDown(true ,sessions ,roomPokeMap.get(rommId));
+
 
             //先发四张牌
             List<UserPoke> userPokeList = roomPoke.getUserPokes().stream().filter(u -> Objects.equals(u.getIndex(), roomPoke.getRuningNum()))

@@ -38,7 +38,7 @@ public interface NiuniuService {
      * @param roomId
      * @param receiveMessage
      */
-    void dealQiangZhuangMessage(SocketUser socketUser , Long roomId , ReceiveMessage receiveMessage);
+    void dealQiangZhuangMessage(SocketUser socketUser , Long roomId , ReceiveMessage receiveMessage) throws IOException, EncodeException;
 
 
     /**
@@ -47,5 +47,7 @@ public interface NiuniuService {
      * @param roomId
      * @param receiveMessage
      */
-    void dealXianJiaXiaZhuMessage(SocketUser socketUser , Long roomId , ReceiveMessage receiveMessage);
+    void dealXianJiaXiaZhuMessage(SocketUser socketUser , Long roomId , ReceiveMessage receiveMessage) throws IOException, EncodeException;
+
+    void dealTanPaiMessage(SocketUser socketUser , Long roomId);
 }

@@ -23,6 +23,7 @@ public class ReturnMessage<T> {
      * 7-得分结果
      * 8-给别人发抢庄的消息
      * 9-给被人发闲家下注的消息
+     * 10-摊牌消息
      */
     private Integer messageCode;
 

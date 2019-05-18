@@ -224,9 +224,19 @@ public class NiuniuServiceImpl implements NiuniuService {
      * @param socketUser
      */
     @Override
-    public void dealTanPaiMessage(SocketUser socketUser ,Long roomId) {
-        RoomPoke roomPoke = roomPokeMap.get(roomId);
-        List<UserPoke> userPokes
+    public void dealTanPaiMessage(SocketUser socketUser ,Long roomId) throws IOException, EncodeException {
+        UserPoke userPoke = getUserPoke(roomId ,socketUser);
+        TanPaiMessage tanPaiMessage = new TanPaiMessage();
+        tanPaiMessage.setUserId(socketUser.getId());
+        tanPaiMessage.setPokes(userPoke.getPokes());
+        ReturnMessage<TanPaiMessage> returnMessage = new ReturnMessage<>(tanPaiMessage ,8);
+        CopyOnWriteArrayList<Session> sessions = sessionsMap.get(roomId);
+        for (Session s : sessions) {
+            SocketUser su = (SocketUser)s.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
+            if (!Objects.equals(su.getId() ,userPoke.getUserId())) {
+                WebsocketUtil.sendBasicMessage(s ,returnMessage);
+            }
+        }
     }
 
     /**

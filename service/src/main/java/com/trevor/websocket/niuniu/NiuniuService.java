@@ -49,5 +49,5 @@ public interface NiuniuService {
      */
     void dealXianJiaXiaZhuMessage(SocketUser socketUser , Long roomId , ReceiveMessage receiveMessage) throws IOException, EncodeException;
 
-    void dealTanPaiMessage(SocketUser socketUser , Long roomId);
+    void dealTanPaiMessage(SocketUser socketUser , Long roomId) throws IOException, EncodeException;
 }

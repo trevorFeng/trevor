@@ -145,7 +145,7 @@ public class NiuniuServer {
         }else if (Objects.equals(messageCode ,3)) {
             niuniuService.dealXianJiaXiaZhuMessage(socketUser ,roomIdNum ,receiveMessage);
         }else if (Objects.equals(messageCode ,4)) {
-
+            niuniuService.dealTanPaiMessage(socketUser ,roomIdNum);
         }
     }
 

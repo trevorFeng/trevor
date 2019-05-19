@@ -70,6 +70,10 @@ public class NiuniuServer {
 
     @OnOpen
     public void onOpen(Session session , EndpointConfig config , @PathParam("rooId") String rooId) throws IOException, EncodeException {
+        //设置最大空闲时间为45分钟
+
+
+        session.setMaxIdleTimeout(1000 * 45);
         mySession = session;
         //从token中得到token
         String token = session.getRequestParameterMap().get(WebKeys.TOKEN).get(0);
@@ -141,6 +145,8 @@ public class NiuniuServer {
         if (Objects.equals(messageCode , 1)) {
             niuniuService.dealReadyMessage( socketUser,roomIdNum);
         }else if (Objects.equals(messageCode ,2)) {
+
+
             niuniuService.dealQiangZhuangMessage(socketUser ,roomIdNum ,receiveMessage);
         }else if (Objects.equals(messageCode ,3)) {
             niuniuService.dealXianJiaXiaZhuMessage(socketUser ,roomIdNum ,receiveMessage);
@@ -158,7 +164,7 @@ public class NiuniuServer {
         Iterator<Session> itrSession = sessionList.iterator();
         while (itrSession.hasNext()) {
             Session targetSession = itrSession.next();
-            if (targetSession.equals(this.mySession)) {
+            if (Objects.equals(targetSession ,session)) {
                 SocketUser user = (SocketUser) targetSession.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
                 log.info("用户断开，用户id:"+user.getId());
                 itrSession.remove();

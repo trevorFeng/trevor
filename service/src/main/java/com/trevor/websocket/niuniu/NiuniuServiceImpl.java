@@ -88,7 +88,7 @@ public class NiuniuServiceImpl implements NiuniuService {
         //房主是否开启好友管理功能
         Boolean isFriendManage = Objects.equals(userService.isFriendManage(oneById.getRoomAuth()) , FriendManageEnum.YES.getCode());
         //开通
-        if (isFriendManage) {
+          if (isFriendManage) {
             return this.isFriendManage(niuniuRoomParameter ,oneById , user,roomId);
         // 未开通
         }else {

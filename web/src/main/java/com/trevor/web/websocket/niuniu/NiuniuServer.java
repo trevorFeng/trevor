@@ -166,6 +166,9 @@ public class NiuniuServer {
      */
     private UserPoke getUserPoke(RoomPoke roomPoke ,SocketUser socketUser){
         List<UserPokesIndex> userPokesIndexList = roomPoke.getUserPokes();
+        if (userPokesIndexList.isEmpty()) {
+            return null;
+        }
         UserPokesIndex userPokesIndex = userPokesIndexList.stream().filter(u -> Objects.equals(u.getIndex(), roomPoke.getRuningNum()))
                 .collect(Collectors.toList()).get(0);
         List<UserPoke> userPoke = userPokesIndex.getUserPokeList().stream().filter(u -> Objects.equals(socketUser.getId(), u.getUserId()))
@@ -206,7 +209,7 @@ public class NiuniuServer {
             if (Objects.equals(targetSession ,session)) {
                 SocketUser user = (SocketUser) targetSession.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
                 log.info("用户断开，用户id:"+user.getId());
-                itrSession.remove();
+                sessionList.remove(targetSession);
                 break;
             }
         }

@@ -23,7 +23,7 @@ public class CheckRoomOverDateTask{
         log.info("检查房间开始");
         //房间半小时内未使用会被关闭
         try {
-            taskService.checkRoomRecord();
+            //taskService.checkRoomRecord();
         }catch (Exception e) {
             e.printStackTrace();
             log.error(e.toString());

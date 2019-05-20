@@ -34,4 +34,14 @@ public class SocketUser {
      * 是否是吃瓜群众，不可以参与打牌，只能看
      */
     private Boolean isChiGuaPeople;
+
+    /**
+     * 准备状态
+     */
+    private Boolean isReady;
+
+    /**
+     * 分数
+     */
+    private Integer score;
 }

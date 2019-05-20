@@ -43,6 +43,11 @@ public class UserPoke {
     private Boolean isQiangZhuang = false;
 
     /**
+     * 是否已经摊牌
+     */
+    private Boolean isTanPai = false;
+
+    /**
      * 是否是庄家
      */
     private Boolean isZhuangJia = false;

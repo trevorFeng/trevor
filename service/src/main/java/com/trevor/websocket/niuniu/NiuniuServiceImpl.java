@@ -166,6 +166,7 @@ public class NiuniuServiceImpl implements NiuniuService {
             }
         }
         if (thisUserPokesIndex.getUserPokeList().size() == 2) {
+            roomPoke.setRoomStatus(1);
             executor.execute(() -> {
                 try {
                     playPoke(roomId);
@@ -229,6 +230,7 @@ public class NiuniuServiceImpl implements NiuniuService {
         TanPaiMessage tanPaiMessage = new TanPaiMessage();
         tanPaiMessage.setUserId(socketUser.getId());
         tanPaiMessage.setPokes(userPoke.getPokes());
+        userPoke.setIsTanPai(Boolean.TRUE);
         ReturnMessage<TanPaiMessage> returnMessage = new ReturnMessage<>(tanPaiMessage ,10);
         CopyOnWriteArrayList<Session> sessions = sessionsMap.get(roomId);
         for (Session s : sessions) {
@@ -429,7 +431,6 @@ public class NiuniuServiceImpl implements NiuniuService {
                 });
             }
 
-            roomPoke.setReadyNum(0);
             //保存roomPoke
             RoomPokeInit roomPokeInit = new RoomPokeInit();
             roomPokeInit.setRoomRecordId(roomPoke.getRoomRecordId());
@@ -444,12 +445,21 @@ public class NiuniuServiceImpl implements NiuniuService {
             for (UserPoke userPoke : userPokeList) {
                 NiuNiuResult niuNiuResult = new NiuNiuResult();
                 niuNiuResult.setUserId(userPoke.getUserId());
+                niuNiuResult.setIsTanPai(userPoke.getIsTanPai());
+                if (!userPoke.getIsTanPai()) {
+                    niuNiuResult.setPokes(userPoke.getPokes());
+                }
                 niuNiuResult.setScore(userPoke.getThisScore());
                 niuNiuResult.setTotal(scoreMap.get(userPoke.getUserId()));
                 niuNiuResultList.add(niuNiuResult);
             }
             ReturnMessage<List<NiuNiuResult>> returnMessage3 = new ReturnMessage<>(niuNiuResultList ,7);
             WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage3);
+
+            //改变房间状态
+            roomPoke.setReadyNum(0);
+            roomPoke.setRoomStatus(0);
+
 
             GameSituation gameSituation = new GameSituation();
             gameSituation.setRoomRecordId(rommId);

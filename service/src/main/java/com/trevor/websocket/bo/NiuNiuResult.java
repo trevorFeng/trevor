@@ -2,6 +2,8 @@ package com.trevor.websocket.bo;
 
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * @author trevor
  * @date 05/07/19 18:39
@@ -13,6 +15,16 @@ public class NiuNiuResult {
      * 用户id
      */
     private Long userId;
+
+    /**
+     * 是否已经摊牌
+     */
+    private Boolean isTanPai;
+
+    /**
+     * 玩家的牌
+     */
+    private List<String> pokes;
 
     /**
      * 总分

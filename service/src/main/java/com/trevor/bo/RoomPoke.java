@@ -63,5 +63,10 @@ public class RoomPoke implements Serializable {
      */
     private Integer readyNum = 0;
 
+    /**
+     * 房间状态，0-在打牌中(可以参与本局打牌)，（不可以参与本局打牌）1-在等人打牌
+     */
+    private volatile Integer roomStatus;
+
 
 }

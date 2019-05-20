@@ -1,7 +1,7 @@
 package com.trevor.web.websocket.niuniu;
 
 import com.google.common.collect.Lists;
-import com.trevor.bo.WebKeys;
+import com.trevor.bo.*;
 import com.trevor.domain.User;
 import com.trevor.service.user.UserService;
 import com.trevor.util.TokenUtil;
@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 
 /**
@@ -35,7 +36,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @create: 2019-03-05 22:29
  **/
 @ServerEndpoint(
-            value = "/niuniu/{rooId}",
+            value = "/niuniu/{roomId}",
         configurator = NiuniuServerConfigurator.class,
         encoders= {MessageEncoder.class},
         decoders = {MessageDecoder.class}
@@ -59,6 +60,13 @@ public class NiuniuServer {
         NiuniuServer.sessionsMap = sessions;
     }
 
+    private static Map<Long , RoomPoke> roomPokeMap;
+
+    @Resource(name = "roomPokeMap")
+    public void setRoomPokeMap (Map<Long , RoomPoke> roomPokeMap) {
+        NiuniuServer.roomPokeMap = roomPokeMap;
+    }
+
     private static UserService userService;
 
     @Resource
@@ -69,7 +77,7 @@ public class NiuniuServer {
     private Session mySession;
 
     @OnOpen
-    public void onOpen(Session session , EndpointConfig config , @PathParam("rooId") String rooId) throws IOException, EncodeException {
+    public void onOpen(Session session , EndpointConfig config , @PathParam("roomId") String roomId) throws IOException, EncodeException {
         //设置最大空闲时间为45分钟
         session.setMaxIdleTimeout(1000 * 45);
         mySession = session;
@@ -96,11 +104,11 @@ public class NiuniuServer {
             return;
         }
         //连接时检查
-        String tempRoomId = rooId.intern();
+        String tempRoomId = roomId.intern();
         ReturnMessage<SocketUser> returnMessage;
-        CopyOnWriteArrayList<Session> sessions = sessionsMap.get(Long.valueOf(rooId));
+        CopyOnWriteArrayList<Session> sessions = sessionsMap.get(Long.valueOf(roomId));
         synchronized (tempRoomId) {
-            returnMessage = niuniuService.onOpenCheck(rooId, user);
+            returnMessage = niuniuService.onOpenCheck(roomId, user);
             if (returnMessage.getMessageCode() > 0) {
                 //加入sessionsMap
                 sessions.add(mySession);
@@ -114,29 +122,64 @@ public class NiuniuServer {
                 //将用户放入mySession中
                 mySession.getUserProperties().put(WebKeys.WEBSOCKET_USER_KEY, socketUser);
                 //给自己发所有人信息的消息，给别人发自己的信息
+                RoomPoke roomPoke = roomPokeMap.get(Long.valueOf(roomId));
+                ReadyReturnMessage readyReturnMessage = new ReadyReturnMessage();
+                readyReturnMessage.setRuningNum(roomPoke.getRuningNum());
+                readyReturnMessage.setTotalNum(roomPoke.getTotalNum());
+                readyReturnMessage.setRoomStatus(roomPoke.getRoomStatus());
                 List<SocketUser> mySocketUserList = Lists.newArrayList();
+                List<UserScore> userScores = roomPoke.getUserScores();
+                Map<Long ,Integer> scoreMap = userScores.stream().collect(Collectors.toMap(UserScore::getUserId ,UserScore::getScore));
                 for (Session s : sessions) {
                     SocketUser su = (SocketUser) s.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
+                    UserPoke userPoke = getUserPoke(roomPoke ,su);
+                    if (userPoke == null) {
+                        su.setIsReady(Boolean.FALSE);
+                    }else {
+                        su.setIsReady(Boolean.TRUE);
+                    }
+                    su.setScore(scoreMap.get(su.getId()) != null? scoreMap.get(su.getId()):0);
                     mySocketUserList.add(su);
                 }
-                ReturnMessage<List<SocketUser>> myReturnMessage = new ReturnMessage<>(mySocketUserList, 0);
+                readyReturnMessage.setSocketUserList(mySocketUserList);
+                ReturnMessage<ReadyReturnMessage> myReturnMessage = new ReturnMessage<>(readyReturnMessage, 0);
                 WebsocketUtil.sendBasicMessage(mySession, myReturnMessage);
                 //给别人发自己的信息
                 for (Session s : sessions) {
                     SocketUser su = (SocketUser) s.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
+                    su.setIsReady(Boolean.FALSE);
+                    su.setScore(0);
                     if (!Objects.equals(su.getId() ,socketUser.getId())) {
                         List<SocketUser> otherSocketUserList = Lists.newArrayList();
                         otherSocketUserList.add(su);
-                        ReturnMessage<List<SocketUser>> otherReturnMessage = new ReturnMessage<>(otherSocketUserList, 1);
+                        readyReturnMessage.setSocketUserList(otherSocketUserList);
+                        ReturnMessage<ReadyReturnMessage> otherReturnMessage = new ReturnMessage<>(readyReturnMessage, 1);
                         WebsocketUtil.sendBasicMessage(s, otherReturnMessage);
                     }
                 }
             }
         }
     }
+    /**
+     * 得到玩家userPoke
+     * @return
+     */
+    private UserPoke getUserPoke(RoomPoke roomPoke ,SocketUser socketUser){
+        List<UserPokesIndex> userPokesIndexList = roomPoke.getUserPokes();
+        UserPokesIndex userPokesIndex = userPokesIndexList.stream().filter(u -> Objects.equals(u.getIndex(), roomPoke.getRuningNum()))
+                .collect(Collectors.toList()).get(0);
+        List<UserPoke> userPoke = userPokesIndex.getUserPokeList().stream().filter(u -> Objects.equals(socketUser.getId(), u.getUserId()))
+                .collect(Collectors.toList());
+        if (userPoke.isEmpty()) {
+            return null;
+        }else {
+            return userPoke.get(0);
+        }
+    }
+
 
     @OnMessage
-    public void receiveMsg(@PathParam("rooId") String roomId, ReceiveMessage receiveMessage) throws InterruptedException, EncodeException, IOException {
+    public void receiveMsg(@PathParam("roomId") String roomId, ReceiveMessage receiveMessage) throws InterruptedException, EncodeException, IOException {
         Integer messageCode = receiveMessage.getMessageCode();
         SocketUser socketUser = (SocketUser) mySession.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
         Long roomIdNum = Long.valueOf(roomId);
@@ -152,7 +195,7 @@ public class NiuniuServer {
     }
 
     @OnClose
-    public void disConnect(@PathParam("rooId") String roomName, Session session) {
+    public void disConnect(@PathParam("roomId") String roomName, Session session) {
         CopyOnWriteArrayList<Session> sessionList = sessionsMap.get(Long.valueOf(roomName));
         if (sessionList == null) {
             return;

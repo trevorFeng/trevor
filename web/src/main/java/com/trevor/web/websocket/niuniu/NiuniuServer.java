@@ -71,8 +71,6 @@ public class NiuniuServer {
     @OnOpen
     public void onOpen(Session session , EndpointConfig config , @PathParam("rooId") String rooId) throws IOException, EncodeException {
         //设置最大空闲时间为45分钟
-
-
         session.setMaxIdleTimeout(1000 * 45);
         mySession = session;
         //从token中得到token
@@ -145,8 +143,6 @@ public class NiuniuServer {
         if (Objects.equals(messageCode , 1)) {
             niuniuService.dealReadyMessage( socketUser,roomIdNum);
         }else if (Objects.equals(messageCode ,2)) {
-
-
             niuniuService.dealQiangZhuangMessage(socketUser ,roomIdNum ,receiveMessage);
         }else if (Objects.equals(messageCode ,3)) {
             niuniuService.dealXianJiaXiaZhuMessage(socketUser ,roomIdNum ,receiveMessage);

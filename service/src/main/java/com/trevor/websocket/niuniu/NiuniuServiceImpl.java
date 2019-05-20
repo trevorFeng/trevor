@@ -209,7 +209,7 @@ public class NiuniuServiceImpl implements NiuniuService {
         XianJiaXiaZhuMessage xianJiaXiaZhuMessage = new XianJiaXiaZhuMessage();
         xianJiaXiaZhuMessage.setUserId(userPoke.getUserId());
         xianJiaXiaZhuMessage.setXianJiaXiaZhuultiple(receiveMessage.getXianJiaMultiple());
-        ReturnMessage<XianJiaXiaZhuMessage> returnMessage = new ReturnMessage<>(xianJiaXiaZhuMessage ,8);
+        ReturnMessage<XianJiaXiaZhuMessage> returnMessage = new ReturnMessage<>(xianJiaXiaZhuMessage ,9);
         CopyOnWriteArrayList<Session> sessions = sessionsMap.get(roomId);
         for (Session s : sessions) {
             SocketUser su = (SocketUser)s.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
@@ -229,7 +229,7 @@ public class NiuniuServiceImpl implements NiuniuService {
         TanPaiMessage tanPaiMessage = new TanPaiMessage();
         tanPaiMessage.setUserId(socketUser.getId());
         tanPaiMessage.setPokes(userPoke.getPokes());
-        ReturnMessage<TanPaiMessage> returnMessage = new ReturnMessage<>(tanPaiMessage ,8);
+        ReturnMessage<TanPaiMessage> returnMessage = new ReturnMessage<>(tanPaiMessage ,10);
         CopyOnWriteArrayList<Session> sessions = sessionsMap.get(roomId);
         for (Session s : sessions) {
             SocketUser su = (SocketUser)s.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
@@ -277,12 +277,9 @@ public class NiuniuServiceImpl implements NiuniuService {
             if (Objects.equals(juShu ,roomPoke.getRuningNum())) {
                 return;
             }
-
             CopyOnWriteArrayList<Session> sessions = sessionsMap.get(rommId);
             //准备的倒计时
             countDown(true ,sessions ,roomPokeMap.get(rommId));
-
-
             //先发四张牌
             List<UserPoke> userPokeList = roomPoke.getUserPokes().stream().filter(u -> Objects.equals(u.getIndex(), roomPoke.getRuningNum()))
                     .collect(Collectors.toList()).get(0).getUserPokeList();

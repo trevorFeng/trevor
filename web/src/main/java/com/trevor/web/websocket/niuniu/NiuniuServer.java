@@ -147,11 +147,11 @@ public class NiuniuServer {
                 //给别人发自己的信息
                 for (Session s : sessions) {
                     SocketUser su = (SocketUser) s.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
-                    su.setIsReady(Boolean.FALSE);
-                    su.setScore(0);
+                    socketUser.setScore(0);
+                    socketUser.setIsReady(false);
                     if (!Objects.equals(su.getId() ,socketUser.getId())) {
                         List<SocketUser> otherSocketUserList = Lists.newArrayList();
-                        otherSocketUserList.add(su);
+                        otherSocketUserList.add(socketUser);
                         readyReturnMessage.setSocketUserList(otherSocketUserList);
                         ReturnMessage<ReadyReturnMessage> otherReturnMessage = new ReturnMessage<>(readyReturnMessage, 1);
                         WebsocketUtil.sendBasicMessage(s, otherReturnMessage);

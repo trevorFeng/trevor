@@ -27,6 +27,11 @@ public class NiuNiuResult {
     private List<String> pokes;
 
     /**
+     * 牌型
+     */
+    private Integer paiXing;
+
+    /**
      * 总分
      */
     private Integer total;

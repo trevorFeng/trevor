@@ -230,6 +230,8 @@ public class NiuniuServiceImpl implements NiuniuService {
         TanPaiMessage tanPaiMessage = new TanPaiMessage();
         tanPaiMessage.setUserId(socketUser.getId());
         tanPaiMessage.setPokes(userPoke.getPokes());
+        Integer paiXingCode = isNiuNiu(userPoke.getPokes());
+        tanPaiMessage.setPaiXing(paiXingCode);
         userPoke.setIsTanPai(Boolean.TRUE);
         ReturnMessage<TanPaiMessage> returnMessage = new ReturnMessage<>(tanPaiMessage ,10);
         CopyOnWriteArrayList<Session> sessions = sessionsMap.get(roomId);
@@ -355,7 +357,10 @@ public class NiuniuServiceImpl implements NiuniuService {
                 sessions.forEach(session -> {
                     SocketUser socketUser = (SocketUser) session.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
                     if (Objects.equals(u.getUserId() ,socketUser.getId())) {
-                        ReturnMessage<String> returnMessage3 = new ReturnMessage<>(u.getPokes().get(4),6);
+                        LaskPokeMessage laskPokeMessage = new LaskPokeMessage();
+                        laskPokeMessage.setLastPoke(u.getPokes().get(4));
+                        laskPokeMessage.setPaiXing(isNiuNiu(u.getPokes()));
+                        ReturnMessage<LaskPokeMessage> returnMessage3 = new ReturnMessage<>(laskPokeMessage,6);
                         try {
                             WebsocketUtil.sendBasicMessage(session ,returnMessage3);
                         } catch (Exception e) {
@@ -440,7 +445,7 @@ public class NiuniuServiceImpl implements NiuniuService {
             roomPokeInitMapper.updateRoomPoke(roomPokeInit);
 
             final Map<Long, Integer> scoreMap = userScores.stream().collect(Collectors.toMap(UserScore::getUserId, UserScore::getScore, (k1, k2) -> k1));
-            //返回计算的结果
+            //给玩家发返回计算的结果
             List<NiuNiuResult> niuNiuResultList = Lists.newArrayList();
             for (UserPoke userPoke : userPokeList) {
                 NiuNiuResult niuNiuResult = new NiuNiuResult();
@@ -448,6 +453,7 @@ public class NiuniuServiceImpl implements NiuniuService {
                 niuNiuResult.setIsTanPai(userPoke.getIsTanPai());
                 if (!userPoke.getIsTanPai()) {
                     niuNiuResult.setPokes(userPoke.getPokes());
+                    niuNiuResult.setPaiXing(isNiuNiu(userPoke.getPokes()));
                 }
                 niuNiuResult.setScore(userPoke.getThisScore());
                 niuNiuResult.setTotal(scoreMap.get(userPoke.getUserId()));

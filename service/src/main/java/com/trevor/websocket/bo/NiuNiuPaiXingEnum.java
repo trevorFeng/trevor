@@ -11,7 +11,7 @@ import lombok.Data;
 public enum NiuNiuPaiXingEnum {
 
     /**
-     * 没牛
+     *
      */
     NIU_10(10 ,"牛牛"),
 

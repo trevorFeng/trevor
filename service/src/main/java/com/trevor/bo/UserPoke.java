@@ -35,17 +35,17 @@ public class UserPoke {
     /**
      * 抢庄倍数
      */
-    private Integer qiangZhuangMultiple = 1;
+    private volatile Integer qiangZhuangMultiple = 1;
 
     /**
      * 是否抢庄
      */
-    private Boolean isQiangZhuang = false;
+    private volatile Boolean isQiangZhuang = false;
 
     /**
      * 是否已经摊牌
      */
-    private Boolean isTanPai = false;
+    private volatile Boolean isTanPai = false;
 
     /**
      * 是否是庄家

@@ -3,7 +3,7 @@ package com.trevor.web.controller.login;
 
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.ResponseHelper;
-import com.trevor.common.MessageCodeEnum;
+import com.trevor.enums.MessageCodeEnum;
 import com.trevor.service.weixin.WeixinService;
 import com.trevor.util.RandomUtils;
 import com.trevor.util.SessionUtil;

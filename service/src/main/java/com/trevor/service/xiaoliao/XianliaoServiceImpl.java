@@ -4,7 +4,7 @@ import com.google.common.collect.Maps;
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.ResponseHelper;
 import com.trevor.bo.WebKeys;
-import com.trevor.common.MessageCodeEnum;
+import com.trevor.enums.MessageCodeEnum;
 import com.trevor.dao.PersonalCardMapper;
 import com.trevor.domain.PersonalCard;
 import com.trevor.domain.User;
@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 

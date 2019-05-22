@@ -2,7 +2,7 @@ package com.trevor.service.BrowserLogin;
 
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.ResponseHelper;
-import com.trevor.common.MessageCodeEnum;
+import com.trevor.enums.MessageCodeEnum;
 import com.trevor.domain.User;
 import com.trevor.service.user.UserService;
 import com.trevor.util.GetMessageCodeUtil;

@@ -48,11 +48,11 @@ public class RoomPoke implements Serializable {
      */
     private Integer totalNum;
 
+
     /**
      * 是否准备完毕
      */
     private volatile Boolean isReadyOver = false;
-
     /**
      * 每局房间的锁
      */

@@ -3,7 +3,7 @@ package com.trevor.service.cardTrans;
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.ResponseHelper;
 import com.trevor.bo.BizKeys;
-import com.trevor.common.MessageCodeEnum;
+import com.trevor.enums.MessageCodeEnum;
 import com.trevor.dao.CardTransMapper;
 import com.trevor.dao.PersonalCardMapper;
 import com.trevor.domain.CardTrans;

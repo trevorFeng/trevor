@@ -1,22 +1,23 @@
-package com.trevor.common;
+package com.trevor.enums;
 
 /**
  * 一句话描述该类作用:【】
  *
  * @author: trevor
- * @create: 2019-03-09 17:21
+ * @create: 2019-03-09 14:15
  **/
 
-public enum  FridendManageAllowEnum {
-    YES(1 ,"通过"),
+public enum  FriendManageEnum {
 
-    NO(2 ,"未通过");
+    YES(1 ,"是"),
+
+    NO(2 ,"否");
 
     private Integer code;
 
     private String desc;
 
-    FridendManageAllowEnum (Integer code ,String desc){
+    FriendManageEnum (Integer code ,String desc){
         this.code = code;
         this.desc = desc;
     }

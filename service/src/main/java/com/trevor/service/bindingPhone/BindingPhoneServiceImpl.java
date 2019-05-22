@@ -2,7 +2,7 @@ package com.trevor.service.bindingPhone;
 
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.ResponseHelper;
-import com.trevor.common.MessageCodeEnum;
+import com.trevor.enums.MessageCodeEnum;
 import com.trevor.domain.User;
 import com.trevor.service.user.UserService;
 import org.springframework.stereotype.Service;

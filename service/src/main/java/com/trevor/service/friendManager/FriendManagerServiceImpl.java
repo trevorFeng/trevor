@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.trevor.bo.FriendInfo;
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.ResponseHelper;
-import com.trevor.common.MessageCodeEnum;
+import com.trevor.enums.MessageCodeEnum;
 import com.trevor.dao.FriendManageMapper;
 import com.trevor.domain.FriendsManage;
 import com.trevor.domain.User;

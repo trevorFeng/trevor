@@ -1,4 +1,4 @@
-package com.trevor.common;
+package com.trevor.enums;
 
 /**
  * 一句话描述该类作用:【】

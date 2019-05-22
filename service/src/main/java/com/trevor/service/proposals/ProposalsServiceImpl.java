@@ -6,7 +6,7 @@ import com.trevor.bo.Authentication;
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.ProposalContent;
 import com.trevor.bo.ResponseHelper;
-import com.trevor.common.MessageCodeEnum;
+import com.trevor.enums.MessageCodeEnum;
 import com.trevor.dao.UserProposalsMapper;
 import com.trevor.domain.UserProposals;
 import com.trevor.service.user.UserService;

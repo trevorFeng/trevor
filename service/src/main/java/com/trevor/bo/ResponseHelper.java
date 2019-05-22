@@ -1,6 +1,6 @@
 package com.trevor.bo;
 
-import com.trevor.common.MessageCodeEnum;
+import com.trevor.enums.MessageCodeEnum;
 
 /**
  * @author trevor

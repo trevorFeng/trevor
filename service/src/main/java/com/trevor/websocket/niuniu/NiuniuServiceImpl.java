@@ -3,10 +3,10 @@ package com.trevor.websocket.niuniu;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.trevor.bo.*;
-import com.trevor.common.FriendManageEnum;
-import com.trevor.common.MessageCodeEnum;
-import com.trevor.common.RoomTypeEnum;
-import com.trevor.common.SpecialEnum;
+import com.trevor.enums.FriendManageEnum;
+import com.trevor.enums.MessageCodeEnum;
+import com.trevor.enums.RoomTypeEnum;
+import com.trevor.enums.SpecialEnum;
 import com.trevor.dao.FriendManageMapper;
 import com.trevor.dao.GameSituationMapper;
 import com.trevor.dao.RoomPokeInitMapper;
@@ -23,7 +23,6 @@ import com.trevor.util.WebsocketUtil;
 import com.trevor.websocket.bo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import springfox.documentation.spring.web.json.Json;
 
 import javax.annotation.Resource;
 import javax.websocket.EncodeException;
@@ -283,7 +282,8 @@ public class NiuniuServiceImpl implements NiuniuService {
             }
             CopyOnWriteArrayList<Session> sessions = sessionsMap.get(rommId);
             //准备的倒计时
-            countDown(true ,sessions ,roomPokeMap.get(rommId));
+            countDown(sessions ,roomPokeMap.get(rommId));
+            roomPoke.setIsReadyOver(true);
             //先发四张牌
             List<UserPoke> userPokeList = roomPoke.getUserPokes().stream().filter(u -> Objects.equals(u.getIndex(), roomPoke.getRuningNum()))
                     .collect(Collectors.toList()).get(0).getUserPokeList();
@@ -315,7 +315,7 @@ public class NiuniuServiceImpl implements NiuniuService {
             });
 
             //开始抢庄倒计时
-            countDown(false ,sessions ,roomPokeMap.get(rommId));
+            countDown(sessions ,roomPokeMap.get(rommId));
 
             //选取庄家
             List<Long> qiangZhuangUserIds = Lists.newArrayList();
@@ -350,7 +350,7 @@ public class NiuniuServiceImpl implements NiuniuService {
             WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage1);
 
             //闲家下注倒计时
-            countDown(false ,sessions ,roomPokeMap.get(rommId));
+            countDown(sessions ,roomPokeMap.get(rommId));
 
             //再发一张牌
             userPokeList.forEach(u -> {
@@ -370,7 +370,7 @@ public class NiuniuServiceImpl implements NiuniuService {
                 });
             });
             //准备摊牌倒计时
-            countDown(false ,sessions ,roomPokeMap.get(rommId));
+            countDown(sessions ,roomPokeMap.get(rommId));
 
             //计算分数得失
             UserPoke zhuangJia = null;
@@ -465,6 +465,7 @@ public class NiuniuServiceImpl implements NiuniuService {
             //改变房间状态
             roomPoke.setReadyNum(0);
             roomPoke.setRoomStatus(0);
+            roomPoke.setIsReadyOver(false);
 
 
             GameSituation gameSituation = new GameSituation();
@@ -498,14 +499,11 @@ public class NiuniuServiceImpl implements NiuniuService {
     /**
      * 倒计时
      */
-    protected void countDown(Boolean iseady ,CopyOnWriteArrayList<Session> sessions , RoomPoke roomPoke) throws InterruptedException, IOException, EncodeException {
+    protected void countDown(CopyOnWriteArrayList<Session> sessions , RoomPoke roomPoke) throws InterruptedException, IOException, EncodeException {
         for (int i = 5; i > 0 ; i--) {
             ReturnMessage<Integer> returnMessage = new ReturnMessage<>(i ,3);
             WebsocketUtil.sendAllBasicMessage(sessions , returnMessage);
             Thread.sleep(1000);
-        }
-        if (iseady) {
-            roomPoke.setIsReadyOver(true);
         }
     }
 

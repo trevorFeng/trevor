@@ -79,7 +79,7 @@ public class NiuniuServer {
     @OnOpen
     public void onOpen(Session session , EndpointConfig config , @PathParam("roomId") String roomId) throws IOException, EncodeException {
         //设置最大空闲时间为45分钟
-        session.setMaxIdleTimeout(1000 * 45);
+        session.setMaxIdleTimeout(1000 * 60 * 45);
         mySession = session;
         //从token中得到token
         String token = session.getRequestParameterMap().get(WebKeys.TOKEN).get(0);

@@ -3,11 +3,9 @@ package com.trevor.web.controller;
 import com.trevor.bo.FriendInfo;
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.ResponseHelper;
-import com.trevor.common.MessageCodeEnum;
-import com.trevor.domain.FriendsManage;
+import com.trevor.enums.MessageCodeEnum;
 import com.trevor.domain.User;
 import com.trevor.service.friendManager.FriendManagerService;
-import com.trevor.service.user.UserService;
 import com.trevor.util.ThreadLocalUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -18,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**

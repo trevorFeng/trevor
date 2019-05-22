@@ -3,7 +3,7 @@ package com.trevor.service;
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.RechargeCard;
 import com.trevor.bo.ResponseHelper;
-import com.trevor.common.MessageCodeEnum;
+import com.trevor.enums.MessageCodeEnum;
 import com.trevor.dao.PersonalCardMapper;
 import com.trevor.dao.RechargeRecordMapper;
 import com.trevor.domain.RechargeRecord;

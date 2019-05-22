@@ -3,7 +3,7 @@ package com.trevor.web.controller;
 
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.ResponseHelper;
-import com.trevor.common.MessageCodeEnum;
+import com.trevor.enums.MessageCodeEnum;
 import com.trevor.domain.User;
 import com.trevor.service.BrowserLogin.BrowserLoginService;
 import com.trevor.service.bindingPhone.BindingPhoneService;

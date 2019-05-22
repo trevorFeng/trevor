@@ -1,4 +1,4 @@
-package com.trevor.common;
+package com.trevor.enums;
 
 /**
  * @author trevor

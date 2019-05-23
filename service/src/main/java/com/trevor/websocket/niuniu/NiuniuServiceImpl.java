@@ -107,11 +107,6 @@ public class NiuniuServiceImpl implements NiuniuService {
             return;
         }
         Set<Session> sessions = sessionsMap.get(roomId);
-        String tempRoomId = String.valueOf(roomId).intern();
-        synchronized (tempRoomId) {
-            //初始化roomPoke
-            initReadyMessage(roomPoke ,socketUser);
-        }
         //给所有人发自己加入准备的消息
         ReturnMessage<Long> returnMessage = new ReturnMessage<>(socketUser.getId() ,2);
         //加读锁
@@ -119,23 +114,21 @@ public class NiuniuServiceImpl implements NiuniuService {
         WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage);
         roomPoke.getLock().readLock().unlock();
 
-        //是否准备的人数为两人，是则开始自动打牌
-        UserPokesIndex thisUserPokesIndex = null;
-        for (UserPokesIndex userPokesIndex : roomPoke.getUserPokes()) {
-            if (Objects.equals(userPokesIndex.getIndex() ,roomPoke.getRuningNum())) {
-                thisUserPokesIndex = userPokesIndex;
-                break;
+        String tempRoomId = String.valueOf(roomId).intern();
+        synchronized (tempRoomId) {
+            //初始化roomPoke
+            initReadyMessage(roomPoke ,socketUser);
+            //是否准备的人数为两人，是则开始自动打牌
+            if (Objects.equals(roomPoke.getReadyNum() ,2)) {
+                roomPoke.setRoomStatus(1);
+                executor.execute(() -> {
+                    try {
+                        playPoke(roomId);
+                    } catch (Exception e) {
+                        log.error(e.toString());
+                    }
+                });
             }
-        }
-        if (thisUserPokesIndex.getUserPokeList().size() == 2) {
-            roomPoke.setRoomStatus(1);
-            executor.execute(() -> {
-                try {
-                    playPoke(roomId);
-                } catch (Exception e) {
-                    log.error(e.getMessage());
-                }
-            });
         }
     }
 
@@ -459,12 +452,15 @@ public class NiuniuServiceImpl implements NiuniuService {
     /**
      * 倒计时
      */
-    protected void countDown(CopyOnWriteArrayList<Session> sessions , RoomPoke roomPoke) throws InterruptedException, IOException, EncodeException {
+    protected void countDown(Set<Session> sessions , RoomPoke roomPoke) throws InterruptedException, IOException, EncodeException {
+        //加读锁
+        roomPoke.getLock().readLock().lock();
         for (int i = 5; i > 0 ; i--) {
             ReturnMessage<Integer> returnMessage = new ReturnMessage<>(i ,3);
             WebsocketUtil.sendAllBasicMessage(sessions , returnMessage);
             Thread.sleep(1000);
         }
+        roomPoke.getLock().readLock().unlock();
     }
 
     /**

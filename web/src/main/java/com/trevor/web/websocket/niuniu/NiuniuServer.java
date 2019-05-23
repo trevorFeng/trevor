@@ -92,6 +92,10 @@ public class NiuniuServer {
         RoomPoke roomPoke = roomPokeMap.get(Long.valueOf(roomId));
         //加写锁
         roomPoke.getLock().writeLock().lock();
+        //检查是否有未删除的session,因为用户网络不好断开连接
+        for (Session s : sessions) {
+            SocketUser socketUser = (SocketUser) s.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
+        }
         ReturnMessage<SocketUser> returnMessage = niuniuService.onOpenCheck(roomId, user);
         if (returnMessage.getMessageCode() > 0) {
             sessions.add(mySession);
@@ -100,8 +104,8 @@ public class NiuniuServer {
         //不能进入房间
         if (returnMessage.getMessageCode() < 0) {
            WebsocketUtil.sendBasicMessage(mySession ,returnMessage);
-            roomPoke.getLock().writeLock().unlock();
-            mySession.close();
+           roomPoke.getLock().writeLock().unlock();
+           mySession.close();
         //可以进入房间
         } else {
             //将用户放入mySession中

@@ -7,6 +7,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import javax.websocket.Session;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
@@ -20,8 +21,8 @@ public class RoomConfig {
 
 
     @Bean(name = "sessionsMap")
-    public Map<Long , CopyOnWriteArrayList<Session>> generateNiuNiuRoomMap(){
-        Map<Long, CopyOnWriteArrayList<Session>> sessionsMap = new ConcurrentHashMap(2<<15);
+    public Map<Long , Set<Session>> generateNiuNiuRoomMap(){
+        Map<Long, Set<Session>> sessionsMap = new ConcurrentHashMap(2<<15);
         return sessionsMap;
     }
 

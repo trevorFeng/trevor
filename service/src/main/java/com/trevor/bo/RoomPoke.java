@@ -1,15 +1,12 @@
 package com.trevor.bo;
 
-import com.trevor.bo.UserPoke;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * @author trevor
@@ -31,7 +28,7 @@ public class RoomPoke implements Serializable {
     /**
      * 每一局的玩家的牌
      */
-    private List<UserPokesIndex> userPokes = new ArrayList<>(2<<4);
+    private volatile List<UserPokesIndex> userPokes = new ArrayList<>(2<<4);
 
     /**
      * 玩家分数情况
@@ -53,10 +50,11 @@ public class RoomPoke implements Serializable {
      * 是否准备完毕
      */
     private volatile Boolean isReadyOver = false;
+
     /**
-     * 每局房间的锁
+     * 每局房间的锁,对Set<Session>操作的锁
      */
-    private Lock lock = new ReentrantLock();
+    private ReadWriteLock lock = new ReentrantReadWriteLock();
 
     /**
      * 准备的人数

@@ -14,14 +14,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class WebsocketUtil {
 
-    public static void sendBasicMessage(Session session ,ReturnMessage returnMessage) throws IOException, EncodeException {
-        session.getBasicRemote().sendObject(returnMessage);
+    public static void sendBasicMessage(Session session ,ReturnMessage returnMessage){
+        session.getAsyncRemote().sendObject(returnMessage);
     }
 
 
-    public static void sendAllBasicMessage(CopyOnWriteArrayList<Session> sessions, ReturnMessage returnMessage) throws IOException, EncodeException {
+    public static void sendAllBasicMessage(Set<Session> sessions, ReturnMessage returnMessage) {
         for (Session session : sessions) {
-            session.getBasicRemote().sendObject(returnMessage);
+            session.getAsyncRemote().sendObject(returnMessage);
         }
     }
 

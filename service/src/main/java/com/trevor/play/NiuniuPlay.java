@@ -22,9 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import javax.websocket.EncodeException;
 import javax.websocket.Session;
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -85,25 +83,24 @@ public class NiuniuPlay {
         roomPoke.setIsReadyOver(false);
         //保存结果
         saveResult(roomId ,roomPoke ,userPokeList);
-
     }
 
     /**
      * 倒计时
      */
     protected void countDown(Set<Session> sessions , RoomPoke roomPoke) {
-        //加读锁
-        roomPoke.getLock().readLock().lock();
         for (int i = 5; i > 0 ; i--) {
             ReturnMessage<Integer> returnMessage = new ReturnMessage<>(i ,3);
+            //加读锁
+            roomPoke.getLock().readLock().lock();
             WebsocketUtil.sendAllBasicMessage(sessions , returnMessage);
+            roomPoke.getLock().readLock().unlock();
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 log.error(e.toString());
             }
         }
-        roomPoke.getLock().readLock().unlock();
     }
 
 
@@ -123,9 +120,9 @@ public class NiuniuPlay {
             }
             for (int j = i+1; j < pokes.size(); j++) {
                 for (int k = j+1; k < pokes.size(); k++) {
-                    int num = Integer.valueOf(pokes.get(i).substring(1,2)) +
-                            Integer.valueOf(pokes.get(j).substring(1 ,2)) +
-                            Integer.valueOf(pokes.get(k).substring(1 ,2));
+                    int num = changePai_10(pokes.get(i).substring(1,2)) +
+                            changePai_10(pokes.get(j).substring(1 ,2)) +
+                            changePai_10(pokes.get(k).substring(1 ,2));
                     if (num == 10 || num == 20 || num == 30) {
                         ii = i;
                         jj = j;
@@ -142,7 +139,7 @@ public class NiuniuPlay {
             int num = 0;
             for (int i = 0; i < pokes.size(); i++) {
                 if (i != ii && i != jj && i != kk) {
-                    num += Integer.valueOf(pokes.get(i).substring(1 ,2));
+                    num += changePai_10(pokes.get(i).substring(1 ,2));
                 }
             }
             if (num == 10 || num == 20) {
@@ -311,9 +308,9 @@ public class NiuniuPlay {
                     Boolean isZhuangJiaBoss = Boolean.TRUE;
                     List<String> zhuangJiaPokes = zhuangJia.getPokes();
                     List<String> xianJiaPokes = xianJia.getPokes();
-                    List<Integer> zhuangJiaNums = zhuangJiaPokes.stream().map(str -> Integer.valueOf(str.substring(1 ,2))
+                    List<Integer> zhuangJiaNums = zhuangJiaPokes.stream().map(str -> changePai(str.substring(1 ,2))
                     ).collect(Collectors.toList());
-                    List<Integer> xianJiaNums = xianJiaPokes.stream().map(str -> Integer.valueOf(str.substring(1 ,2))
+                    List<Integer> xianJiaNums = xianJiaPokes.stream().map(str -> changePai(str.substring(1 ,2))
                     ).collect(Collectors.toList());
                     zhuangJiaNums.sort(Comparator.reverseOrder());
                     xianJiaNums.sort(Comparator.reverseOrder());
@@ -345,9 +342,43 @@ public class NiuniuPlay {
         }
     }
 
-//    private Integer changePai(){
-//
-//    }
+    /**
+     * 筹10
+     * @param pai
+     * @return
+     */
+    private Integer changePai_10(String pai){
+        if (Objects.equals("a" ,pai)) {
+            return 10;
+        }else if (Objects.equals("b" ,pai)) {
+            return 1;
+        }else if (Objects.equals("c" ,pai)) {
+            return 1;
+        }else if (Objects.equals("d" ,pai)) {
+            return 1;
+        }else {
+            return Integer.valueOf(pai);
+        }
+    }
+
+    /**
+     * 比大小
+     * @param pai
+     * @return
+     */
+    private Integer changePai(String pai){
+        if (Objects.equals("a" ,pai)) {
+            return 10;
+        }else if (Objects.equals("b" ,pai)) {
+            return 11;
+        }else if (Objects.equals("c" ,pai)) {
+            return 12;
+        }else if (Objects.equals("d" ,pai)) {
+            return 13;
+        }else {
+            return Integer.valueOf(pai);
+        }
+    }
 
     /**
      * 保存roomPoke

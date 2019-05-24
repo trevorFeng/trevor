@@ -135,6 +135,9 @@ public class NiuniuServer {
             niuniuService.dealXianJiaXiaZhuMessage(socketUser ,roomIdNum ,receiveMessage);
         }else if (Objects.equals(messageCode ,4)) {
             niuniuService.dealTanPaiMessage(socketUser ,roomIdNum);
+        }else if (Objects.equals(messageCode ,200)) {
+            ReturnMessage<XianJiaXiaZhuMessage> returnMessage = new ReturnMessage<>(null ,200);
+            mySession.getAsyncRemote().sendObject(returnMessage);
         }
     }
 

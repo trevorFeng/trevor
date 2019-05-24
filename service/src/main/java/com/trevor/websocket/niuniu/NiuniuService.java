@@ -9,6 +9,7 @@ import com.trevor.websocket.bo.ReturnMessage;
 import com.trevor.websocket.bo.SocketUser;
 
 import javax.websocket.EncodeException;
+import javax.websocket.Session;
 
 /**
  * 一句话描述该类作用:【】
@@ -47,7 +48,7 @@ public interface NiuniuService {
      * @param roomId
      * @param receiveMessage
      */
-    void dealXianJiaXiaZhuMessage(SocketUser socketUser , Long roomId , ReceiveMessage receiveMessage) throws IOException, EncodeException;
+    void dealXianJiaXiaZhuMessage(Session session ,SocketUser socketUser , Long roomId , ReceiveMessage receiveMessage) throws IOException, EncodeException;
 
     void dealTanPaiMessage(SocketUser socketUser , Long roomId) throws IOException, EncodeException;
 }

@@ -7,5 +7,5 @@ public class XianJiaXiaZhuMessage {
 
     private Long userId;
 
-    private Integer xianJiaXiaZhuultiple;
+    private Integer xianJiaXiaZhuMultiple;
 }

@@ -50,10 +50,10 @@ public class UserPoke {
     /**
      * 是否是庄家
      */
-    private Boolean isZhuangJia = false;
+    private volatile Boolean isZhuangJia = false;
 
     /**
      * 闲家下注的倍数，默认为1倍
      */
-    private Integer xianJiaMultiple = 1;
+    private volatile Integer xianJiaMultiple = 1;
 }

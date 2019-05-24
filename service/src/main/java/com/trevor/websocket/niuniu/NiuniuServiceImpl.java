@@ -100,6 +100,7 @@ public class NiuniuServiceImpl implements NiuniuService {
     @Override
     public void dealReadyMessage(SocketUser socketUser ,Long roomId){
         RoomPoke roomPoke = roomPokeMap.get(roomId);
+        //是否准备结束
         if (Objects.equals(roomPoke.getIsReadyOver() ,true)) {
             return;
         }
@@ -159,13 +160,18 @@ public class NiuniuServiceImpl implements NiuniuService {
      * 处理闲家下注的消息
      */
     @Override
-    public void dealXianJiaXiaZhuMessage(SocketUser socketUser , Long roomId , ReceiveMessage receiveMessage){
+    public void dealXianJiaXiaZhuMessage(Session mySession ,SocketUser socketUser , Long roomId , ReceiveMessage receiveMessage){
         UserPoke userPoke = getUserPoke(roomId ,socketUser);
+        if (userPoke.getIsZhuangJia()) {
+            ReturnMessage<String> returnMessage = new ReturnMessage<>("你不是闲家" ,-1);
+            WebsocketUtil.sendBasicMessage(mySession ,returnMessage);
+            return;
+        }
         userPoke.setXianJiaMultiple(receiveMessage.getXianJiaMultiple());
         //给其他玩家发抢庄的消息
         XianJiaXiaZhuMessage xianJiaXiaZhuMessage = new XianJiaXiaZhuMessage();
         xianJiaXiaZhuMessage.setUserId(userPoke.getUserId());
-        xianJiaXiaZhuMessage.setXianJiaXiaZhuultiple(receiveMessage.getXianJiaMultiple());
+        xianJiaXiaZhuMessage.setXianJiaXiaZhuMultiple(receiveMessage.getXianJiaMultiple());
         ReturnMessage<XianJiaXiaZhuMessage> returnMessage = new ReturnMessage<>(xianJiaXiaZhuMessage ,9);
         RoomPoke roomPoke = roomPokeMap.get(roomId);
         Set<Session> sessions = sessionsMap.get(roomId);

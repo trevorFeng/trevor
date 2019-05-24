@@ -52,7 +52,9 @@ public class NiuniuPlay {
         RoomPoke roomPoke = roomPokeMap.get(roomId);
         Set<Session> sessions = sessionsMap.get(roomId);
         //检查目前是多少局，是否本房间结束
-        checkJuShu(niuniuRoomParameter ,roomPoke.getRuningNum());
+        if (checkJuShu(niuniuRoomParameter ,roomPoke.getRuningNum())) {
+            return;
+        }
         //准备的倒计时
         countDown(sessions ,roomPokeMap.get(roomId));
         //设置准备结束标识符
@@ -115,7 +117,7 @@ public class NiuniuPlay {
         int kk = 0;
         boolean isNiu = Boolean.FALSE;
         for (int i = 0; i < pokes.size(); i++) {
-            if (i > 3) {
+            if (i >= 3) {
                 break;
             }
             for (int j = i+1; j < pokes.size(); j++) {

@@ -14,7 +14,6 @@ import com.trevor.websocket.bo.ReceiveMessage;
 import com.trevor.websocket.bo.ReturnMessage;
 import com.trevor.websocket.bo.SocketUser;
 import com.trevor.websocket.niuniu.NiuniuService;
-import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +23,6 @@ import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 
@@ -132,7 +130,7 @@ public class NiuniuServer {
         }else if (Objects.equals(messageCode ,2)) {
             niuniuService.dealQiangZhuangMessage(socketUser ,roomIdNum ,receiveMessage);
         }else if (Objects.equals(messageCode ,3)) {
-            niuniuService.dealXianJiaXiaZhuMessage(socketUser ,roomIdNum ,receiveMessage);
+            niuniuService.dealXianJiaXiaZhuMessage(mySession ,socketUser ,roomIdNum ,receiveMessage);
         }else if (Objects.equals(messageCode ,4)) {
             niuniuService.dealTanPaiMessage(socketUser ,roomIdNum);
         }else if (Objects.equals(messageCode ,200)) {

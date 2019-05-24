@@ -14,8 +14,10 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.websocket.Session;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -33,7 +35,7 @@ public class Init implements ApplicationRunner {
     private RoomPokeInitMapper roomPokeInitMapper;
 
     @Resource(name = "sessionsMap")
-    private Map<Long , CopyOnWriteArrayList<Session>> sessionsMap;
+    private Map<Long , Set<Session>> sessionsMap;
 
     /**
      * 初始化roomPoke到roomPokeMap中,初始化sessionsMap
@@ -51,7 +53,7 @@ public class Init implements ApplicationRunner {
             roomPoke.setTotalNum(roomPokeInit.getTotalNum());
             roomPokeMap.put(roomPokeInit.getRoomRecordId() ,roomPoke);
 
-            sessionsMap.put(roomPokeInit.getRoomRecordId() ,new CopyOnWriteArrayList<>());
+            sessionsMap.put(roomPokeInit.getRoomRecordId(), new HashSet<>());
             log.info("初始化roomPokeMap和sessionsMap成功,房间id：" + roomPokeInit.getRoomRecordId());
         }
     }

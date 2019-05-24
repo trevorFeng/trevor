@@ -87,14 +87,21 @@ public class NiuniuServer {
         String token = session.getRequestParameterMap().get(WebKeys.TOKEN).get(0);
         //token合法性检查
         User user = checkToken(token);
-        //连接时检查
+
         Set<Session> sessions = sessionsMap.get(Long.valueOf(roomId));
         RoomPoke roomPoke = roomPokeMap.get(Long.valueOf(roomId));
         //加写锁
         roomPoke.getLock().writeLock().lock();
         //检查是否有未删除的session,因为用户网络不好断开连接
-        for (Session s : sessions) {
-            SocketUser socketUser = (SocketUser) s.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
+        Iterator<Session> itrSession = sessions.iterator();
+        while (itrSession.hasNext()) {
+            Session targetSession = itrSession.next();
+            SocketUser socketUser = (SocketUser) targetSession.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
+            if (socketUser != null && Objects.equals(socketUser.getId() ,user.getId())) {
+                log.info("连接时移除session，用户id:"+user.getId());
+                itrSession.remove();
+                break;
+            }
         }
         ReturnMessage<SocketUser> returnMessage = niuniuService.onOpenCheck(roomId, user);
         if (returnMessage.getMessageCode() > 0) {

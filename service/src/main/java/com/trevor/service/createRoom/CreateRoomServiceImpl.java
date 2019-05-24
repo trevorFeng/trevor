@@ -36,7 +36,7 @@ public class CreateRoomServiceImpl implements CreateRoomService{
     private Map<Long , RoomPoke> roomPokeMap;
 
     @Resource(name = "sessionsMap")
-    private Map<Long ,CopyOnWriteArrayList<Session>> sessionsMap;
+    private Map<Long ,Set<Session>> sessionsMap;
 
     @Resource
     private RoomRecordMapper roomRecordMapper;
@@ -88,11 +88,10 @@ public class CreateRoomServiceImpl implements CreateRoomService{
         }else if (niuniuRoomParameter.getConsumCardNum() == 2) {
             roomPoke.setTotalNum(24);
         }
-        roomPoke.setLock(new ReentrantLock());
         roomPokeMap.put(roomRecord.getId() ,roomPoke);
 
         //放入sesionsMap
-        sessionsMap.put(roomRecord.getId() ,new CopyOnWriteArrayList<>());
+        sessionsMap.put(roomRecord.getId() ,new HashSet<>());
 
         //生成roomPokeInit插入数据库
         RoomPokeInit roomPokeInit = new RoomPokeInit();

@@ -41,7 +41,7 @@ public class PokeUtil {
     }
 
     public static void main(String[] a) {
-        System.out.println(poke5);
+        System.out.println(generatePoke5());
     }
 
     /**
@@ -51,6 +51,8 @@ public class PokeUtil {
     public static List<String> generatePoke5(){
         List<String> tmpList = new ArrayList<>(2<<7);
         tmpList.addAll(poke5);
+        Collections.shuffle(tmpList);
+        Collections.shuffle(tmpList);
         Collections.shuffle(tmpList);
         return tmpList;
     }

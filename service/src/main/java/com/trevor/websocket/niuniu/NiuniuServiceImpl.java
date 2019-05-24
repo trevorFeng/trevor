@@ -1,26 +1,22 @@
 package com.trevor.websocket.niuniu;
 
 import com.alibaba.fastjson.JSON;
-import com.google.common.collect.Lists;
 import com.trevor.bo.*;
+import com.trevor.dao.FriendManageMapper;
+import com.trevor.domain.RoomRecord;
+import com.trevor.domain.User;
 import com.trevor.enums.FriendManageEnum;
 import com.trevor.enums.MessageCodeEnum;
 import com.trevor.enums.RoomTypeEnum;
 import com.trevor.enums.SpecialEnum;
-import com.trevor.dao.FriendManageMapper;
-import com.trevor.dao.GameSituationMapper;
-import com.trevor.dao.RoomPokeInitMapper;
-import com.trevor.domain.GameSituation;
-import com.trevor.domain.RoomPokeInit;
-import com.trevor.domain.RoomRecord;
-import com.trevor.domain.User;
+import com.trevor.play.NiuniuPlay;
 import com.trevor.service.RoomRecordCacheService;
 import com.trevor.service.createRoom.bo.NiuniuRoomParameter;
 import com.trevor.service.user.UserService;
-import com.trevor.util.PokeUtil;
-import com.trevor.util.RandomUtils;
 import com.trevor.util.WebsocketUtil;
-import com.trevor.websocket.bo.*;
+import com.trevor.websocket.bo.ReceiveMessage;
+import com.trevor.websocket.bo.ReturnMessage;
+import com.trevor.websocket.bo.SocketUser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -28,8 +24,10 @@ import javax.annotation.Resource;
 import javax.websocket.EncodeException;
 import javax.websocket.Session;
 import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
@@ -62,10 +60,9 @@ public class NiuniuServiceImpl implements NiuniuService {
     private UserService userService;
 
     @Resource
-    private GameSituationMapper gameSituationMapper;
+    private NiuniuPlay niuniuPlay;
 
-    @Resource
-    private RoomPokeInitMapper roomPokeInitMapper;
+
 
     /**
      * 在websocket连接时检查房间是否存在以及房间人数是否已满
@@ -101,7 +98,7 @@ public class NiuniuServiceImpl implements NiuniuService {
      * @return
      */
     @Override
-    public void dealReadyMessage(SocketUser socketUser ,Long roomId) throws IOException, EncodeException {
+    public void dealReadyMessage(SocketUser socketUser ,Long roomId){
         RoomPoke roomPoke = roomPokeMap.get(roomId);
         if (Objects.equals(roomPoke.getIsReadyOver() ,true)) {
             return;
@@ -123,9 +120,14 @@ public class NiuniuServiceImpl implements NiuniuService {
                 roomPoke.setRoomStatus(1);
                 executor.execute(() -> {
                     try {
-                        playPoke(roomId);
+                        niuniuPlay.play(roomId);
                     } catch (Exception e) {
-                        log.error(e.toString());
+                        log.error("roomId :" + roomId ,e.toString());
+                        ReturnMessage<Long> message = new ReturnMessage<>(MessageCodeEnum.SYSTEM_ERROT);
+                        //加读锁
+                        roomPoke.getLock().readLock().lock();
+                        WebsocketUtil.sendAllBasicMessage(sessions ,message);
+                        roomPoke.getLock().readLock().unlock();
                     }
                 });
             }
@@ -184,7 +186,7 @@ public class NiuniuServiceImpl implements NiuniuService {
         TanPaiMessage tanPaiMessage = new TanPaiMessage();
         tanPaiMessage.setUserId(socketUser.getId());
         tanPaiMessage.setPokes(userPoke.getPokes());
-        Integer paiXingCode = isNiuNiu(userPoke.getPokes());
+        Integer paiXingCode = niuniuPlay.isNiuNiu(userPoke.getPokes());
         tanPaiMessage.setPaiXing(paiXingCode);
         userPoke.setIsTanPai(Boolean.TRUE);
         ReturnMessage<TanPaiMessage> returnMessage = new ReturnMessage<>(tanPaiMessage ,10);
@@ -211,309 +213,9 @@ public class NiuniuServiceImpl implements NiuniuService {
         return userPoke;
     }
 
-    /**
-     * 自动开始打牌任务
-     * @param rommId
-     * @throws InterruptedException
-     * @throws EncodeException
-     * @throws IOException
-     */
-    private void playPoke(Long rommId) throws InterruptedException, EncodeException, IOException {
-        try {
-            //检查目前是多少局，是否本房间结束
-            RoomRecord roomRecord = roomRecordCacheService.findOneById(rommId);
-            NiuniuRoomParameter niuniuRoomParameter = JSON.parseObject(roomRecord.getRoomConfig() ,NiuniuRoomParameter.class);
-            RoomPoke roomPoke = roomPokeMap.get(rommId);
-            Integer juShu = 0;
-            if (Objects.equals(niuniuRoomParameter.getConsumCardNum() ,1)) {
-                juShu = 12;
-            }else {
-                juShu = 24;
-            }
-            if (Objects.equals(juShu ,roomPoke.getRuningNum())) {
-                return;
-            }
-            Set<Session> sessions = sessionsMap.get(rommId);
-            //准备的倒计时
-            countDown(sessions ,roomPokeMap.get(rommId));
-            roomPoke.setIsReadyOver(true);
-            //先发四张牌
-            List<UserPoke> userPokeList = roomPoke.getUserPokes().stream().filter(u -> Objects.equals(u.getIndex(), roomPoke.getRuningNum()))
-                    .collect(Collectors.toList()).get(0).getUserPokeList();
-            List<String> rootPokes = PokeUtil.generatePoke5();
-            List<List<Integer>> lists = RandomUtils.getSplitListByMax(userPokeList.size() * 5);
-            //设置每个人的牌
-            for (int j = 0; j < userPokeList.size(); j++) {
-                UserPoke userPoke = userPokeList.get(j);
-                List<Integer> list = lists.get(j);
-                List<String> pokes = Lists.newArrayList();
-                list.forEach(index -> {
-                    pokes.add(rootPokes.get(index));
-                });
-                userPoke.setPokes(pokes);
-            }
-            //给每个人发牌
-            userPokeList.forEach(u -> {
-                sessions.forEach(session -> {
-                    SocketUser socketUser = (SocketUser) session.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
-                    if (Objects.equals(u.getUserId() ,socketUser.getId())) {
-                        ReturnMessage<List<String>> returnMessage3 = new ReturnMessage<>(u.getPokes().subList(0,4),4);
-                        try {
-                            WebsocketUtil.sendBasicMessage(session ,returnMessage3);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-            });
-
-            //开始抢庄倒计时
-            countDown(sessions ,roomPokeMap.get(rommId));
-
-            //选取庄家
-            List<Long> qiangZhuangUserIds = Lists.newArrayList();
-            userPokeList.forEach(u -> {
-                if (u.getIsQiangZhuang()) {
-                    qiangZhuangUserIds.add(u.getUserId());
-                }
-            });
-            Integer randNum;
-            //没人抢庄
-            if (qiangZhuangUserIds.isEmpty()) {
-                randNum = RandomUtils.getRandNumMax(userPokeList.size());
-                userPokeList.forEach(u -> {
-                    if (Objects.equals(userPokeList.get(randNum).getUserId() ,u.getUserId())) {
-                        u.setIsQiangZhuang(Boolean.TRUE);
-                    }
-                });
-            }else {
-                randNum = RandomUtils.getRandNumMax(qiangZhuangUserIds.size());
-                userPokeList.forEach(u -> {
-                    if (Objects.equals(qiangZhuangUserIds.get(randNum) ,u.getUserId())) {
-                        u.setIsQiangZhuang(Boolean.TRUE);
-                    }
-                });
-            }
-            ReturnMessage<Long> returnMessage1;
-            if (qiangZhuangUserIds.isEmpty()) {
-                returnMessage1 = new ReturnMessage<>(userPokeList.get(randNum).getUserId() ,5);
-            }else {
-                returnMessage1 = new ReturnMessage<>(qiangZhuangUserIds.get(randNum) ,5);
-            }
-            WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage1);
-
-            //闲家下注倒计时
-            countDown(sessions ,roomPokeMap.get(rommId));
-
-            //再发一张牌
-            userPokeList.forEach(u -> {
-                sessions.forEach(session -> {
-                    SocketUser socketUser = (SocketUser) session.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
-                    if (Objects.equals(u.getUserId() ,socketUser.getId())) {
-                        LaskPokeMessage laskPokeMessage = new LaskPokeMessage();
-                        laskPokeMessage.setLastPoke(u.getPokes().get(4));
-                        laskPokeMessage.setPaiXing(isNiuNiu(u.getPokes()));
-                        ReturnMessage<LaskPokeMessage> returnMessage3 = new ReturnMessage<>(laskPokeMessage,6);
-                        try {
-                            WebsocketUtil.sendBasicMessage(session ,returnMessage3);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-            });
-            //准备摊牌倒计时
-            countDown(sessions ,roomPokeMap.get(rommId));
-
-            //计算分数得失
-            UserPoke zhuangJia = null;
-            for (UserPoke userPoke : userPokeList) {
-                if (userPoke.getIsQiangZhuang()) {
-                    zhuangJia = userPoke;
-                    break;
-                }
-            }
-            Integer zhuangJiaNiu = isNiuNiu(zhuangJia.getPokes());
-            for (UserPoke userPoke : userPokeList) {
-                UserPoke xianJia = userPoke;
-                if (!xianJia.getIsQiangZhuang()) {
-                    Integer xianJiaNiu = isNiuNiu(xianJia.getPokes());
-                    Integer score = zhuangJia.getQiangZhuangMultiple() * xianJia.getXianJiaMultiple();
-                    //庄家大于闲家
-                    if (zhuangJiaNiu > xianJiaNiu) {
-                        zhuangJia.setThisScore(score);
-                        xianJia.setThisScore(-score);
-                        //庄家小于闲家
-                    }else if (zhuangJiaNiu < xianJiaNiu) {
-                        zhuangJia.setThisScore(-score);
-                        xianJia.setThisScore(score);
-                        //牛牛
-                    }else if (zhuangJiaNiu == 10) {
-                        zhuangJia.setThisScore(score);
-                        xianJia.setThisScore(-score);
-                        //没牛
-                    }else if (zhuangJiaNiu == 0){
-                        Boolean isZhuangJiaBoss = Boolean.TRUE;
-                        List<String> zhuangJiaPokes = zhuangJia.getPokes();
-                        List<String> xianJiaPokes = xianJia.getPokes();
-                        List<Integer> zhuangJiaNums = zhuangJiaPokes.stream().map(str -> Integer.valueOf(str.indexOf(1))
-                        ).collect(Collectors.toList());
-                        List<Integer> xianJiaNums = xianJiaPokes.stream().map(str -> Integer.valueOf(str.indexOf(1))
-                        ).collect(Collectors.toList());
-                        zhuangJiaNums.sort(Comparator.reverseOrder());
-                        xianJiaNums.sort(Comparator.reverseOrder());
-                        for (int j = 0; j < xianJiaNums.size(); j++) {
-                            if (xianJiaNums.get(j) > zhuangJiaNums.get(j)) {
-                                isZhuangJiaBoss = Boolean.FALSE;
-                                break;
-                            }
-                        }
-                        if (isZhuangJiaBoss) {
-                            zhuangJia.setThisScore(score);
-                            xianJia.setThisScore(-score);
-                        }else {
-                            zhuangJia.setThisScore(-score);
-                            xianJia.setThisScore(score);
-                        }
-                    }
-
-                }
-            }
-            //打完本局后计算各个玩家总分
-            List<UserScore> userScores = roomPoke.getUserScores();
-            for (UserScore userScore : userScores) {
-                userPokeList.forEach(u -> {
-                    if (Objects.equals(userScore.getUserId() ,u.getUserId())) {
-                        userScore.setScore(userScore.getScore() + u.getThisScore());
-                    }
-                });
-            }
-
-            //保存roomPoke
-            RoomPokeInit roomPokeInit = new RoomPokeInit();
-            roomPokeInit.setRoomRecordId(roomPoke.getRoomRecordId());
-            roomPokeInit.setUserPokes(JSON.toJSONString(roomPoke.getUserPokes()));
-            roomPokeInit.setUserScores(JSON.toJSONString(roomPoke.getUserScores()));
-            roomPokeInit.setRuningNum(roomPoke.getRuningNum());
-            roomPokeInitMapper.updateRoomPoke(roomPokeInit);
-
-            final Map<Long, Integer> scoreMap = userScores.stream().collect(Collectors.toMap(UserScore::getUserId, UserScore::getScore, (k1, k2) -> k1));
-            //给玩家发返回计算的结果
-            List<NiuNiuResult> niuNiuResultList = Lists.newArrayList();
-            for (UserPoke userPoke : userPokeList) {
-                NiuNiuResult niuNiuResult = new NiuNiuResult();
-                niuNiuResult.setUserId(userPoke.getUserId());
-                niuNiuResult.setIsTanPai(userPoke.getIsTanPai());
-                if (!userPoke.getIsTanPai()) {
-                    niuNiuResult.setPokes(userPoke.getPokes());
-                    niuNiuResult.setPaiXing(isNiuNiu(userPoke.getPokes()));
-                }
-                niuNiuResult.setScore(userPoke.getThisScore());
-                niuNiuResult.setTotal(scoreMap.get(userPoke.getUserId()));
-                niuNiuResultList.add(niuNiuResult);
-            }
-            ReturnMessage<List<NiuNiuResult>> returnMessage3 = new ReturnMessage<>(niuNiuResultList ,7);
-            WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage3);
-
-            //改变房间状态
-            roomPoke.setReadyNum(0);
-            roomPoke.setRoomStatus(0);
-            roomPoke.setIsReadyOver(false);
 
 
-            GameSituation gameSituation = new GameSituation();
-            gameSituation.setRoomRecordId(rommId);
-            gameSituation.setGameNum(roomPoke.getRuningNum());
-            //保存结果
-            List<NiuniuSituation> niuniuSituations = Lists.newArrayList();
-            for (UserPoke userPoke : userPokeList) {
-                NiuniuSituation niuniuSituation = new NiuniuSituation();
-                niuniuSituation.setIsZhuangJia(userPoke.getIsZhuangJia());
-                niuniuSituation.setPokes(userPoke.getPokes());
-                if (userPoke.getIsQiangZhuang()) {
-                    niuniuSituation.setBeiShu(userPoke.getQiangZhuangMultiple());
-                }else {
-                    niuniuSituation.setBeiShu(userPoke.getXianJiaMultiple());
-                }
-                niuniuSituation.setPokesDesc("牛牛");
 
-                niuniuSituations.add(niuniuSituation);
-            }
-            String niuniuSituationsStr = JSON.toJSONString(niuniuSituations);
-            gameSituation.setGameSituation(niuniuSituationsStr);
-            gameSituationMapper.insertOne(gameSituation);
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
-
-    /**
-     * 倒计时
-     */
-    protected void countDown(Set<Session> sessions , RoomPoke roomPoke) throws InterruptedException, IOException, EncodeException {
-        //加读锁
-        roomPoke.getLock().readLock().lock();
-        for (int i = 5; i > 0 ; i--) {
-            ReturnMessage<Integer> returnMessage = new ReturnMessage<>(i ,3);
-            WebsocketUtil.sendAllBasicMessage(sessions , returnMessage);
-            Thread.sleep(1000);
-        }
-        roomPoke.getLock().readLock().unlock();
-    }
-
-    /**
-     * 判断玩家的是否为牛
-     * @param pokes
-     * @return
-     */
-    private Integer isNiuNiu(List<String> pokes){
-        int ii = 0;
-        int jj = 0;
-        int kk = 0;
-        boolean isNiu = Boolean.FALSE;
-        for (int i = 0; i < pokes.size(); i++) {
-            if (i > 3) {
-                break;
-
-            }
-            for (int j = i+1; j < pokes.size(); j++) {
-                for (int k = j+1; k < pokes.size(); k++) {
-                    int num = Integer.valueOf(pokes.get(i).indexOf(1)) +
-                            Integer.valueOf(pokes.get(j).indexOf(1)) +
-                            Integer.valueOf(pokes.get(k).indexOf(1));
-                    if (num == 10 || num == 20 || num == 30) {
-                        ii = i;
-                        jj = j;
-                        kk = k;
-                        isNiu = Boolean.TRUE;
-                        break;
-                    }
-                }
-            }
-        }
-        if (!isNiu) {
-            return NiuNiuPaiXingEnum.NIU_0.getPaiXingCode();
-        }else {
-            int num = 0;
-            for (int i = 0; i < pokes.size(); i++) {
-                if (i != ii && i != jj && i != kk) {
-                    num += Integer.valueOf(pokes.get(i).indexOf(1));
-                }
-            }
-            if (num == 10 || num == 20) {
-                return NiuNiuPaiXingEnum.NIU_10.getPaiXingCode();
-            }
-            if (num < 10) {
-                return num;
-            }
-            if (num > 10) {
-                return num - 10;
-            }
-            return num;
-        }
-    }
 
 
     /**

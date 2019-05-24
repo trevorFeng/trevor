@@ -21,6 +21,7 @@ import javax.websocket.Session;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
@@ -48,7 +49,7 @@ public class TaskServiceImpl implements TaskService{
     private Map<Long , RoomPoke> roomPokeMap;
 
     @Resource(name = "sessionsMap")
-    private Map<Long , CopyOnWriteArrayList<Session>> sessionsMap;
+    private Map<Long , Set<Session>> sessionsMap;
 
     @Override
     @Transactional(rollbackFor = Exception.class)

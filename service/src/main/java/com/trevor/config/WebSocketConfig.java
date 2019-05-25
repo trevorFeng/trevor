@@ -1,4 +1,4 @@
-package com.trevor.web.websocket.config;
+package com.trevor.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

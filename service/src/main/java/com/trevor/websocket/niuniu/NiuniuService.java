@@ -25,7 +25,7 @@ public interface NiuniuService {
      * @param roomId
      * @return
      */
-    ReturnMessage<SocketUser> onOpenCheck(String roomId , User user) throws IOException;
+    ReturnMessage<SocketUser> onOpenCheck(String roomId ,User user) throws IOException;
 
     /**
      * 根据准备的消息

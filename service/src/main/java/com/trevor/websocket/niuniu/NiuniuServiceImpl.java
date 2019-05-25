@@ -70,7 +70,7 @@ public class NiuniuServiceImpl implements NiuniuService {
      * @return
      */
     @Override
-    public ReturnMessage<SocketUser> onOpenCheck(String roomId , User user) throws IOException {
+    public ReturnMessage<SocketUser> onOpenCheck(String roomId ,User user) throws IOException {
         //查出房间配置
         RoomRecord oneById = roomRecordCacheService.findOneById(Long.valueOf(roomId));
         if (oneById == null) {
@@ -139,7 +139,7 @@ public class NiuniuServiceImpl implements NiuniuService {
      * 处理抢庄的消息
      */
     @Override
-    public void dealQiangZhuangMessage(SocketUser socketUser , Long roomId , ReceiveMessage receiveMessage){
+    public void dealQiangZhuangMessage(SocketUser socketUser ,Long roomId ,ReceiveMessage receiveMessage){
         UserPoke userPoke = getUserPoke(roomId ,socketUser);
         userPoke.setIsQiangZhuang(Boolean.TRUE);
         userPoke.setQiangZhuangMultiple(receiveMessage.getQiangZhuangMultiple());
@@ -160,7 +160,7 @@ public class NiuniuServiceImpl implements NiuniuService {
      * 处理闲家下注的消息
      */
     @Override
-    public void dealXianJiaXiaZhuMessage(Session mySession ,SocketUser socketUser , Long roomId , ReceiveMessage receiveMessage){
+    public void dealXianJiaXiaZhuMessage(Session mySession ,SocketUser socketUser ,Long roomId ,ReceiveMessage receiveMessage){
         UserPoke userPoke = getUserPoke(roomId ,socketUser);
         if (userPoke.getIsZhuangJia()) {
             ReturnMessage<String> returnMessage = new ReturnMessage<>("你不是闲家" ,-1);
@@ -231,8 +231,8 @@ public class NiuniuServiceImpl implements NiuniuService {
      * @param roomId
      * @throws IOException
      */
-    private ReturnMessage<SocketUser> isFriendManage(NiuniuRoomParameter niuniuRoomParameter , RoomRecord oneById ,
-                                                         User user, String roomId) throws IOException {
+    private ReturnMessage<SocketUser> isFriendManage(NiuniuRoomParameter niuniuRoomParameter ,RoomRecord oneById ,
+                                                         User user ,String roomId) throws IOException {
         //配置仅限好友
         if (niuniuRoomParameter.getSpecial().contains(SpecialEnum.JUST_FRIENDS.getCode())) {
             return this.justFriends(niuniuRoomParameter ,oneById , user,roomId);

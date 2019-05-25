@@ -49,7 +49,7 @@ public class TestLoginController {
         User user = new User();
         user.setOpenid(openid);
         user.setHash(hash);
-        user.setAppName("登录测试名字");
+        user.setAppName("测试");
         user.setAppPictureUrl("https://raw.githubusercontent.com/redHairChasingTheBeautifulYouth/Java-Guide/master/imgs/20181101-1.jpg");
         user.setType(1);
         user.setFriendManageFlag(0);

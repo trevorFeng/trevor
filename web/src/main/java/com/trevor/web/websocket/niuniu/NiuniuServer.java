@@ -7,7 +7,6 @@ import com.trevor.domain.User;
 import com.trevor.service.user.UserService;
 import com.trevor.util.TokenUtil;
 import com.trevor.util.WebsocketUtil;
-import com.trevor.web.websocket.config.NiuniuServerConfigurator;
 import com.trevor.web.websocket.decoder.MessageDecoder;
 import com.trevor.web.websocket.encoder.MessageEncoder;
 import com.trevor.websocket.bo.ReceiveMessage;
@@ -34,7 +33,7 @@ import java.util.stream.Collectors;
  **/
 @ServerEndpoint(
         value = "/niuniu/{roomId}",
-        configurator = NiuniuServerConfigurator.class,
+        //configurator = NiuniuServerConfigurator.class,
         encoders= {MessageEncoder.class},
         decoders = {MessageDecoder.class}
         )
@@ -91,18 +90,11 @@ public class NiuniuServer {
         //加写锁
         roomPoke.getLock().writeLock().lock();
         //检查是否有未删除的session,因为用户网络不好断开连接
-        Iterator<Session> itrSession = sessions.iterator();
-        while (itrSession.hasNext()) {
-            Session targetSession = itrSession.next();
-            SocketUser socketUser = (SocketUser) targetSession.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
-            if (socketUser != null && Objects.equals(socketUser.getId() ,user.getId())) {
-                log.info("连接时移除session，用户id:"+user.getId());
-                itrSession.remove();
-                break;
-            }
-        }
-        ReturnMessage<SocketUser> returnMessage = niuniuService.onOpenCheck(roomId, user);
+        removeUnUsedSession(sessions ,user);
+        //检查该用户是否可以连接
+        ReturnMessage<SocketUser> returnMessage = niuniuService.onOpenCheck(roomId ,user);
         if (returnMessage.getMessageCode() > 0) {
+            log.info("用户id:" + user.getId() + "加入房间，房间id:" + roomId);
             sessions.add(mySession);
         }
         SocketUser socketUser = returnMessage.getData();
@@ -121,7 +113,7 @@ public class NiuniuServer {
     }
 
     @OnMessage
-    public void receiveMsg(@PathParam("roomId") String roomId, ReceiveMessage receiveMessage) throws InterruptedException, EncodeException, IOException {
+    public void onMessage(@PathParam("roomId") String roomId, ReceiveMessage receiveMessage) throws InterruptedException, EncodeException, IOException {
         Integer messageCode = receiveMessage.getMessageCode();
         SocketUser socketUser = (SocketUser) mySession.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
         Long roomIdNum = Long.valueOf(roomId);
@@ -140,7 +132,7 @@ public class NiuniuServer {
     }
 
     @OnClose
-    public void disConnect(@PathParam("roomId") String roomId, Session session) {
+    public void onClose(@PathParam("roomId") String roomId, Session session) {
         RoomPoke roomPoke = roomPokeMap.get(Long.valueOf(roomId));
         Set<Session> sessions = sessionsMap.get(Long.valueOf(roomId));
         if (sessions == null) {
@@ -182,7 +174,7 @@ public class NiuniuServer {
         }
         User user = userService.findUserByOpenid(openid);
         if(user == null || !Objects.equals(user.getHash() ,hash)){
-            throw new BizException(- 500 ,"openid错误，时间：" + System.currentTimeMillis());
+            throw new BizException(-500 ,"openid错误，时间：" + System.currentTimeMillis());
         }
         return user;
     }
@@ -251,4 +243,29 @@ public class NiuniuServer {
         }
     }
 
+    /**
+     * 移除没有同id的用户session
+     * @param sessions
+     * @param user
+     */
+    private void removeUnUsedSession(Set<Session> sessions ,User user) throws IOException{
+        for (Session session : sessions) {
+            SocketUser socketUser = (SocketUser) session.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
+            if (socketUser != null && Objects.equals(socketUser.getId() ,user.getId())) {
+                log.info("有重复session，用户id:"+user.getId());
+                session.close();
+                break;
+            }
+        }
+//        Iterator<Session> itrSession = sessions.iterator();
+//        while (itrSession.hasNext()) {
+//            Session targetSession = itrSession.next();
+//            SocketUser socketUser = (SocketUser) targetSession.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
+//            if (socketUser != null && Objects.equals(socketUser.getId() ,user.getId())) {
+//                log.info("连接时移除session，用户id:"+user.getId());
+//                itrSession.remove();
+//                break;
+//            }
+//        }
+    }
 }

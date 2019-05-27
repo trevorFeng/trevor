@@ -1,6 +1,7 @@
 package com.trevor.web.controller.login;
 
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.trevor.bo.JsonEntity;
 import com.trevor.bo.ResponseHelper;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -46,11 +48,19 @@ public class TestLoginController {
         String openid = System.currentTimeMillis() + "";
         String hash = RandomUtils.getRandomChars(20);
 
+        List<String> tupianList = Lists.newArrayList();
+        tupianList.add("http://hbimg.b0.upaiyun.com/fc4285d30a2d667304b9ef3c0d820b97a6e402933669d-QfsNiI_fw658");
+        tupianList.add("http://pic31.nipic.com/20130725/2929309_105611417128_2.jpg");
+        tupianList.add("http://img3.imgtn.bdimg.com/it/u=4098886459,2746584588&fm=26&gp=0.jpg");
+        tupianList.add("http://img3.imgtn.bdimg.com/it/u=809705136,1148759487&fm=26&gp=0.jpg");
+        tupianList.add("http://img5.imgtn.bdimg.com/it/u=3275347102,446490913&fm=26&gp=0.jpg");
+
         User user = new User();
         user.setOpenid(openid);
         user.setHash(hash);
-        user.setAppName("测试");
-        user.setAppPictureUrl("https://raw.githubusercontent.com/redHairChasingTheBeautifulYouth/Java-Guide/master/imgs/20181101-1.jpg");
+        user.setAppName(RandomUtils.getRandNum());
+        user.setAppPictureUrl(tupianList.get(RandomUtils.getRandNumMax(tupianList.size())));
+
         user.setType(1);
         user.setFriendManageFlag(0);
         userService.insertOne(user);

@@ -145,7 +145,7 @@ public class NiuniuServer {
             Session targetSession = itrSession.next();
             if (Objects.equals(targetSession ,session)) {
                 SocketUser user = (SocketUser) targetSession.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
-                log.info("房间的sessions移除session，用户id:"+user.getId());
+                log.info("用户id:"+user.getId()+"断开连接，移除session");
                 itrSession.remove();
                 break;
             }

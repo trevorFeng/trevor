@@ -14,7 +14,7 @@ import java.util.List;
 public class PokeUtil {
 
     /**
-     * 5个花色
+     * 5个花色,5-黑桃，4-桃心，3-樱花，2-方片，1-星星
      */
     private final static List<String> poke5 = new ArrayList<>(2<<7);
 

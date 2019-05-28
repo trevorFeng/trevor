@@ -70,15 +70,15 @@ public class NiuniuPlay {
         //闲家下注倒计时
         countDown(sessions ,roomPokeMap.get(roomId));
         //再发一张牌
-        fapai_1(roomPoke ,sessions ,userPokeList);
+        fapai_1(roomPoke ,sessions ,userPokeList ,niuniuRoomParameter);
         //准备摊牌倒计时
         countDown(sessions ,roomPokeMap.get(roomId));
         //计算/设置本局玩家的分数
-        setScore(roomPoke ,userPokeList);
+        setScore(roomPoke ,userPokeList ,niuniuRoomParameter);
         //保存roomPoke
         saveRoomPoke(roomPoke);
         //给玩家发返回计算的结果
-        returnResultToUser(sessions ,roomPoke ,userPokeList);
+        returnResultToUser(sessions ,roomPoke ,userPokeList ,niuniuRoomParameter);
         //改变房间状态
         roomPoke.setReadyNum(0);
         roomPoke.setRoomStatus(0);
@@ -108,10 +108,56 @@ public class NiuniuPlay {
 
     /**
      * 判断玩家的是否为牛
+     *
+     *      * 1---顺子牛，5倍
+     *      * 2---五花牛，6倍
+     *      * 3---同花牛，6倍
+     *      * 4---葫芦牛，7倍
+     *      * 5---炸弹牛，8倍
+     *      * 6---五小牛，10倍
+     *
+     *      * 规则
+     *      * 1---牛牛x3，牛九x2，牛八x2
+     *      * 2---牛牛x4，牛九x3，牛八x2，牛7x2
+     *
      * @param pokes
      * @return
      */
-    public Integer isNiuNiu(List<String> pokes){
+    public PaiXing isNiuNiu(List<String> pokes , Set<Integer> paiXingSet ,Integer rule){
+        PaiXing paiXing;
+        if (paiXingSet == null) {
+            paiXingSet = new HashSet<>();
+        }
+        //是否是五小牛
+        paiXing = isNiu_16(pokes ,paiXingSet);
+        if (paiXing != null) {
+            return paiXing;
+        }
+        //是否是炸弹牛
+        paiXing = isNiu_15(pokes ,paiXingSet);
+        if (paiXing != null) {
+            return paiXing;
+        }
+        //是否是葫芦牛
+        paiXing = isNiu_14(pokes ,paiXingSet);
+        if (paiXing != null) {
+            return paiXing;
+        }
+        //是否是同花牛
+        paiXing = isNiu_13(pokes ,paiXingSet);
+        if (paiXing != null) {
+            return paiXing;
+        }
+        //是否是五花牛
+        paiXing = isNiu_12(pokes ,paiXingSet);
+        if (paiXing != null) {
+            return paiXing;
+        }
+        //是否是顺子牛
+        paiXing = isNiu_11(pokes ,paiXingSet);
+        if (paiXing != null) {
+            return paiXing;
+        }
         int ii = 0;
         int jj = 0;
         int kk = 0;
@@ -135,26 +181,231 @@ public class NiuniuPlay {
                 }
             }
         }
+        //没牛
         if (!isNiu) {
-            return NiuNiuPaiXingEnum.NIU_0.getPaiXingCode();
+            paiXing = new PaiXing();
+            paiXing.setMultiple(1);
+            paiXing.setPaixing(NiuNiuPaiXingEnum.NIU_0.getPaiXingCode());
+            return paiXing;
         }else {
+            paiXing = new PaiXing();
             int num = 0;
             for (int i = 0; i < pokes.size(); i++) {
                 if (i != ii && i != jj && i != kk) {
                     num += changePai_10(pokes.get(i).substring(1 ,2));
                 }
             }
-            if (num == 10 || num == 20) {
-                return NiuNiuPaiXingEnum.NIU_10.getPaiXingCode();
+            // 1 - 牛牛x3，牛九x2，牛八x2
+            if (Objects.equals(rule ,1)) {
+                if (num == 10 || num == 20) {
+                    paiXing.setMultiple(3);
+                    paiXing.setPaixing(NiuNiuPaiXingEnum.NIU_10.getPaiXingCode());
+                    return paiXing;
+                }else if (num == 9 || num == 19) {
+                    paiXing.setMultiple(2);
+                    paiXing.setPaixing(NiuNiuPaiXingEnum.NIU_9.getPaiXingCode());
+                    return paiXing;
+                }else if (num == 8 || num == 18) {
+                    paiXing.setMultiple(2);
+                    paiXing.setPaixing(NiuNiuPaiXingEnum.NIU_8.getPaiXingCode());
+                    return paiXing;
+                }else {
+                    paiXing.setMultiple(1);
+                    paiXing.setPaixing(num);
+                    return paiXing;
+                }
+            //2---牛牛x4，牛九x3，牛八x2，牛7x2
+            }else {
+                if (num == 10 || num == 20) {
+                    paiXing.setMultiple(4);
+                    paiXing.setPaixing(NiuNiuPaiXingEnum.NIU_10.getPaiXingCode());
+                    return paiXing;
+                }else if (num == 9 || num == 19) {
+                    paiXing.setMultiple(3);
+                    paiXing.setPaixing(NiuNiuPaiXingEnum.NIU_9.getPaiXingCode());
+                    return paiXing;
+                }else if (num == 8 || num == 18) {
+                    paiXing.setMultiple(2);
+                    paiXing.setPaixing(NiuNiuPaiXingEnum.NIU_8.getPaiXingCode());
+                    return paiXing;
+                } else if (num == 7 || num == 17) {
+                    paiXing.setMultiple(2);
+                    paiXing.setPaixing(NiuNiuPaiXingEnum.NIU_7.getPaiXingCode());
+                    return paiXing;
+                }else {
+                    paiXing.setMultiple(1);
+                    paiXing.setPaixing(num);
+                    return paiXing;
+                }
             }
-            if (num < 10) {
-                return num;
-            }
-            if (num > 10) {
-                return num - 10;
-            }
-            return num;
+
         }
+    }
+
+    /**
+     * 是否是五小牛 10 倍
+     * @param pokes
+     * @param paiXingSet
+     * @return
+     */
+    private PaiXing isNiu_16(List<String> pokes , Set<Integer> paiXingSet){
+        PaiXing paiXing;
+        if (paiXingSet.contains(6)) {
+            int num = 0;
+            boolean glt_5 = true;
+            for (String str : pokes) {
+                String pai = str.substring(1 ,2);
+                num += changePai(pai);
+                if (changePai(pai) < 5) {
+                    glt_5 = false;
+                    break;
+                }
+            }
+            if (num <= 10 && glt_5) {
+                paiXing = new PaiXing();
+                paiXing.setMultiple(10);
+                paiXing.setPaixing(NiuNiuPaiXingEnum.NIU_16.getPaiXingCode());
+                return paiXing;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 是否是炸弹牛 8倍
+     * @param pokes
+     * @param paiXingSet
+     * @return
+     */
+    private PaiXing isNiu_15(List<String> pokes , Set<Integer> paiXingSet){
+        PaiXing paiXing;
+        if (paiXingSet.contains(5)) {
+            int num = 0;
+            String pai = pokes.get(0).substring(1,2);
+            for (String str : pokes) {
+                if (Objects.equals(pai ,str.substring(1 ,2))) {
+                    num ++;
+                }
+            }
+            if (num == 0 || num == 4 || num == 1 || num == 5) {
+                paiXing = new PaiXing();
+                paiXing.setPaixing(NiuNiuPaiXingEnum.NIU_15.getPaiXingCode());
+                paiXing.setMultiple(8);
+                return paiXing;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 是否是葫芦牛 7倍
+     * @param pokes
+     * @param paiXingSet
+     * @return
+     */
+    private PaiXing isNiu_14(List<String> pokes , Set<Integer> paiXingSet){
+        PaiXing paiXing;
+        if (paiXingSet.contains(4)) {
+            Set<String> set = new HashSet<>();
+            for (String str : pokes) {
+                set.add(str.substring(1 ,2));
+            }
+            if (set.size() <=2) {
+                int num = 0;
+                String pai = pokes.get(0).substring(1,2);
+                for (String str : pokes) {
+                    if (Objects.equals(pai ,str.substring(1 ,2))) {
+                        num ++;
+                    }
+                }
+                if (num == 2 || num == 3) {
+                    paiXing = new PaiXing();
+                    paiXing.setPaixing(NiuNiuPaiXingEnum.NIU_14.getPaiXingCode());
+                    paiXing.setMultiple(7);
+                    return paiXing;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 是否是同花牛 6倍
+     * @param pokes
+     * @param paiXingSet
+     * @return
+     */
+    private PaiXing isNiu_13(List<String> pokes , Set<Integer> paiXingSet){
+        PaiXing paiXing;
+        if (paiXingSet.contains(3)) {
+            Set<String> set = new HashSet<>();
+            for (String str : pokes) {
+                set.add(str.substring(0,1));
+            }
+            if (set.size() == 1) {
+                paiXing = new PaiXing();
+                paiXing.setPaixing(NiuNiuPaiXingEnum.NIU_13.getPaiXingCode());
+                paiXing.setMultiple(6);
+                return paiXing;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 是否是五花牛 6倍
+     * @param pokes
+     * @param paiXingSet
+     * @return
+     */
+    private PaiXing isNiu_12(List<String> pokes , Set<Integer> paiXingSet){
+        PaiXing paiXing;
+        if (paiXingSet.contains(2)) {
+            boolean j_q_k = true;
+            List<String> pais = new ArrayList<>();
+            pais.add("b");
+            pais.add("c");
+            pais.add("d");
+            for (String str : pokes) {
+                if (!pais.contains(str.substring(1 ,2))) {
+                    j_q_k = false;
+                    break;
+                }
+            }
+            if (j_q_k) {
+                paiXing = new PaiXing();
+                paiXing.setPaixing(NiuNiuPaiXingEnum.NIU_12.getPaiXingCode());
+                paiXing.setMultiple(6);
+                return paiXing;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 是否是顺子牛 ，5倍
+     * @param pokes
+     * @param paiXingSet
+     * @return
+     */
+    private PaiXing isNiu_11(List<String> pokes , Set<Integer> paiXingSet){
+        PaiXing paiXing;
+        if (paiXingSet.contains(1)) {
+            List<Integer> paiList = Lists.newArrayList();
+            Set<Integer> paiSet = new HashSet<>();
+            for (String str : pokes) {
+                paiList.add(changePai(str.substring(1 ,2)));
+                paiSet.add(changePai(str.substring(1 ,2)));
+            }
+            paiList.sort(Comparator.reverseOrder());
+            if (paiList.get(0) - paiList.get(4) == 4 && paiSet.size() == 5) {
+                paiXing = new PaiXing();
+                paiXing.setPaixing(NiuNiuPaiXingEnum.NIU_11.getPaiXingCode());
+                paiXing.setMultiple(5);
+                return paiXing;
+            }
+        }
+        return null;
     }
 
     /**
@@ -256,14 +507,14 @@ public class NiuniuPlay {
      * @param sessions
      * @param userPokeList
      */
-    private void fapai_1(RoomPoke roomPoke ,Set<Session> sessions ,List<UserPoke> userPokeList){
+    private void fapai_1(RoomPoke roomPoke ,Set<Session> sessions ,List<UserPoke> userPokeList ,NiuniuRoomParameter niuniuRoomParameter){
         userPokeList.forEach(u -> {
             sessions.forEach(session -> {
                 SocketUser socketUser = (SocketUser) session.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
                 if (Objects.equals(u.getUserId() ,socketUser.getId())) {
                     LaskPokeMessage laskPokeMessage = new LaskPokeMessage();
                     laskPokeMessage.setLastPoke(u.getPokes().get(4));
-                    laskPokeMessage.setPaiXing(isNiuNiu(u.getPokes()));
+                    laskPokeMessage.setPaiXing(isNiuNiu(u.getPokes() ,niuniuRoomParameter.getPaiXing() ,niuniuRoomParameter.getRule()).getPaixing());
                     ReturnMessage<LaskPokeMessage> returnMessage3 = new ReturnMessage<>(laskPokeMessage,6);
 
                     roomPoke.getLock().readLock().lock();
@@ -279,7 +530,7 @@ public class NiuniuPlay {
      * @param roomPoke
      * @param userPokeList
      */
-    private void setScore(RoomPoke roomPoke ,List<UserPoke> userPokeList){
+    private void setScore(RoomPoke roomPoke ,List<UserPoke> userPokeList ,NiuniuRoomParameter niuniuRoomParameter){
         UserPoke zhuangJia = null;
         for (UserPoke userPoke : userPokeList) {
             if (userPoke.getIsQiangZhuang()) {
@@ -287,29 +538,30 @@ public class NiuniuPlay {
                 break;
             }
         }
-        Integer zhuangJiaNiu = isNiuNiu(zhuangJia.getPokes());
+        PaiXing zhuangJiaPaiXing = isNiuNiu(zhuangJia.getPokes() ,niuniuRoomParameter.getPaiXing() ,niuniuRoomParameter.getRule());
         for (UserPoke userPoke : userPokeList) {
             UserPoke xianJia = userPoke;
             if (!xianJia.getIsQiangZhuang()) {
-                Integer xianJiaNiu = isNiuNiu(xianJia.getPokes());
-                Integer score = zhuangJia.getQiangZhuangMultiple() * xianJia.getXianJiaMultiple();
+                PaiXing xianJiaPaiXing = isNiuNiu(xianJia.getPokes() ,niuniuRoomParameter.getPaiXing() ,niuniuRoomParameter.getRule());
+                Integer score;
                 //庄家大于闲家
-                if (zhuangJiaNiu > xianJiaNiu) {
+                if (zhuangJiaPaiXing.getPaixing() > xianJiaPaiXing.getPaixing()) {
+                    score = zhuangJia.getQiangZhuangMultiple() * niuniuRoomParameter.getBasePoint() * zhuangJiaPaiXing.getMultiple();
                     zhuangJia.setThisScore(score);
                     xianJia.setThisScore(-score);
-                    //庄家小于闲家
-                }else if (zhuangJiaNiu < xianJiaNiu) {
+                //庄家小于闲家
+                }else if (zhuangJiaPaiXing.getPaixing() < xianJiaPaiXing.getPaixing()) {
+                    score = xianJia.getXianJiaMultiple() * niuniuRoomParameter.getBasePoint() * xianJiaPaiXing.getMultiple();
                     zhuangJia.setThisScore(-score);
                     xianJia.setThisScore(score);
-                    //牛牛
-                }else if (zhuangJiaNiu == 10) {
-                    zhuangJia.setThisScore(score);
-                    xianJia.setThisScore(-score);
-                    //没牛
-                }else if (zhuangJiaNiu == 0){
-                    Boolean isZhuangJiaBoss = Boolean.TRUE;
+                }else{
+                    //五小牛，直接倒叙排，比大小
+                    if (zhuangJiaPaiXing.getPaixing() == NiuNiuPaiXingEnum.NIU_16.getPaiXingCode()) {
+
+                    }
                     List<String> zhuangJiaPokes = zhuangJia.getPokes();
                     List<String> xianJiaPokes = xianJia.getPokes();
+                    //倒叙排，比大小
                     List<Integer> zhuangJiaNums = zhuangJiaPokes.stream().map(str -> changePai(str.substring(1 ,2))
                     ).collect(Collectors.toList());
                     List<Integer> xianJiaNums = xianJiaPokes.stream().map(str -> changePai(str.substring(1 ,2))
@@ -317,12 +569,12 @@ public class NiuniuPlay {
                     zhuangJiaNums.sort(Comparator.reverseOrder());
                     xianJiaNums.sort(Comparator.reverseOrder());
                     for (int j = 0; j < xianJiaNums.size(); j++) {
-                        if (xianJiaNums.get(j) > zhuangJiaNums.get(j)) {
-                            isZhuangJiaBoss = Boolean.FALSE;
+                        if (zhuangJiaNums.get(j) > xianJiaNums.get(j)) {
+                            //isZhuangJiaDa = Boolean.FALSE;
                             break;
                         }
                     }
-                    if (isZhuangJiaBoss) {
+                    if (isZhuangJiaDa) {
                         zhuangJia.setThisScore(score);
                         xianJia.setThisScore(-score);
                     }else {
@@ -353,11 +605,11 @@ public class NiuniuPlay {
         if (Objects.equals("a" ,pai)) {
             return 10;
         }else if (Objects.equals("b" ,pai)) {
-            return 1;
+            return 10;
         }else if (Objects.equals("c" ,pai)) {
-            return 1;
+            return 10;
         }else if (Objects.equals("d" ,pai)) {
-            return 1;
+            return 10;
         }else {
             return Integer.valueOf(pai);
         }
@@ -401,7 +653,7 @@ public class NiuniuPlay {
      * @param roomPoke
      * @param userPokeList
      */
-    private void returnResultToUser(Set<Session> sessions ,RoomPoke roomPoke ,List<UserPoke> userPokeList){
+    private void returnResultToUser(Set<Session> sessions ,RoomPoke roomPoke ,List<UserPoke> userPokeList ,NiuniuRoomParameter niuniuRoomParameter){
         Map<Long, Integer> scoreMap = roomPoke.getUserScores().stream().collect(Collectors.toMap(UserScore::getUserId, UserScore::getScore, (k1, k2) -> k1));
         List<NiuNiuResult> niuNiuResultList = Lists.newArrayList();
         for (UserPoke userPoke : userPokeList) {
@@ -410,7 +662,7 @@ public class NiuniuPlay {
             niuNiuResult.setIsTanPai(userPoke.getIsTanPai());
             if (!userPoke.getIsTanPai()) {
                 niuNiuResult.setPokes(userPoke.getPokes());
-                niuNiuResult.setPaiXing(isNiuNiu(userPoke.getPokes()));
+                niuNiuResult.setPaiXing(isNiuNiu(userPoke.getPokes() ,niuniuRoomParameter.getPaiXing() ,niuniuRoomParameter.getRule()).getPaixing());
             }
             niuNiuResult.setScore(userPoke.getThisScore());
             niuNiuResult.setTotal(scoreMap.get(userPoke.getUserId()));

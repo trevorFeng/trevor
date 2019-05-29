@@ -433,16 +433,29 @@ public class NiuniuPlay {
      */
     private void fapai_4(RoomPoke roomPoke  ,Set<Session> sessions ,List<UserPoke> userPokeList){
         List<String> rootPokes = PokeUtil.generatePoke5();
-        List<List<Integer>> lists = RandomUtils.getSplitListByMax(userPokeList.size() * 5);
+        //生成牌在rootPokes的索引
+        List<List<Integer>> lists = RandomUtils.getSplitListByMax(rootPokes.size() ,userPokeList.size() * 5);
+        //生成牌
+        List<List<String>> pokesList = Lists.newArrayList();
+        for (List<Integer> integers : lists) {
+            List<String> stringList = Lists.newArrayList();
+            integers.forEach(index -> {
+                stringList.add(rootPokes.get(index));
+            });
+            pokesList.add(stringList);
+        }
+//        //判断每个集合是否有两个五小牛，有的话重新生成
+//        Boolean twoWuXiaoNiu = true;
+//        while (twoWuXiaoNiu) {
+//            lists = RandomUtils.getSplitListByMax(rootPokes.size() ,userPokeList.size() * 5);
+//            for (List<Integer> integers : lists) {
+//
+//            }
+//        }
         //设置每个人的牌
         for (int j = 0; j < userPokeList.size(); j++) {
             UserPoke userPoke = userPokeList.get(j);
-            List<Integer> list = lists.get(j);
-            List<String> pokes = Lists.newArrayList();
-            list.forEach(index -> {
-                pokes.add(rootPokes.get(index));
-            });
-            userPoke.setPokes(pokes);
+            userPoke.setPokes(pokesList.get(j));
         }
         //给每个人发牌
         userPokeList.forEach(u -> {
@@ -543,20 +556,38 @@ public class NiuniuPlay {
             UserPoke xianJia = userPoke;
             if (!xianJia.getIsQiangZhuang()) {
                 PaiXing xianJiaPaiXing = isNiuNiu(xianJia.getPokes() ,niuniuRoomParameter.getPaiXing() ,niuniuRoomParameter.getRule());
-                Integer score;
+                Integer score = zhuangJia.getQiangZhuangMultiple() * xianJia.getXianJiaMultiple() * niuniuRoomParameter.getBasePoint();
                 //庄家大于闲家
                 if (zhuangJiaPaiXing.getPaixing() > xianJiaPaiXing.getPaixing()) {
-                    score = zhuangJia.getQiangZhuangMultiple() * niuniuRoomParameter.getBasePoint() * zhuangJiaPaiXing.getMultiple();
+                    score = score * zhuangJiaPaiXing.getMultiple();
                     zhuangJia.setThisScore(score);
                     xianJia.setThisScore(-score);
                 //庄家小于闲家
                 }else if (zhuangJiaPaiXing.getPaixing() < xianJiaPaiXing.getPaixing()) {
-                    score = xianJia.getXianJiaMultiple() * niuniuRoomParameter.getBasePoint() * xianJiaPaiXing.getMultiple();
+                    score = score * xianJiaPaiXing.getMultiple();
                     zhuangJia.setThisScore(-score);
                     xianJia.setThisScore(score);
                 }else{
-                    //五小牛，直接倒叙排，比大小
-                    if (zhuangJiaPaiXing.getPaixing() == NiuNiuPaiXingEnum.NIU_16.getPaiXingCode()) {
+                    //五小牛，比点数大小，比牌的大小，比花色
+                    if (Objects.equals(zhuangJiaPaiXing.getPaixing() ,NiuNiuPaiXingEnum.NIU_16.getPaiXingCode())) {
+
+                    //炸弹牛，比炸弹大小
+                    }else if (Objects.equals(zhuangJiaPaiXing.getPaixing() ,NiuNiuPaiXingEnum.NIU_15.getPaiXingCode())){
+
+                    //葫芦牛，比3张牌一样的大小
+                    }else if (Objects.equals(zhuangJiaPaiXing.getPaixing() ,NiuNiuPaiXingEnum.NIU_14.getPaiXingCode())) {
+
+                    //同花牛，先比花色大小，再比牌值大小
+                    }else if (Objects.equals(zhuangJiaPaiXing.getPaixing() ,NiuNiuPaiXingEnum.NIU_13.getPaiXingCode())) {
+
+                    //五花牛，比最大牌，再比花色
+                    }else if (Objects.equals(zhuangJiaPaiXing.getPaixing() ,NiuNiuPaiXingEnum.NIU_12.getPaiXingCode())) {
+
+                    //顺子牛，比最大牌，再比花色
+                    }else if (Objects.equals(zhuangJiaPaiXing.getPaixing() ,NiuNiuPaiXingEnum.NIU_11.getPaiXingCode())) {
+
+                    //比最大牌，最后比花色
+                    }else {
 
                     }
                     List<String> zhuangJiaPokes = zhuangJia.getPokes();
@@ -574,13 +605,13 @@ public class NiuniuPlay {
                             break;
                         }
                     }
-                    if (isZhuangJiaDa) {
-                        zhuangJia.setThisScore(score);
-                        xianJia.setThisScore(-score);
-                    }else {
-                        zhuangJia.setThisScore(-score);
-                        xianJia.setThisScore(score);
-                    }
+//                    if (isZhuangJiaDa) {
+//                        zhuangJia.setThisScore(score);
+//                        xianJia.setThisScore(-score);
+//                    }else {
+//                        zhuangJia.setThisScore(-score);
+//                        xianJia.setThisScore(score);
+//                    }
                 }
 
             }

@@ -62,7 +62,7 @@ public class NiuniuPlay {
         //先发四张牌
         List<UserPoke> userPokeList = roomPoke.getUserPokes().stream().filter(u -> Objects.equals(u.getIndex(), roomPoke.getRuningNum()))
                 .collect(Collectors.toList()).get(0).getUserPokeList();
-        fapai_4(roomPoke ,sessions ,userPokeList);
+        fapai_4(roomPoke ,sessions ,userPokeList ,niuniuRoomParameter);
         //开始抢庄倒计时
         countDown(sessions ,roomPokeMap.get(roomId));
         //选取庄家
@@ -431,27 +431,36 @@ public class NiuniuPlay {
      * @param sessions
      * @param userPokeList
      */
-    private void fapai_4(RoomPoke roomPoke  ,Set<Session> sessions ,List<UserPoke> userPokeList){
+    private void fapai_4(RoomPoke roomPoke  ,Set<Session> sessions ,List<UserPoke> userPokeList ,NiuniuRoomParameter niuniuRoomParameter){
         List<String> rootPokes = PokeUtil.generatePoke5();
         //生成牌在rootPokes的索引
-        List<List<Integer>> lists = RandomUtils.getSplitListByMax(rootPokes.size() ,userPokeList.size() * 5);
+        List<List<Integer>> lists;
         //生成牌
         List<List<String>> pokesList = Lists.newArrayList();
-        for (List<Integer> integers : lists) {
-            List<String> stringList = Lists.newArrayList();
-            integers.forEach(index -> {
-                stringList.add(rootPokes.get(index));
-            });
-            pokesList.add(stringList);
+        //判断每个集合是否有两个五小牛，有的话重新生成
+        Boolean twoWuXiaoNiu = true;
+        while (twoWuXiaoNiu) {
+            lists = RandomUtils.getSplitListByMax(rootPokes.size() ,userPokeList.size() * 5);
+            //生成牌
+            pokesList = Lists.newArrayList();
+            for (List<Integer> integers : lists) {
+                List<String> stringList = Lists.newArrayList();
+                integers.forEach(index -> {
+                    stringList.add(rootPokes.get(index));
+                });
+                pokesList.add(stringList);
+            }
+            int niu_16_nums = 0;
+            for (List<String> pokes : pokesList) {
+                PaiXing niu_16 = isNiu_16(pokes, niuniuRoomParameter.getPaiXing());
+                if (niu_16 != null) {
+                    niu_16_nums ++;
+                }
+            }
+            if (niu_16_nums < 2) {
+                twoWuXiaoNiu = false;
+            }
         }
-//        //判断每个集合是否有两个五小牛，有的话重新生成
-//        Boolean twoWuXiaoNiu = true;
-//        while (twoWuXiaoNiu) {
-//            lists = RandomUtils.getSplitListByMax(rootPokes.size() ,userPokeList.size() * 5);
-//            for (List<Integer> integers : lists) {
-//
-//            }
-//        }
         //设置每个人的牌
         for (int j = 0; j < userPokeList.size(); j++) {
             UserPoke userPoke = userPokeList.get(j);
@@ -568,11 +577,11 @@ public class NiuniuPlay {
                     zhuangJia.setThisScore(-score);
                     xianJia.setThisScore(score);
                 }else{
-                    //五小牛，比点数大小，比牌的大小，比花色
-                    if (Objects.equals(zhuangJiaPaiXing.getPaixing() ,NiuNiuPaiXingEnum.NIU_16.getPaiXingCode())) {
-
-                    //炸弹牛，比炸弹大小
-                    }else if (Objects.equals(zhuangJiaPaiXing.getPaixing() ,NiuNiuPaiXingEnum.NIU_15.getPaiXingCode())){
+                    List<String> zhuangJiaPokes = zhuangJia.getPokes();
+                    List<String> xianJiaPokes = xianJia.getPokes();
+                    boolean zhuangJiaDa = true;
+                    //炸弹牛，比炸弹大小(已经设置不可能出现两个五小牛)
+                    if (Objects.equals(zhuangJiaPaiXing.getPaixing() ,NiuNiuPaiXingEnum.NIU_15.getPaiXingCode())){
 
                     //葫芦牛，比3张牌一样的大小
                     }else if (Objects.equals(zhuangJiaPaiXing.getPaixing() ,NiuNiuPaiXingEnum.NIU_14.getPaiXingCode())) {
@@ -590,8 +599,6 @@ public class NiuniuPlay {
                     }else {
 
                     }
-                    List<String> zhuangJiaPokes = zhuangJia.getPokes();
-                    List<String> xianJiaPokes = xianJia.getPokes();
                     //倒叙排，比大小
                     List<Integer> zhuangJiaNums = zhuangJiaPokes.stream().map(str -> changePai(str.substring(1 ,2))
                     ).collect(Collectors.toList());
@@ -625,6 +632,14 @@ public class NiuniuPlay {
                 }
             });
         }
+    }
+
+    /**
+     * 比较两个炸弹牛大小
+     * @return
+     */
+    private Boolean niu_15_daXiao(List<String> zhuangJiaPokes ,List<String> xianJiaPokes){
+
     }
 
     /**

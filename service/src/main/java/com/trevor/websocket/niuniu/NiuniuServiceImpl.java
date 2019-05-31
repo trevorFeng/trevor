@@ -192,8 +192,8 @@ public class NiuniuServiceImpl implements NiuniuService {
         TanPaiMessage tanPaiMessage = new TanPaiMessage();
         tanPaiMessage.setUserId(socketUser.getId());
         tanPaiMessage.setPokes(userPoke.getPokes());
-        //Integer paiXingCode = niuniuPlay.isNiuNiu(userPoke.getPokes());
-        //tanPaiMessage.setPaiXing(paiXingCode);
+        Integer paiXingCode = niuniuPlay.isNiuNiu(userPoke.getPokes());
+        tanPaiMessage.setPaiXing(paiXingCode);
         userPoke.setIsTanPai(Boolean.TRUE);
         ReturnMessage<TanPaiMessage> returnMessage = new ReturnMessage<>(tanPaiMessage ,10);
         Set<Session> sessions = sessionsMap.get(roomId);

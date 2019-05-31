@@ -582,36 +582,47 @@ public class NiuniuPlay {
                     boolean zhuangJiaDa = true;
                     //炸弹牛，比炸弹大小(已经设置不可能出现两个五小牛)
                     if (Objects.equals(zhuangJiaPaiXing.getPaixing() ,NiuNiuPaiXingEnum.NIU_15.getPaiXingCode())){
-
-                    //葫芦牛，比3张牌一样的大小
+                        if (!niu_15_daXiao(zhuangJiaPokes, xianJiaPokes)) {
+                            zhuangJiaDa = false;
+                        }
+                        //葫芦牛，比3张牌一样的大小
                     }else if (Objects.equals(zhuangJiaPaiXing.getPaixing() ,NiuNiuPaiXingEnum.NIU_14.getPaiXingCode())) {
-
+                        if (!niu_14_daXiao(zhuangJiaPokes, xianJiaPokes)) {
+                            zhuangJiaDa = false;
+                        }
                     //同花牛，先比花色大小，再比牌值大小
                     }else if (Objects.equals(zhuangJiaPaiXing.getPaixing() ,NiuNiuPaiXingEnum.NIU_13.getPaiXingCode())) {
-
+                        if (!niu_13_daXiao(zhuangJiaPokes, xianJiaPokes)) {
+                            zhuangJiaDa = false;
+                        }
                     //五花牛，比最大牌，再比花色
                     }else if (Objects.equals(zhuangJiaPaiXing.getPaixing() ,NiuNiuPaiXingEnum.NIU_12.getPaiXingCode())) {
-
+                        if (!niu_12_daXiao(zhuangJiaPokes, xianJiaPokes)) {
+                            zhuangJiaDa = false;
+                        }
                     //顺子牛，比最大牌，再比花色
                     }else if (Objects.equals(zhuangJiaPaiXing.getPaixing() ,NiuNiuPaiXingEnum.NIU_11.getPaiXingCode())) {
-
+                        if (!niu_11_daXiao(zhuangJiaPokes, xianJiaPokes)) {
+                            zhuangJiaDa = false;
+                        }
                     //比最大牌，最后比花色
                     }else {
+                        //倒叙排，比大小
+                        List<Integer> zhuangJiaNums = zhuangJiaPokes.stream().map(str -> changePai(str.substring(1 ,2))
+                        ).collect(Collectors.toList());
+                        List<Integer> xianJiaNums = xianJiaPokes.stream().map(str -> changePai(str.substring(1 ,2))
+                        ).collect(Collectors.toList());
+                        zhuangJiaNums.sort(Comparator.reverseOrder());
+                        xianJiaNums.sort(Comparator.reverseOrder());
+
 
                     }
-                    //倒叙排，比大小
-                    List<Integer> zhuangJiaNums = zhuangJiaPokes.stream().map(str -> changePai(str.substring(1 ,2))
-                    ).collect(Collectors.toList());
-                    List<Integer> xianJiaNums = xianJiaPokes.stream().map(str -> changePai(str.substring(1 ,2))
-                    ).collect(Collectors.toList());
-                    zhuangJiaNums.sort(Comparator.reverseOrder());
-                    xianJiaNums.sort(Comparator.reverseOrder());
-                    for (int j = 0; j < xianJiaNums.size(); j++) {
-                        if (zhuangJiaNums.get(j) > xianJiaNums.get(j)) {
-                            //isZhuangJiaDa = Boolean.FALSE;
-                            break;
-                        }
-                    }
+//                    for (int j = 0; j < xianJiaNums.size(); j++) {
+//                        if (zhuangJiaNums.get(j) > xianJiaNums.get(j)) {
+//                            //isZhuangJiaDa = Boolean.FALSE;
+//                            break;
+//                        }
+//                    }
 //                    if (isZhuangJiaDa) {
 //                        zhuangJia.setThisScore(score);
 //                        xianJia.setThisScore(-score);
@@ -636,10 +647,66 @@ public class NiuniuPlay {
 
     /**
      * 比较两个炸弹牛大小
-     * @return
+     * @param zhuangJiaPokes
+     * @param xianJiaPokes
+     * @return zhuangJiaPokes > xianJiaPokes返回true
      */
     private Boolean niu_15_daXiao(List<String> zhuangJiaPokes ,List<String> xianJiaPokes){
+        List<String> zhuangJia = zhuangJiaPokes.stream().map(s -> s.substring(1, 2)).collect(Collectors.toList());
+        String poke_a = zhuangJia.get(0);
+        int num = 0;
+        for (String p : zhuangJia) {
+            if (Objects.equals(p ,poke_a)) {
+                num ++;
+            }else {
 
+            }
+        }
+        if (num > 2) {
+
+        }
+        return null;
+    }
+
+    /**
+     * 比较两个葫芦牛大小
+     * @param zhuangJiaPokes
+     * @param xianJiaPokes
+     * @return zhuangJiaPokes > xianJiaPokes返回true
+     */
+    private Boolean niu_14_daXiao(List<String> zhuangJiaPokes ,List<String> xianJiaPokes){
+        return null;
+    }
+
+    /**
+     * 比较两个同花牛大小
+     * @param zhuangJiaPokes
+     * @param xianJiaPokes
+     * @return zhuangJiaPokes > xianJiaPokes返回true
+     */
+    private Boolean niu_13_daXiao(List<String> zhuangJiaPokes ,List<String> xianJiaPokes){
+        return null;
+    }
+
+    /**
+     * 比较两个五花牛大小
+     * @param zhuangJiaPokes
+     * @param xianJiaPokes
+     * @return zhuangJiaPokes > xianJiaPokes返回true
+     */
+    private Boolean niu_12_daXiao(List<String> zhuangJiaPokes ,List<String> xianJiaPokes){
+
+        return null;
+    }
+
+    /**
+     * 比较两个顺子牛大小
+     * @param zhuangJiaPokes
+     * @param xianJiaPokes
+     * @return zhuangJiaPokes > xianJiaPokes返回true
+     */
+    private Boolean niu_11_daXiao(List<String> zhuangJiaPokes ,List<String> xianJiaPokes){
+        return null;
     }
 
     /**

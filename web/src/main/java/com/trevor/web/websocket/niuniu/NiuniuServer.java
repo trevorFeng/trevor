@@ -74,6 +74,7 @@ public class NiuniuServer {
 
     @OnOpen
     public void onOpen(Session session ,@PathParam("roomId") String roomId) throws IOException{
+        //throw new RuntimeException("sss");
         //设置最大空闲时间为45分钟
         session.setMaxIdleTimeout(1000 * 60 * 45);
         mySession = session;
@@ -114,6 +115,7 @@ public class NiuniuServer {
 
     @OnMessage
     public void onMessage(@PathParam("roomId") String roomId, ReceiveMessage receiveMessage) throws InterruptedException, EncodeException, IOException {
+        //throw new RuntimeException("sss");
         Integer messageCode = receiveMessage.getMessageCode();
         SocketUser socketUser = (SocketUser) mySession.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
         Long roomIdNum = Long.valueOf(roomId);
@@ -131,6 +133,13 @@ public class NiuniuServer {
         }
     }
 
+    /**
+     * 1.关闭浏览器调用此方法，断网不会调用
+     * 2.断网的时候，浏览器发送ws请求，重新连上会发送消息过来
+     * 3.@OnError注解标记的方法执行后会调用此方法
+     * @param roomId
+     * @param session
+     */
     @OnClose
     public void onClose(@PathParam("roomId") String roomId, Session session) {
         RoomPoke roomPoke = roomPokeMap.get(Long.valueOf(roomId));
@@ -153,10 +162,16 @@ public class NiuniuServer {
         roomPoke.getLock().writeLock().unlock();
     }
 
+    /**
+     * 1.@OnOpen注解的方法抛异常会调用此方法
+     * 2.@OnMessage标记的方法抛异常会调用此方法
+     * @param t
+     */
     @OnError
     public void onError(Throwable t){
         t.printStackTrace();
         log.error(t.toString());
+        System.out.println("sss");
     }
 
     /**

@@ -2,6 +2,7 @@ package com.trevor.play;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.trevor.bo.*;
 import com.trevor.dao.GameSituationMapper;
 import com.trevor.dao.RoomPokeInitMapper;
@@ -595,41 +596,45 @@ public class NiuniuPlay {
                         if (!niu_13_daXiao(zhuangJiaPokes, xianJiaPokes)) {
                             zhuangJiaDa = false;
                         }
-                    //五花牛，比最大牌，再比花色
-                    }else if (Objects.equals(zhuangJiaPaiXing.getPaixing() ,NiuNiuPaiXingEnum.NIU_12.getPaiXingCode())) {
-                        if (!niu_12_daXiao(zhuangJiaPokes, xianJiaPokes)) {
-                            zhuangJiaDa = false;
-                        }
-                    //顺子牛，比最大牌，再比花色
-                    }else if (Objects.equals(zhuangJiaPaiXing.getPaixing() ,NiuNiuPaiXingEnum.NIU_11.getPaiXingCode())) {
-                        if (!niu_11_daXiao(zhuangJiaPokes, xianJiaPokes)) {
-                            zhuangJiaDa = false;
-                        }
-                    //比最大牌，最后比花色
+                    //五花牛，比最大牌，再比花色 //顺子牛，比最大牌，再比花色//比最大牌，最后比花色
                     }else {
                         //倒叙排，比大小
-                        List<Integer> zhuangJiaNums = zhuangJiaPokes.stream().map(str -> changePai(str.substring(1 ,2))
-                        ).collect(Collectors.toList());
-                        List<Integer> xianJiaNums = xianJiaPokes.stream().map(str -> changePai(str.substring(1 ,2))
-                        ).collect(Collectors.toList());
-                        zhuangJiaNums.sort(Comparator.reverseOrder());
-                        xianJiaNums.sort(Comparator.reverseOrder());
-
-
+                        Integer paiZhi = biPaiZhi(zhuangJiaPokes, xianJiaPokes);
+                        if (Objects.equals(paiZhi ,1)) {
+                            zhuangJiaDa = true;
+                        }else if (Objects.equals(-1 ,paiZhi)) {
+                            zhuangJiaDa = false;
+                        }else {
+                            List<Integer> zhuangJiaNums = zhuangJiaPokes.stream().map(str -> changePai(str.substring(1 ,2))
+                            ).collect(Collectors.toList());
+                            Map<String ,String> zhuangJiaMap = Maps.newHashMap();
+                            for (String zhuang : zhuangJiaPokes) {
+                                zhuangJiaMap.put(zhuang.substring(1 ,2) ,zhuang.substring(0 ,1));
+                            }
+                            List<Integer> xianJiaNums = xianJiaPokes.stream().map(str -> changePai(str.substring(1 ,2))
+                            ).collect(Collectors.toList());
+                            Map<String ,String> xianJiaMap = Maps.newHashMap();
+                            for (String xian : xianJiaPokes) {
+                                xianJiaMap.put(xian.substring(1 ,2) ,xian.substring(0 ,1));
+                            }
+                            zhuangJiaNums.sort(Comparator.reverseOrder());
+                            xianJiaNums.sort(Comparator.reverseOrder());
+                            if (Integer.valueOf(zhuangJiaMap.get(zhuangJiaNums.get(0))) > Integer.valueOf(xianJiaMap.get(xianJiaNums.get(0)))) {
+                                zhuangJiaDa = true;
+                            }else {
+                                zhuangJiaDa = false;
+                            }
+                        }
                     }
-//                    for (int j = 0; j < xianJiaNums.size(); j++) {
-//                        if (zhuangJiaNums.get(j) > xianJiaNums.get(j)) {
-//                            //isZhuangJiaDa = Boolean.FALSE;
-//                            break;
-//                        }
-//                    }
-//                    if (isZhuangJiaDa) {
-//                        zhuangJia.setThisScore(score);
-//                        xianJia.setThisScore(-score);
-//                    }else {
-//                        zhuangJia.setThisScore(-score);
-//                        xianJia.setThisScore(score);
-//                    }
+                    if (zhuangJiaDa) {
+                        score = score * zhuangJiaPaiXing.getMultiple();
+                        zhuangJia.setThisScore(score);
+                        xianJia.setThisScore(-score);
+                    }else {
+                        score = score * xianJiaPaiXing.getMultiple();
+                        zhuangJia.setThisScore(-score);
+                        xianJia.setThisScore(score);
+                    }
                 }
 
             }
@@ -652,20 +657,31 @@ public class NiuniuPlay {
      * @return zhuangJiaPokes > xianJiaPokes返回true
      */
     private Boolean niu_15_daXiao(List<String> zhuangJiaPokes ,List<String> xianJiaPokes){
-        List<String> zhuangJia = zhuangJiaPokes.stream().map(s -> s.substring(1, 2)).collect(Collectors.toList());
-        String poke_a = zhuangJia.get(0);
-        int num = 0;
-        for (String p : zhuangJia) {
-            if (Objects.equals(p ,poke_a)) {
-                num ++;
-            }else {
+        Integer zhuangJiaNum = getDianShuNumberMap(zhuangJiaPokes ,4);
+        Integer xianJiaNum = getDianShuNumberMap(xianJiaPokes ,4);
 
+        if (zhuangJiaNum > xianJiaNum) {
+            return true;
+        }
+        return false;
+    }
+
+    private Integer getDianShuNumberMap(List<String> pokes ,Integer ciShu){
+        Map<String ,Integer> map = Maps.newHashMap();
+        for (String poke : pokes) {
+            String dianShu = poke.substring(1 ,2);
+            if (!map.keySet().contains(dianShu)) {
+                map.put(dianShu ,1);
+            }else {
+                map.put(dianShu ,map.get(dianShu) + 1);
             }
         }
-        if (num > 2) {
-
+        for (Map.Entry<String ,Integer> entry : map.entrySet()) {
+            if (Objects.equals(ciShu ,entry.getValue())) {
+                return changePai(entry.getKey());
+            }
         }
-        return null;
+        throw new RuntimeException("出现炸弹牛或葫芦牛，但是牌不对");
     }
 
     /**
@@ -675,7 +691,37 @@ public class NiuniuPlay {
      * @return zhuangJiaPokes > xianJiaPokes返回true
      */
     private Boolean niu_14_daXiao(List<String> zhuangJiaPokes ,List<String> xianJiaPokes){
-        return null;
+        Integer zhuangJiaNum = getDianShuNumberMap(zhuangJiaPokes ,3);
+        Integer xianJiaNum = getDianShuNumberMap(xianJiaPokes ,3);
+        if (zhuangJiaNum > xianJiaNum) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 比牌值大小
+     * @param zhuangJiaPokes
+     * @param xianJiaPokes
+     * @return zhuangJiaPokes > xianJiaPokes返回1 ,zhuangJiaPokes < xianJiaPokes返回-1,zhuangJiaPokes == xianJiaPokes返回0
+     */
+    private Integer biPaiZhi(List<String> zhuangJiaPokes ,List<String> xianJiaPokes){
+        List<Integer> zhuangJiaNums = zhuangJiaPokes.stream().map(str -> changePai(str.substring(1 ,2))
+        ).collect(Collectors.toList());
+        List<Integer> xianJiaNums = xianJiaPokes.stream().map(str -> changePai(str.substring(1 ,2))
+        ).collect(Collectors.toList());
+        zhuangJiaNums.sort(Comparator.reverseOrder());
+        xianJiaNums.sort(Comparator.reverseOrder());
+        for (int j = 0; j < xianJiaNums.size(); j++) {
+            if (zhuangJiaNums.get(j) > xianJiaNums.get(j)) {
+                return 1;
+            }else if (Objects.equals(zhuangJiaNums.get(j) ,xianJiaNums.get(j))) {
+                continue;
+            }else {
+                return -1;
+            }
+        }
+        return 0;
     }
 
     /**
@@ -685,28 +731,18 @@ public class NiuniuPlay {
      * @return zhuangJiaPokes > xianJiaPokes返回true
      */
     private Boolean niu_13_daXiao(List<String> zhuangJiaPokes ,List<String> xianJiaPokes){
-        return null;
-    }
-
-    /**
-     * 比较两个五花牛大小
-     * @param zhuangJiaPokes
-     * @param xianJiaPokes
-     * @return zhuangJiaPokes > xianJiaPokes返回true
-     */
-    private Boolean niu_12_daXiao(List<String> zhuangJiaPokes ,List<String> xianJiaPokes){
-
-        return null;
-    }
-
-    /**
-     * 比较两个顺子牛大小
-     * @param zhuangJiaPokes
-     * @param xianJiaPokes
-     * @return zhuangJiaPokes > xianJiaPokes返回true
-     */
-    private Boolean niu_11_daXiao(List<String> zhuangJiaPokes ,List<String> xianJiaPokes){
-        return null;
+        if (Integer.valueOf(zhuangJiaPokes.get(0).substring(0,1)) > Integer.valueOf(xianJiaPokes.get(0).substring(0,1))) {
+            return true;
+        }else if (Objects.equals(Integer.valueOf(zhuangJiaPokes.get(0).substring(0,1)) ,Integer.valueOf(xianJiaPokes.get(0).substring(0,1))) ) {
+            Integer paiZhi = biPaiZhi(zhuangJiaPokes ,xianJiaPokes);
+            if (Objects.equals(paiZhi ,1)) {
+                return true;
+            }else {
+                return false;
+            }
+        }else {
+            return false;
+        }
     }
 
     /**

@@ -187,12 +187,14 @@ public class NiuniuServiceImpl implements NiuniuService {
      */
     @Override
     public void dealTanPaiMessage(SocketUser socketUser ,Long roomId){
+        RoomRecord roomRecord = roomRecordCacheService.findOneById(roomId);
+        NiuniuRoomParameter niuniuRoomParameter = JSON.parseObject(roomRecord.getRoomConfig() ,NiuniuRoomParameter.class);
         RoomPoke roomPoke = roomPokeMap.get(roomId);
         UserPoke userPoke = getUserPoke(roomId ,socketUser);
         TanPaiMessage tanPaiMessage = new TanPaiMessage();
         tanPaiMessage.setUserId(socketUser.getId());
         tanPaiMessage.setPokes(userPoke.getPokes());
-        Integer paiXingCode = niuniuPlay.isNiuNiu(userPoke.getPokes());
+        Integer paiXingCode = niuniuPlay.isNiuNiu(userPoke.getPokes() ,niuniuRoomParameter.getPaiXing() ,niuniuRoomParameter.getRule()).getPaixing();
         tanPaiMessage.setPaiXing(paiXingCode);
         userPoke.setIsTanPai(Boolean.TRUE);
         ReturnMessage<TanPaiMessage> returnMessage = new ReturnMessage<>(tanPaiMessage ,10);

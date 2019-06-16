@@ -15,8 +15,14 @@ public class ReceiveMessage {
      * 2-抢庄消息
      * 3-闲家下注
      * 4-摊牌的消息
+     * 5-说话
      */
     private Integer messageCode;
+
+    /**
+     * 说话的对应码
+     */
+    private Integer shuoHuaCode;
 
 
     /**

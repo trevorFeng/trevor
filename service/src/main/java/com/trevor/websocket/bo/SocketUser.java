@@ -45,3 +45,4 @@ public class SocketUser {
      */
     private Integer score;
 }
+

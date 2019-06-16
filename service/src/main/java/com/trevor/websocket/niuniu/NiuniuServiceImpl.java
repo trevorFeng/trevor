@@ -3,14 +3,14 @@ package com.trevor.websocket.niuniu;
 import com.alibaba.fastjson.JSON;
 import com.trevor.bo.*;
 import com.trevor.dao.FriendManageMapper;
-import com.trevor.domain.RoomRecord;
+import com.trevor.domain.Room;
 import com.trevor.domain.User;
 import com.trevor.enums.FriendManageEnum;
 import com.trevor.enums.MessageCodeEnum;
 import com.trevor.enums.RoomTypeEnum;
 import com.trevor.enums.SpecialEnum;
 import com.trevor.play.NiuniuPlay;
-import com.trevor.service.RoomRecordCacheService;
+import com.trevor.service.RoomService;
 import com.trevor.service.createRoom.bo.NiuniuRoomParameter;
 import com.trevor.service.user.UserService;
 import com.trevor.util.WebsocketUtil;
@@ -21,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import javax.websocket.EncodeException;
 import javax.websocket.Session;
 import java.io.IOException;
 import java.util.List;
@@ -51,7 +50,7 @@ public class NiuniuServiceImpl implements NiuniuService {
     private Executor executor;
 
     @Resource
-    private RoomRecordCacheService roomRecordCacheService;
+    private RoomService roomService;
 
     @Resource
     private FriendManageMapper friendManageMapper;
@@ -72,7 +71,7 @@ public class NiuniuServiceImpl implements NiuniuService {
     @Override
     public ReturnMessage<SocketUser> onOpenCheck(String roomId ,User user) throws IOException {
         //查出房间配置
-        RoomRecord oneById = roomRecordCacheService.findOneById(Long.valueOf(roomId));
+        Room oneById = roomService.findOneById(Long.valueOf(roomId));
         if (oneById == null) {
             return new ReturnMessage<>(MessageCodeEnum.ROOM_NOT_EXIST);
         }
@@ -88,7 +87,7 @@ public class NiuniuServiceImpl implements NiuniuService {
             return this.isFriendManage(niuniuRoomParameter ,oneById , user,roomId);
         // 未开通
         }else {
-            return this.dealCanSee(roomId , user,niuniuRoomParameter);
+            return this.dealCanSee( user ,niuniuRoomParameter ,roomPokeMap.get(Long.valueOf(roomId)));
         }
     }
 
@@ -123,6 +122,7 @@ public class NiuniuServiceImpl implements NiuniuService {
                     try {
                         niuniuPlay.play(roomId);
                     } catch (Exception e) {
+                        e.printStackTrace();
                         log.error("roomId :" + roomId ,e.toString());
                         ReturnMessage<Long> message = new ReturnMessage<>(MessageCodeEnum.SYSTEM_ERROT);
                         //加读锁
@@ -187,8 +187,8 @@ public class NiuniuServiceImpl implements NiuniuService {
      */
     @Override
     public void dealTanPaiMessage(SocketUser socketUser ,Long roomId){
-        RoomRecord roomRecord = roomRecordCacheService.findOneById(roomId);
-        NiuniuRoomParameter niuniuRoomParameter = JSON.parseObject(roomRecord.getRoomConfig() ,NiuniuRoomParameter.class);
+        Room room = roomService.findOneById(roomId);
+        NiuniuRoomParameter niuniuRoomParameter = JSON.parseObject(room.getRoomConfig() ,NiuniuRoomParameter.class);
         RoomPoke roomPoke = roomPokeMap.get(roomId);
         UserPoke userPoke = getUserPoke(roomId ,socketUser);
         TanPaiMessage tanPaiMessage = new TanPaiMessage();
@@ -233,15 +233,15 @@ public class NiuniuServiceImpl implements NiuniuService {
      * @param roomId
      * @throws IOException
      */
-    private ReturnMessage<SocketUser> isFriendManage(NiuniuRoomParameter niuniuRoomParameter ,RoomRecord oneById ,
-                                                         User user ,String roomId) throws IOException {
+    private ReturnMessage<SocketUser> isFriendManage(NiuniuRoomParameter niuniuRoomParameter , Room oneById ,
+                                                     User user , String roomId) throws IOException {
         //配置仅限好友
         if (niuniuRoomParameter.getSpecial().contains(SpecialEnum.JUST_FRIENDS.getCode())) {
             return this.justFriends(niuniuRoomParameter ,oneById , user,roomId);
         }
         //未配置仅限好友
         else {
-            return this.dealCanSee(roomId , user,niuniuRoomParameter);
+            return this.dealCanSee(user ,niuniuRoomParameter ,roomPokeMap.get(Long.valueOf(roomId)));
         }
     }
 
@@ -253,33 +253,32 @@ public class NiuniuServiceImpl implements NiuniuService {
      * @param roomId
      * @throws IOException
      */
-    private ReturnMessage<SocketUser> justFriends(NiuniuRoomParameter niuniuRoomParameter , RoomRecord oneById ,
-                                                      User user, String roomId) throws IOException {
+    private ReturnMessage<SocketUser> justFriends(NiuniuRoomParameter niuniuRoomParameter , Room oneById ,
+                                                      User user, String roomId){
         Long count = friendManageMapper.countRoomAuthFriendAllow(oneById.getRoomAuth(), user.getId());
         //不是房主的好友
         if (Objects.equals(count ,0L)) {
             return new ReturnMessage<>(MessageCodeEnum.NOT_FRIEND);
         //是房主的好友
         }else {
-            return this.dealCanSee(roomId , user,niuniuRoomParameter);
+            return this.dealCanSee(user ,niuniuRoomParameter ,roomPokeMap.get(oneById.getId()));
         }
     }
 
     /**
      * 处理是否可以观战
-     * @param roomId
      * @param niuniuRoomParameter
      * @throws IOException
      */
-    private ReturnMessage<SocketUser> dealCanSee(String roomId , User user, NiuniuRoomParameter niuniuRoomParameter) throws IOException {
+    private ReturnMessage<SocketUser> dealCanSee(User user,
+                                                 NiuniuRoomParameter niuniuRoomParameter ,RoomPoke roomPoke){
         SocketUser socketUser = new SocketUser();
         socketUser.setId(user.getId());
         socketUser.setName(user.getAppName());
         socketUser.setPicture(user.getAppPictureUrl());
-        Set<Session> sessions = sessionsMap.get(Long.valueOf(roomId));
         //允许观战
         if (niuniuRoomParameter.getSpecial()!= null && niuniuRoomParameter.getSpecial().contains(SpecialEnum.CAN_SEE.getCode())) {
-            if (sessions.size() < RoomTypeEnum.getRoomNumByType(niuniuRoomParameter.getRoomType())) {
+            if (roomPoke.getRealWanJiaIds().size() < RoomTypeEnum.getRoomNumByType(niuniuRoomParameter.getRoomType())) {
                 socketUser.setIsGuanZhong(false);
                 socketUser.setIsChiGuaPeople(Boolean.FALSE);
             }else {
@@ -288,7 +287,7 @@ public class NiuniuServiceImpl implements NiuniuService {
             return new ReturnMessage<>(socketUser, 1);
             //不允许观战
         }else {
-            if (sessions.size() < RoomTypeEnum.getRoomNumByType(niuniuRoomParameter.getRoomType())) {
+            if (roomPoke.getRealWanJiaIds().size() < RoomTypeEnum.getRoomNumByType(niuniuRoomParameter.getRoomType())) {
                 socketUser.setIsGuanZhong(false);
                 socketUser.setIsChiGuaPeople(Boolean.FALSE);
                 return new ReturnMessage<>(socketUser, 1);

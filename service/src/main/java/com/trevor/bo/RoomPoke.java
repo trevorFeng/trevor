@@ -1,5 +1,6 @@
 package com.trevor.bo;
 
+import com.trevor.websocket.bo.SocketUser;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -29,6 +30,11 @@ public class RoomPoke implements Serializable {
      * 每一局的玩家的牌
      */
     private volatile List<UserPokesIndex> userPokes = new ArrayList<>(2<<4);
+
+    /**
+     * 真正打牌的人的集合，不管是不是已经关闭浏览器重新进来的人
+     */
+    private volatile List<Long> realWanJiaIds = new ArrayList<>(2<<4);
 
     /**
      * 玩家分数情况

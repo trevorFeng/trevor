@@ -33,7 +33,6 @@ import java.util.stream.Collectors;
  **/
 @ServerEndpoint(
         value = "/niuniu/{roomId}",
-        //configurator = NiuniuServerConfigurator.class,
         encoders= {MessageEncoder.class},
         decoders = {MessageDecoder.class}
         )
@@ -74,7 +73,6 @@ public class NiuniuServer {
 
     @OnOpen
     public void onOpen(Session session ,@PathParam("roomId") String roomId) throws IOException{
-        //throw new RuntimeException("sss");
         //设置最大空闲时间为45分钟
         session.setMaxIdleTimeout(1000 * 60 * 45);
         mySession = session;
@@ -85,37 +83,64 @@ public class NiuniuServer {
         String token = session.getRequestParameterMap().get(WebKeys.TOKEN).get(0);
         //token合法性检查
         User user = checkToken(token);
-
         Set<Session> sessions = sessionsMap.get(Long.valueOf(roomId));
         RoomPoke roomPoke = roomPokeMap.get(Long.valueOf(roomId));
         //加写锁
         roomPoke.getLock().writeLock().lock();
-        //检查是否有未删除的session,因为用户网络不好断开连接
-        removeUnUsedSession(sessions ,user);
-        //检查该用户是否可以连接
-        ReturnMessage<SocketUser> returnMessage = niuniuService.onOpenCheck(roomId ,user);
-        if (returnMessage.getMessageCode() > 0) {
-            log.info("用户id:" + user.getId() + "加入房间，房间id:" + roomId);
-            sessions.add(mySession);
+        //检查是否有未删除的session,因为用户网络不好而断开的连接，而session还存在于sessions中
+        Boolean isRepeat = Boolean.FALSE;
+        for (Session s : sessions) {
+            SocketUser socketUser = (SocketUser) s.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
+            if (socketUser != null && Objects.equals(socketUser.getId() ,user.getId())) {
+                log.info("有重复session，用户id:"+user.getId());
+                isRepeat = Boolean.TRUE;
+                s.getUserProperties().put("isRepeat" ,true);
+                s.close();
+                break;
+            }
         }
-        SocketUser socketUser = returnMessage.getData();
-        //不能进入房间
-        if (returnMessage.getMessageCode() < 0) {
-           WebsocketUtil.sendBasicMessage(mySession ,returnMessage);
-           roomPoke.getLock().writeLock().unlock();
-           mySession.close();
-        //可以进入房间
-        } else {
-            //将用户放入mySession中
-            mySession.getUserProperties().put(WebKeys.WEBSOCKET_USER_KEY, socketUser);
-            sendReadyMessage(roomPoke ,sessions ,socketUser);
-            roomPoke.getLock().writeLock().unlock();
+        //检查是否是真正的玩家退出浏览器后重新进入的玩家
+        if (!isRepeat && roomPoke.getRealWanJiaIds().contains(user.getId())) {
+            //给其他人发一个已经重新连接的消息
+            ReturnMessage<Object> returnMessage = new ReturnMessage<>(null ,21);
+            WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage);
+            //给自己基本信息，分数，手里的牌
+
         }
+       //网路断开而引发的重连
+        if (isRepeat) {
+            //检查该用户是否可以连接
+            ReturnMessage<SocketUser> returnMessage = niuniuService.onOpenCheck(roomId ,user);
+            if (returnMessage.getMessageCode() > 0) {
+                log.info("用户id:" + user.getId() + "加入房间，房间id:" + roomId);
+                sessions.add(mySession);
+            }
+        }else {
+            //检查该用户是否可以连接
+            ReturnMessage<SocketUser> returnMessage = niuniuService.onOpenCheck(roomId ,user);
+            if (returnMessage.getMessageCode() > 0) {
+                log.info("用户id:" + user.getId() + "加入房间，房间id:" + roomId);
+                sessions.add(mySession);
+            }
+            SocketUser socketUser = returnMessage.getData();
+            //不能进入房间
+            if (returnMessage.getMessageCode() < 0) {
+                WebsocketUtil.sendBasicMessage(mySession ,returnMessage);
+                roomPoke.getLock().writeLock().unlock();
+                mySession.close();
+                //可以进入房间
+            } else {
+                //将用户放入mySession中
+                mySession.getUserProperties().put(WebKeys.WEBSOCKET_USER_KEY, socketUser);
+                sendReadyMessage(roomPoke ,sessions ,socketUser);
+                roomPoke.getLock().writeLock().unlock();
+            }
+        }
+
     }
 
     @OnMessage
     public void onMessage(@PathParam("roomId") String roomId, ReceiveMessage receiveMessage) throws InterruptedException, EncodeException, IOException {
-        //throw new RuntimeException("sss");
         Integer messageCode = receiveMessage.getMessageCode();
         SocketUser socketUser = (SocketUser) mySession.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
         Long roomIdNum = Long.valueOf(roomId);
@@ -137,6 +162,7 @@ public class NiuniuServer {
      * 1.关闭浏览器调用此方法，断网不会调用
      * 2.断网的时候，浏览器发送ws请求，重新连上会发送消息过来
      * 3.@OnError注解标记的方法执行后会调用此方法
+     * 4.用户关闭浏览器应该给房间里的人发离线消息
      * @param roomId
      * @param session
      */
@@ -153,12 +179,21 @@ public class NiuniuServer {
         while (itrSession.hasNext()) {
             Session targetSession = itrSession.next();
             if (Objects.equals(targetSession ,session)) {
+                //是由于网络断开而重新发起的连接
+                if (session.getUserProperties().get("isRepeat") != null) {
+
+                }
+                //由于用户直接关闭浏览器而不正常的关闭
+                if (session.getUserProperties().get("unNormal") != null) {
+
+                }
                 SocketUser user = (SocketUser) targetSession.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
                 log.info("用户id:"+user.getId()+"断开连接，移除session");
                 itrSession.remove();
                 break;
             }
         }
+
         roomPoke.getLock().writeLock().unlock();
     }
 
@@ -171,7 +206,6 @@ public class NiuniuServer {
     public void onError(Throwable t){
         t.printStackTrace();
         log.error(t.toString());
-        System.out.println("sss");
     }
 
     /**
@@ -258,29 +292,4 @@ public class NiuniuServer {
         }
     }
 
-    /**
-     * 移除没有同id的用户session
-     * @param sessions
-     * @param user
-     */
-    private void removeUnUsedSession(Set<Session> sessions ,User user) throws IOException{
-        for (Session session : sessions) {
-            SocketUser socketUser = (SocketUser) session.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
-            if (socketUser != null && Objects.equals(socketUser.getId() ,user.getId())) {
-                log.info("有重复session，用户id:"+user.getId());
-                session.close();
-                break;
-            }
-        }
-//        Iterator<Session> itrSession = sessions.iterator();
-//        while (itrSession.hasNext()) {
-//            Session targetSession = itrSession.next();
-//            SocketUser socketUser = (SocketUser) targetSession.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
-//            if (socketUser != null && Objects.equals(socketUser.getId() ,user.getId())) {
-//                log.info("连接时移除session，用户id:"+user.getId());
-//                itrSession.remove();
-//                break;
-//            }
-//        }
-    }
 }

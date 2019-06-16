@@ -7,9 +7,9 @@ import com.trevor.bo.*;
 import com.trevor.dao.GameSituationMapper;
 import com.trevor.dao.RoomPokeInitMapper;
 import com.trevor.domain.GameSituation;
+import com.trevor.domain.Room;
 import com.trevor.domain.RoomPokeInit;
-import com.trevor.domain.RoomRecord;
-import com.trevor.service.RoomRecordCacheService;
+import com.trevor.service.RoomService;
 import com.trevor.service.createRoom.bo.NiuniuRoomParameter;
 import com.trevor.util.PokeUtil;
 import com.trevor.util.RandomUtils;
@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 public class NiuniuPlay {
 
     @Resource
-    private RoomRecordCacheService roomRecordCacheService;
+    private RoomService roomService;
 
     @Resource
     private GameSituationMapper gameSituationMapper;
@@ -48,8 +48,8 @@ public class NiuniuPlay {
 
     @Transactional(rollbackFor = Exception.class)
     public void play(Long roomId){
-        RoomRecord roomRecord = roomRecordCacheService.findOneById(roomId);
-        NiuniuRoomParameter niuniuRoomParameter = JSON.parseObject(roomRecord.getRoomConfig() ,NiuniuRoomParameter.class);
+        Room room = roomService.findOneById(roomId);
+        NiuniuRoomParameter niuniuRoomParameter = JSON.parseObject(room.getRoomConfig() ,NiuniuRoomParameter.class);
         RoomPoke roomPoke = roomPokeMap.get(roomId);
         Set<Session> sessions = sessionsMap.get(roomId);
         //检查目前是多少局，是否本房间结束
@@ -68,6 +68,11 @@ public class NiuniuPlay {
         countDown(sessions ,roomPokeMap.get(roomId));
         //选取庄家
         selectZhaungJia(roomPoke ,sessions ,userPokeList);
+        try {
+            Thread.sleep(2000);
+        }catch (Exception e) {
+            log.error(e.toString());
+        }
         //闲家下注倒计时
         countDown(sessions ,roomPokeMap.get(roomId));
         //再发一张牌
@@ -84,8 +89,12 @@ public class NiuniuPlay {
         roomPoke.setReadyNum(0);
         roomPoke.setRoomStatus(0);
         roomPoke.setIsReadyOver(false);
+        roomPoke.setRuningNum(roomPoke.getRuningNum() + 1);
+        //如果对局数结束，给所有人发消息，对局结束，如果没有结束则发个消息，继续开始
+
         //保存结果
         saveResult(roomId ,roomPoke ,userPokeList);
+
     }
 
     /**
@@ -468,19 +477,18 @@ public class NiuniuPlay {
             userPoke.setPokes(pokesList.get(j));
         }
         //给每个人发牌
+        //加读锁
+        roomPoke.getLock().readLock().lock();
         userPokeList.forEach(u -> {
             sessions.forEach(session -> {
                 SocketUser socketUser = (SocketUser) session.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
                 if (Objects.equals(u.getUserId() ,socketUser.getId())) {
                     ReturnMessage<List<String>> returnMessage3 = new ReturnMessage<>(u.getPokes().subList(0,4),4);
-
-                    //加读锁
-                    roomPoke.getLock().readLock().lock();
                     WebsocketUtil.sendBasicMessage(session ,returnMessage3);
-                    roomPoke.getLock().readLock().unlock();
                 }
             });
         });
+        roomPoke.getLock().readLock().unlock();
     }
 
     /**

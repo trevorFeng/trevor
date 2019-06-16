@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.trevor.dao.RoomRecordMapper">
+<mapper namespace="com.trevor.dao.RoomMapper">
 
     <!-- 插入一条记录并返回主键 -->
     <insert id="insertOne" useGeneratedKeys="true" keyProperty="id">
         insert into
-        `room_record`(`get_room_time` ,`room_auth` ,`state` ,`room_type` ,`room_config`)
-        values (#{roomRecord.getRoomTime} ,#{roomRecord.roomAuth} ,#{roomRecord.state} ,#{roomRecord.roomType} ,#{roomRecord.roomConfig})
+        `room`(`get_room_time` ,`room_auth` ,`state` ,`room_type` ,`room_config`)
+        values (#{room.getRoomTime} ,#{room.roomAuth} ,#{room.state} ,#{room.roomType} ,#{room.roomConfig})
     </insert>
 
     <update id="updateState_0">
-        update `room_record`
+        update `room`
         set
         state=0
         WHERE
@@ -21,7 +21,7 @@
     </update>
 
     <!-- 根据主键查询一条记录 -->
-    <select id="findOneById" resultType="com.trevor.domain.RoomRecord">
+    <select id="findOneById" resultType="com.trevor.domain.Room">
         select
         id id,
         get_room_time getRoomTime,
@@ -30,7 +30,7 @@
         room_type roomType,
         room_config roomConfig
         from
-        `room_record`
+        `room`
         where
         id=#{id}
     </select>
@@ -38,7 +38,7 @@
         select
         room_auth
         from
-        `room_record`
+        `room`
         where
         id=#{roomId}
     </select>
@@ -46,19 +46,19 @@
         select
         id id
         from
-        `room_record`
+        `room`
         where
         get_room_time &lt; #{time}
         and
         state = 1
     </select>
-    <select id="findByIds" resultType="com.trevor.domain.RoomRecord">
+    <select id="findByIds" resultType="com.trevor.domain.Room">
         select
         id id,
         room_auth roomAuth,
         room_config roomConfig
         from
-        `room_record`
+        `room`
         where
         id in
         <foreach collection="ids" item="id"  open="(" separator="," close=")">

@@ -25,6 +25,10 @@ public class ReturnMessage<T> {
      * 8-给别人发抢庄的消息
      * 9-给被人发闲家下注的消息
      * 10-摊牌消息
+     *
+     * 20-关闭浏览器自己重新进来的消息
+     * 21-关闭浏览器别人重新进来的消息
+     *
      */
     private Integer messageCode;
 

@@ -8,7 +8,7 @@ import com.trevor.enums.MessageCodeEnum;
 import com.trevor.dao.FriendManageMapper;
 import com.trevor.domain.FriendsManage;
 import com.trevor.domain.User;
-import com.trevor.service.RoomRecordCacheService;
+import com.trevor.service.RoomService;
 import com.trevor.service.user.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -37,7 +37,7 @@ public class FriendManagerServiceImpl implements FriendManagerService {
     private UserService userService;
 
     @Resource
-    private RoomRecordCacheService roomRecordCacheService;
+    private RoomService roomService;
 
     /**
      * 查询好友（申请通过和未通过的）
@@ -73,7 +73,7 @@ public class FriendManagerServiceImpl implements FriendManagerService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public JsonEntity<Object> applyFriend(Long roomId ,Long applyUserId) {
-        Long roomAuthId = roomRecordCacheService.findRoomAuthIdByRoomId(roomId);
+        Long roomAuthId = roomService.findRoomAuthIdByRoomId(roomId);
         friendManageMapper.applyFriend(roomAuthId ,applyUserId);
         return ResponseHelper.createInstanceWithOutData(MessageCodeEnum.HANDLER_SUCCESS);
     }

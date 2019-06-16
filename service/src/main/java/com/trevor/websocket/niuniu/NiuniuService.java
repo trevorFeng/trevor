@@ -1,5 +1,6 @@
 package com.trevor.websocket.niuniu;
 
+import com.trevor.bo.RoomPoke;
 import com.trevor.domain.User;
 
 import java.io.IOException;

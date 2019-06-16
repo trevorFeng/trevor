@@ -10,7 +10,7 @@ import lombok.Data;
  * @date 2019/3/4 14:24
  */
 @Data
-public class RoomRecord {
+public class Room {
 
     /**
      * 主键id,房间编号,从10000开始

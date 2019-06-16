@@ -1,5 +1,6 @@
 package com.trevor.bo;
 
+import com.trevor.config.RoomConfig;
 import com.trevor.websocket.bo.SocketUser;
 import lombok.Data;
 
@@ -13,7 +14,7 @@ import java.util.List;
 public class ReadyReturnMessage {
 
     /**
-     * 房间状态，0-在打牌中(不可以参与本局打牌)，（可以参与本局打牌）1-在等人打牌
+     * 房间状态，0-在打牌中(不可以参与本局打牌)，1-在等人打牌（可以参与本局打牌）
      */
     private Integer roomStatus;
 

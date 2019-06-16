@@ -7,9 +7,9 @@ import com.trevor.bo.RoomPoke;
 import com.trevor.dao.CardConsumRecordMapper;
 import com.trevor.dao.PersonalCardMapper;
 import com.trevor.dao.RoomPokeInitMapper;
-import com.trevor.dao.RoomRecordMapper;
+import com.trevor.dao.RoomMapper;
 import com.trevor.domain.PersonalCard;
-import com.trevor.domain.RoomRecord;
+import com.trevor.domain.Room;
 import com.trevor.service.createRoom.bo.NiuniuRoomParameter;
 import com.trevor.util.MapUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 /**
@@ -37,7 +36,7 @@ public class TaskServiceImpl implements TaskService{
     private RoomPokeInitMapper roomPokeInitMapper;
 
     @Resource
-    private RoomRecordMapper roomRecordMapper;
+    private RoomMapper roomMapper;
 
     @Resource
     private CardConsumRecordMapper cardConsumRecordMapper;
@@ -57,7 +56,7 @@ public class TaskServiceImpl implements TaskService{
         Long currentTime = System.currentTimeMillis();
         Long halfHourBefore = currentTime - 1000 * 60 * 30;
         //超过半小时未使用的房间ids
-        List<Long> overDayRoomRecordIds = roomRecordMapper.findByGetRoomTimeAndState_1(halfHourBefore);
+        List<Long> overDayRoomRecordIds = roomMapper.findByGetRoomTimeAndState_1(halfHourBefore);
         log.info("超过半小时未使用的房间ids：" + overDayRoomRecordIds.toString() );
         if (overDayRoomRecordIds.isEmpty()) {
             return;
@@ -74,19 +73,19 @@ public class TaskServiceImpl implements TaskService{
         //删除sessionsMap的Sessions
         MapUtil.removeEntries(sessionsMap ,overDayAndStatus_0RoomRecordIds);
         //关闭房间,将状态置位0
-        roomRecordMapper.updateState_0(overDayAndStatus_0RoomRecordIds);
+        roomMapper.updateState_0(overDayAndStatus_0RoomRecordIds);
         //将roomPokeInit的status置为3
         roomPokeInitMapper.updateStatus_3(overDayRoomRecordIds);
         //返回房卡
-        List<RoomRecord> roomRecords = roomRecordMapper.findByIds(overDayAndStatus_0RoomRecordIds);
+        List<Room> rooms = roomMapper.findByIds(overDayAndStatus_0RoomRecordIds);
         //删除房卡消费记录
         cardConsumRecordMapper.deleteByRoomRecordIds(overDayAndStatus_0RoomRecordIds);
         //返回房卡
-        List<Long> userIds = roomRecords.stream().map(r -> r.getRoomAuth()).collect(Collectors.toList());
+        List<Long> userIds = rooms.stream().map(r -> r.getRoomAuth()).collect(Collectors.toList());
         List<PersonalCard> personalCards = personalCardMapper.findByUserIds(userIds);
         Map<Long, Integer> personalCardMap = personalCards.stream().collect(Collectors.toMap(PersonalCard::getUserId, PersonalCard::getRoomCardNum));
         List<ReturnCard> returnCards = Lists.newArrayList();
-        roomRecords.forEach(roomRecord -> {
+        rooms.forEach(roomRecord -> {
             ReturnCard returnCard = new ReturnCard();
             returnCard.setUserId(roomRecord.getRoomAuth());
             NiuniuRoomParameter niuniuRoomParameter = JSON.parseObject(roomRecord.getRoomConfig() ,NiuniuRoomParameter.class);

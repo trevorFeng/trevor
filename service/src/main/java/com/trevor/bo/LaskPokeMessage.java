@@ -9,7 +9,6 @@ import lombok.Data;
 @Data
 public class LaskPokeMessage {
 
-
     private String lastPoke;
 
     private Integer paiXing;

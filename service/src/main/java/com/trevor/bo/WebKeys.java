@@ -14,7 +14,9 @@ public class WebKeys {
      */
     public static final String SESSION_USER_KEY = "sessionUser";
 
-    public static final String WEBSOCKET_USER_KEY = "webSocketUser";
+    public static final String WEBSOCKET_USER_ID = "userId";
+
+    public static final String SESSION_USER_STATUS = "status";
 
     /**
      * token

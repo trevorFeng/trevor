@@ -90,8 +90,8 @@ public class NiuniuServer {
         //检查是否有未删除的session,因为用户网络不好而断开的连接，而session还存在于sessions中
         Boolean isRepeat = Boolean.FALSE;
         for (Session s : sessions) {
-            SocketUser socketUser = (SocketUser) s.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
-            if (socketUser != null && Objects.equals(socketUser.getId() ,user.getId())) {
+            Long userId = (Long) s.getUserProperties().get(WebKeys.WEBSOCKET_USER_ID);
+            if (userId != null && Objects.equals(userId ,user.getId())) {
                 log.info("有重复session，用户id:"+user.getId());
                 isRepeat = Boolean.TRUE;
                 s.getUserProperties().put("isRepeat" ,true);
@@ -105,7 +105,9 @@ public class NiuniuServer {
             ReturnMessage<Object> returnMessage = new ReturnMessage<>(null ,21);
             WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage);
             //给自己基本信息，分数，手里的牌
+            if (sessions.isEmpty()) {
 
+            }
         }
        //网路断开而引发的重连
         if (isRepeat) {
@@ -131,7 +133,7 @@ public class NiuniuServer {
                 //可以进入房间
             } else {
                 //将用户放入mySession中
-                mySession.getUserProperties().put(WebKeys.WEBSOCKET_USER_KEY, socketUser);
+                mySession.getUserProperties().put(WebKeys.WEBSOCKET_USER_ID, socketUser.getId());
                 sendReadyMessage(roomPoke ,sessions ,socketUser);
                 roomPoke.getLock().writeLock().unlock();
             }
@@ -142,16 +144,16 @@ public class NiuniuServer {
     @OnMessage
     public void onMessage(@PathParam("roomId") String roomId, ReceiveMessage receiveMessage) throws InterruptedException, EncodeException, IOException {
         Integer messageCode = receiveMessage.getMessageCode();
-        SocketUser socketUser = (SocketUser) mySession.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
+        Long userId = (Long) mySession.getUserProperties().get(WebKeys.WEBSOCKET_USER_ID);
         Long roomIdNum = Long.valueOf(roomId);
         if (Objects.equals(messageCode , 1)) {
-            niuniuService.dealReadyMessage( socketUser,roomIdNum);
+            niuniuService.dealReadyMessage( userId,roomIdNum);
         }else if (Objects.equals(messageCode ,2)) {
-            niuniuService.dealQiangZhuangMessage(socketUser ,roomIdNum ,receiveMessage);
+            niuniuService.dealQiangZhuangMessage(userId ,roomIdNum ,receiveMessage);
         }else if (Objects.equals(messageCode ,3)) {
-            niuniuService.dealXianJiaXiaZhuMessage(mySession ,socketUser ,roomIdNum ,receiveMessage);
+            niuniuService.dealXianJiaXiaZhuMessage(mySession ,userId ,roomIdNum ,receiveMessage);
         }else if (Objects.equals(messageCode ,4)) {
-            niuniuService.dealTanPaiMessage(socketUser ,roomIdNum);
+            niuniuService.dealTanPaiMessage(userId ,roomIdNum);
         }else if (Objects.equals(messageCode ,200)) {
             ReturnMessage<XianJiaXiaZhuMessage> returnMessage = new ReturnMessage<>(null ,200);
             mySession.getAsyncRemote().sendObject(returnMessage);
@@ -187,7 +189,7 @@ public class NiuniuServer {
                 if (session.getUserProperties().get("unNormal") != null) {
 
                 }
-                SocketUser user = (SocketUser) targetSession.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
+                SocketUser user = (SocketUser) targetSession.getUserProperties().get(WebKeys.WEBSOCKET_USER_ID);
                 log.info("用户id:"+user.getId()+"断开连接，移除session");
                 itrSession.remove();
                 break;
@@ -264,7 +266,7 @@ public class NiuniuServer {
         List<UserScore> userScores = roomPoke.getUserScores();
         Map<Long ,Integer> scoreMap = userScores.stream().collect(Collectors.toMap(UserScore::getUserId ,UserScore::getScore));
         for (Session s : sessions) {
-            SocketUser su = (SocketUser) s.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
+            SocketUser su = (SocketUser) s.getUserProperties().get(WebKeys.WEBSOCKET_USER_ID);
             UserPoke userPoke = getUserPoke(roomPoke ,su);
             if (userPoke == null) {
                 su.setIsReady(Boolean.FALSE);
@@ -279,7 +281,7 @@ public class NiuniuServer {
         WebsocketUtil.sendBasicMessage(mySession, myReturnMessage);
         //给别人发自己的信息
         for (Session s : sessions) {
-            SocketUser su = (SocketUser) s.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
+            SocketUser su = (SocketUser) s.getUserProperties().get(WebKeys.WEBSOCKET_USER_ID);
             socketUser.setScore(0);
             socketUser.setIsReady(false);
             if (!Objects.equals(su.getId() ,socketUser.getId())) {

@@ -32,24 +32,22 @@ public interface NiuniuService {
      * 根据准备的消息
      * @return
      */
-    void dealReadyMessage(SocketUser socketUser ,Long roomId) throws InterruptedException, EncodeException, IOException;
+    void dealReadyMessage(Long userId ,Long roomId) throws InterruptedException, EncodeException, IOException;
 
     /**
      * 处理抢庄的消息
-     * @param socketUser
      * @param roomId
      * @param receiveMessage
      */
-    void dealQiangZhuangMessage(SocketUser socketUser , Long roomId , ReceiveMessage receiveMessage) throws IOException, EncodeException;
+    void dealQiangZhuangMessage(Long userId , Long roomId , ReceiveMessage receiveMessage) throws IOException, EncodeException;
 
 
     /**
      * 处理闲家下注的消息
-     * @param socketUser
      * @param roomId
      * @param receiveMessage
      */
-    void dealXianJiaXiaZhuMessage(Session session ,SocketUser socketUser , Long roomId , ReceiveMessage receiveMessage) throws IOException, EncodeException;
+    void dealXianJiaXiaZhuMessage(Session session ,Long userId , Long roomId , ReceiveMessage receiveMessage) throws IOException, EncodeException;
 
-    void dealTanPaiMessage(SocketUser socketUser , Long roomId) throws IOException, EncodeException;
+    void dealTanPaiMessage(Long userId , Long roomId) throws IOException, EncodeException;
 }

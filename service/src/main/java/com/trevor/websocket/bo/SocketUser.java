@@ -41,6 +41,11 @@ public class SocketUser {
     private Boolean isReady;
 
     /**
+     * 是否是第一次进入的玩家
+     */
+    private Boolean isNewUser;
+
+    /**
      * 分数
      */
     private Integer score;

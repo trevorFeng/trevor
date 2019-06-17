@@ -3,7 +3,10 @@ package com.trevor.web.websocket.niuniu;
 import com.google.common.collect.Lists;
 import com.trevor.BizException;
 import com.trevor.bo.*;
+import com.trevor.domain.Room;
 import com.trevor.domain.User;
+import com.trevor.enums.MessageCodeEnum;
+import com.trevor.service.RoomService;
 import com.trevor.service.user.UserService;
 import com.trevor.util.TokenUtil;
 import com.trevor.util.WebsocketUtil;
@@ -69,6 +72,13 @@ public class NiuniuServer {
         NiuniuServer.userService = userService;
     }
 
+    private static RoomService roomService;
+
+    @Resource
+    public void setRoomService (RoomService roomService) {
+        NiuniuServer.roomService = roomService;
+    }
+
     private Session mySession;
 
     @OnOpen
@@ -85,60 +95,112 @@ public class NiuniuServer {
         User user = checkToken(token);
         Set<Session> sessions = sessionsMap.get(Long.valueOf(roomId));
         RoomPoke roomPoke = roomPokeMap.get(Long.valueOf(roomId));
+        //查出房间配置
+        Room oneById = roomService.findOneById(Long.valueOf(roomId));
+        if (oneById == null) {
+            ReturnMessage<String> returnMessage = new ReturnMessage<>("房间不存在" ,-1);
+            WebsocketUtil.sendBasicMessage(session ,returnMessage);
+            return;
+        }
+        //房间已关闭
+        if (Objects.equals(oneById.getState() ,0)) {
+            ReturnMessage<String> returnMessage = new ReturnMessage<>("房间已关闭" ,-1);
+            WebsocketUtil.sendBasicMessage(session ,returnMessage);
+            return;
+        }
         //加写锁
         roomPoke.getLock().writeLock().lock();
+        List<Long> realWanJiaIds = roomPoke.getRealWanJiaIds();
+        //是真正的玩家
+        if (realWanJiaIds.contains(user.getId())) {
+            //检查是否是因为用户网络不好而断开的连接而引发的重连
+            Boolean isRepeatUserId = checkIsRepeatConnection(sessions ,user);
+            if (isRepeatUserId) {
+                //todo 给玩家发送游戏状态消息和本人的信息
+
+            //是由于关闭浏览器而退出的玩家
+            }else {
+                //todo 给其他玩家发送重新进来的消息，给自己发送游戏状态和本人的信息
+            }
+        //是观众或者第一次进来的玩家
+        }else {
+            //todo
+        }
+
+
+
         //检查是否有未删除的session,因为用户网络不好而断开的连接，而session还存在于sessions中
-        Boolean isRepeat = Boolean.FALSE;
+
+
+        //检查是否是真正的玩家退出浏览器后重新进入的玩家
+
+//        if (!isRepeatUserId && realWanJiaIds.contains(user.getId())) {
+//            //给其他人发一个已经重新连接的消息
+//            ReturnMessage<Object> returnMessage = new ReturnMessage<>(null ,21);
+//            WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage);
+//            //给自己基本信息，分数，手里的牌
+//            if (sessions.isEmpty()) {
+//
+//            }
+//        }
+//        //第一次进来或者是观众
+//        if (!realWanJiaIds.contains(user.getId())) {
+//
+//        }
+//
+//        //网路断开而引发的重连
+//        if (isRepeatUserId) {
+//            //检查该用户是否可以连接
+//            ReturnMessage<SocketUser> returnMessage = niuniuService.onOpenCheck(roomId ,user);
+//            if (returnMessage.getMessageCode() > 0) {
+//                log.info("用户id:" + user.getId() + "加入房间，房间id:" + roomId);
+//                sessions.add(mySession);
+//            }
+//        }else {
+//            //检查该用户是否可以连接
+//            ReturnMessage<SocketUser> returnMessage = niuniuService.onOpenCheck(roomId ,user);
+//            if (returnMessage.getMessageCode() > 0) {
+//                log.info("用户id:" + user.getId() + "加入房间，房间id:" + roomId);
+//                sessions.add(mySession);
+//            }
+//            SocketUser socketUser = returnMessage.getData();
+//            //不能进入房间
+//            if (returnMessage.getMessageCode() < 0) {
+//                WebsocketUtil.sendBasicMessage(mySession ,returnMessage);
+//                roomPoke.getLock().writeLock().unlock();
+//                mySession.close();
+//                //可以进入房间
+//            } else {
+//                //将用户放入mySession中
+//                mySession.getUserProperties().put(WebKeys.WEBSOCKET_USER_ID, socketUser.getId());
+//                sendReadyMessage(roomPoke ,sessions ,socketUser);
+//                roomPoke.getLock().writeLock().unlock();
+//            }
+//        }
+
+    }
+
+    /**
+     * 检查是否是因为用户网络不好而断开的连接而引发的重连,是的话就关闭连接
+     * @param sessions
+     * @param user
+     * @return
+     * @throws IOException
+     */
+    private Boolean checkIsRepeatConnection(Set<Session> sessions ,User user) throws IOException {
+        Boolean isRepeatUserId = Boolean.FALSE;
         for (Session s : sessions) {
             Long userId = (Long) s.getUserProperties().get(WebKeys.WEBSOCKET_USER_ID);
             if (userId != null && Objects.equals(userId ,user.getId())) {
                 log.info("有重复session，用户id:"+user.getId());
-                isRepeat = Boolean.TRUE;
+                isRepeatUserId = Boolean.TRUE;
+                //记一个重复userId的标记，在onclose注解标记的方法上用
                 s.getUserProperties().put("isRepeat" ,true);
                 s.close();
                 break;
             }
         }
-        //检查是否是真正的玩家退出浏览器后重新进入的玩家
-        if (!isRepeat && roomPoke.getRealWanJiaIds().contains(user.getId())) {
-            //给其他人发一个已经重新连接的消息
-            ReturnMessage<Object> returnMessage = new ReturnMessage<>(null ,21);
-            WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage);
-            //给自己基本信息，分数，手里的牌
-            if (sessions.isEmpty()) {
-
-            }
-        }
-       //网路断开而引发的重连
-        if (isRepeat) {
-            //检查该用户是否可以连接
-            ReturnMessage<SocketUser> returnMessage = niuniuService.onOpenCheck(roomId ,user);
-            if (returnMessage.getMessageCode() > 0) {
-                log.info("用户id:" + user.getId() + "加入房间，房间id:" + roomId);
-                sessions.add(mySession);
-            }
-        }else {
-            //检查该用户是否可以连接
-            ReturnMessage<SocketUser> returnMessage = niuniuService.onOpenCheck(roomId ,user);
-            if (returnMessage.getMessageCode() > 0) {
-                log.info("用户id:" + user.getId() + "加入房间，房间id:" + roomId);
-                sessions.add(mySession);
-            }
-            SocketUser socketUser = returnMessage.getData();
-            //不能进入房间
-            if (returnMessage.getMessageCode() < 0) {
-                WebsocketUtil.sendBasicMessage(mySession ,returnMessage);
-                roomPoke.getLock().writeLock().unlock();
-                mySession.close();
-                //可以进入房间
-            } else {
-                //将用户放入mySession中
-                mySession.getUserProperties().put(WebKeys.WEBSOCKET_USER_ID, socketUser.getId());
-                sendReadyMessage(roomPoke ,sessions ,socketUser);
-                roomPoke.getLock().writeLock().unlock();
-            }
-        }
-
+        return isRepeatUserId;
     }
 
     @OnMessage
@@ -178,24 +240,36 @@ public class NiuniuServer {
         //加写锁
         roomPoke.getLock().writeLock().lock();
         Iterator<Session> itrSession = sessions.iterator();
+        Long userId = 0L;
+        Boolean isNormalClose = Boolean.TRUE;
         while (itrSession.hasNext()) {
             Session targetSession = itrSession.next();
             if (Objects.equals(targetSession ,session)) {
-                //是由于网络断开而重新发起的连接
+                userId = (Long) targetSession.getUserProperties().get(WebKeys.WEBSOCKET_USER_ID);
+                //是由于网络断开而重新发起的连接，直接移除掉
                 if (session.getUserProperties().get("isRepeat") != null) {
-
+                    log.info("重复session，用户id:"+userId+"断开连接，移除session");
+                    itrSession.remove();
+                    break;
                 }
-                //由于用户直接关闭浏览器而不正常的关闭
-                if (session.getUserProperties().get("unNormal") != null) {
-
+                //由于用户直接关闭浏览器而不正常的关闭，正常关闭的isNormalClose的值为true,给所有的玩家发消息该玩家断开
+                isNormalClose = session.getUserProperties().get("isNormalClose") == null ? Boolean.FALSE : Boolean.TRUE;
+                if (!isNormalClose) {
+                    log.info("关闭浏览器，不正常断开，用户id:"+userId+"断开连接，移除session");
+                    itrSession.remove();
+                    break;
+                }else {
+                    log.info("正常断开，用户id:"+userId+"断开连接，移除session");
+                    itrSession.remove();
+                    break;
                 }
-                SocketUser user = (SocketUser) targetSession.getUserProperties().get(WebKeys.WEBSOCKET_USER_ID);
-                log.info("用户id:"+user.getId()+"断开连接，移除session");
-                itrSession.remove();
-                break;
             }
         }
-
+        //给所有的人发消息，该玩家已经断开
+        if (!isNormalClose) {
+            ReturnMessage<Long> returnMessage = new ReturnMessage<>(userId ,22);
+            WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage);
+        }
         roomPoke.getLock().writeLock().unlock();
     }
 

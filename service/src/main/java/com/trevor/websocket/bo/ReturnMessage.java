@@ -13,7 +13,7 @@ public class ReturnMessage<T> {
 
     /**
      * 消息类型,负数为错误
-     * -1-系统发生错误
+     * -1-错误,data为错误信息(string)
      * 0-自己加入房间的消息
      * 1-别人加入房间的消息
      * 2-用户准备
@@ -28,6 +28,7 @@ public class ReturnMessage<T> {
      *
      * 20-关闭浏览器自己重新进来的消息
      * 21-关闭浏览器别人重新进来的消息
+     * 22-别的玩家掉线（关闭浏览器）的消息 ,data为玩家的id
      *
      */
     private Integer messageCode;

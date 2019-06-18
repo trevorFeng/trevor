@@ -5,10 +5,7 @@ import com.trevor.bo.*;
 import com.trevor.dao.FriendManageMapper;
 import com.trevor.domain.Room;
 import com.trevor.domain.User;
-import com.trevor.enums.FriendManageEnum;
-import com.trevor.enums.MessageCodeEnum;
-import com.trevor.enums.RoomTypeEnum;
-import com.trevor.enums.SpecialEnum;
+import com.trevor.enums.*;
 import com.trevor.play.NiuniuPlay;
 import com.trevor.service.RoomService;
 import com.trevor.service.createRoom.bo.NiuniuRoomParameter;
@@ -23,10 +20,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import javax.websocket.Session;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
@@ -65,29 +59,20 @@ public class NiuniuServiceImpl implements NiuniuService {
 
     /**
      * 在websocket连接时检查房间是否存在以及房间人数是否已满
-     * @param roomId
+     * @param room
      * @return
      */
     @Override
-    public ReturnMessage<SocketUser> onOpenCheck(String roomId ,User user) throws IOException {
-        //查出房间配置
-        Room oneById = roomService.findOneById(Long.valueOf(roomId));
-        if (oneById == null) {
-            return new ReturnMessage<>(MessageCodeEnum.ROOM_NOT_EXIST);
-        }
-        //房间已关闭
-        if (Objects.equals(oneById.getState() ,0)) {
-            return new ReturnMessage<>(MessageCodeEnum.ROOM_CLOSE);
-        }
-        NiuniuRoomParameter niuniuRoomParameter = JSON.parseObject(oneById.getRoomConfig() ,NiuniuRoomParameter.class);
+    public ReturnMessage<SocketUser> onOpenCheck(Room room ,User user) throws IOException {
+        NiuniuRoomParameter niuniuRoomParameter = JSON.parseObject(room.getRoomConfig() ,NiuniuRoomParameter.class);
         //房主是否开启好友管理功能
-        Boolean isFriendManage = Objects.equals(userService.isFriendManage(oneById.getRoomAuth()) , FriendManageEnum.YES.getCode());
+        Boolean isFriendManage = Objects.equals(userService.isFriendManage(room.getRoomAuth()) , FriendManageEnum.YES.getCode());
         //开通
           if (isFriendManage) {
-            return this.isFriendManage(niuniuRoomParameter ,oneById , user,roomId);
+            return this.isFriendManage(niuniuRoomParameter ,room , user ,room.getId().toString());
         // 未开通
         }else {
-            return this.dealCanSee( user ,niuniuRoomParameter ,roomPokeMap.get(Long.valueOf(roomId)));
+            return this.dealCanSee( user ,niuniuRoomParameter ,roomPokeMap.get(room.getId()));
         }
     }
 
@@ -96,10 +81,19 @@ public class NiuniuServiceImpl implements NiuniuService {
      * @return
      */
     @Override
-    public void dealReadyMessage(Long userId ,Long roomId){
+    public void dealReadyMessage(Session session ,Long userId ,Long roomId){
         RoomPoke roomPoke = roomPokeMap.get(roomId);
         //是否准备结束
         if (Objects.equals(roomPoke.getIsReadyOver() ,true)) {
+            ReturnMessage<String> returnMessage = new ReturnMessage<>("准备已经结束" ,-1);
+            WebsocketUtil.sendBasicMessage(session ,returnMessage);
+            return;
+        }
+        //是否是玩家
+        Optional<RealWanJiaInfo> first = roomPoke.getRealWanJias().stream().filter(r -> Objects.equals(r.getId(), userId)).findFirst();
+        if (!first.isPresent()) {
+            ReturnMessage<String> returnMessage = new ReturnMessage<>("你不能准备" ,-1);
+            WebsocketUtil.sendBasicMessage(session ,returnMessage);
             return;
         }
         Set<Session> sessions = sessionsMap.get(roomId);
@@ -107,6 +101,8 @@ public class NiuniuServiceImpl implements NiuniuService {
         ReturnMessage<Long> returnMessage = new ReturnMessage<>(userId ,2);
         //加读锁
         roomPoke.getLock().readLock().lock();
+        //改变realWanJia的值
+        roomPoke.getRealWanJias().stream().filter(r -> Objects.equals(r.getId() ,userId)).findFirst().get().setIsReady(Boolean.TRUE);
         WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage);
         roomPoke.getLock().readLock().unlock();
 
@@ -116,7 +112,6 @@ public class NiuniuServiceImpl implements NiuniuService {
             initReadyMessage(roomPoke ,userId);
             //是否准备的人数为两人，是则开始自动打牌
             if (Objects.equals(roomPoke.getReadyNum() ,2)) {
-                roomPoke.setRoomStatus(1);
                 executor.execute(() -> {
                     try {
                         niuniuPlay.play(roomId);
@@ -275,7 +270,7 @@ public class NiuniuServiceImpl implements NiuniuService {
         socketUser.setPicture(user.getAppPictureUrl());
         //允许观战
         if (niuniuRoomParameter.getSpecial()!= null && niuniuRoomParameter.getSpecial().contains(SpecialEnum.CAN_SEE.getCode())) {
-            if (roomPoke.getRealWanJiaIds().size() < RoomTypeEnum.getRoomNumByType(niuniuRoomParameter.getRoomType())) {
+            if (roomPoke.getRealWanJias().size() < RoomTypeEnum.getRoomNumByType(niuniuRoomParameter.getRoomType())) {
                 socketUser.setIsGuanZhong(false);
                 socketUser.setIsChiGuaPeople(Boolean.FALSE);
             }else {
@@ -284,7 +279,7 @@ public class NiuniuServiceImpl implements NiuniuService {
             return new ReturnMessage<>(socketUser, 1);
             //不允许观战
         }else {
-            if (roomPoke.getRealWanJiaIds().size() < RoomTypeEnum.getRoomNumByType(niuniuRoomParameter.getRoomType())) {
+            if (roomPoke.getRealWanJias().size() < RoomTypeEnum.getRoomNumByType(niuniuRoomParameter.getRoomType())) {
                 socketUser.setIsGuanZhong(false);
                 socketUser.setIsChiGuaPeople(Boolean.FALSE);
                 return new ReturnMessage<>(socketUser, 1);

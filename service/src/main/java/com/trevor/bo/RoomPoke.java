@@ -34,7 +34,7 @@ public class RoomPoke implements Serializable {
     /**
      * 真正打牌的人的集合，不管是不是已经关闭浏览器重新进来的人
      */
-    private volatile List<Long> realWanJiaIds = new ArrayList<>(2<<4);
+    private volatile List<RealWanJiaInfo> realWanJias = new ArrayList<>(2<<4);
 
     /**
      * 玩家分数情况
@@ -50,7 +50,6 @@ public class RoomPoke implements Serializable {
      * 总局数
      */
     private Integer totalNum;
-
 
     /**
      * 是否准备完毕
@@ -68,9 +67,9 @@ public class RoomPoke implements Serializable {
     private volatile Integer readyNum = 0;
 
     /**
-     * 房间状态，0-在打牌中(可以参与本局打牌)，（不可以参与本局打牌）1-在等人打牌
+     * 游戏状态
      */
-    private volatile Integer roomStatus;
+    private volatile Integer gameStatus;
 
 
 }

@@ -1,11 +1,11 @@
 package com.trevor.enums;
 
-public enum SessionStatusEnum {
+public enum GameStatusEnum {
 
     /**
      * 可以准备
      */
-    BEFORE_READY(1 ,"准备倒计时前"),
+    BEFORE_READY(1 ,"准备的倒计时前"),
 
     BEFORE_FAPAI_4(2 ,"发4张牌前"),
 
@@ -17,9 +17,9 @@ public enum SessionStatusEnum {
 
     BEFORE_LAST_POKE(6 ,"再发一张牌前"),
 
-    BEFORE_TABPAI_COUNTDOWN(4 ,"摊牌倒计时前"),
+    BEFORE_TABPAI_COUNTDOWN(7 ,"摊牌倒计时前"),
 
-    BEFORE_CALRESULT(5,"给玩家发返回结果前");
+    BEFORE_CALRESULT(8,"给玩家发返回结果前");
 
 
 
@@ -28,8 +28,16 @@ public enum SessionStatusEnum {
 
     private String desc;
 
-    SessionStatusEnum(Integer code ,String desc){
+    GameStatusEnum(Integer code , String desc){
         this.code = code;
         this.desc = desc;
+    }
+
+    public Integer getCode() {
+        return code;
+    }
+
+    public String getDesc() {
+        return desc;
     }
 }

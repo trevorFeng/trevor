@@ -16,7 +16,9 @@ public class WebKeys {
 
     public static final String WEBSOCKET_USER_ID = "userId";
 
-    public static final String SESSION_USER_STATUS = "status";
+    public static final String WEBSOCKET_IS_CHIGUA = "isChiGuaPeople";
+
+    public static final String WEBSOCKET_USER_STATUS = "status";
 
     /**
      * token

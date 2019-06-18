@@ -1,6 +1,7 @@
 package com.trevor.websocket.niuniu;
 
 import com.trevor.bo.RoomPoke;
+import com.trevor.domain.Room;
 import com.trevor.domain.User;
 
 import java.io.IOException;
@@ -23,16 +24,16 @@ public interface NiuniuService {
 
     /**
      * 在websocket连接时检查房间是否存在以及房间人数是否已满
-     * @param roomId
+     * @param room
      * @return
      */
-    ReturnMessage<SocketUser> onOpenCheck(String roomId ,User user) throws IOException;
+    ReturnMessage<SocketUser> onOpenCheck(Room room , User user) throws IOException;
 
     /**
      * 根据准备的消息
      * @return
      */
-    void dealReadyMessage(Long userId ,Long roomId) throws InterruptedException, EncodeException, IOException;
+    void dealReadyMessage(Session session ,Long userId ,Long roomId) throws InterruptedException, EncodeException, IOException;
 
     /**
      * 处理抢庄的消息

@@ -9,6 +9,7 @@ import com.trevor.dao.RoomPokeInitMapper;
 import com.trevor.domain.GameSituation;
 import com.trevor.domain.Room;
 import com.trevor.domain.RoomPokeInit;
+import com.trevor.enums.GameStatusEnum;
 import com.trevor.service.RoomService;
 import com.trevor.service.createRoom.bo.NiuniuRoomParameter;
 import com.trevor.util.PokeUtil;
@@ -59,6 +60,11 @@ public class NiuniuPlay {
         //准备的倒计时
         countDown(sessions ,roomPokeMap.get(roomId));
         //设置准备结束标识符
+        try {
+            Thread.sleep(500);
+        }catch (Exception e) {
+            log.error(e.toString());
+        }
         roomPoke.setIsReadyOver(true);
         //先发四张牌
         List<UserPoke> userPokeList = roomPoke.getUserPokes().stream().filter(u -> Objects.equals(u.getIndex(), roomPoke.getRuningNum()))
@@ -87,7 +93,7 @@ public class NiuniuPlay {
         returnResultToUser(sessions ,roomPoke ,userPokeList ,niuniuRoomParameter);
         //改变房间状态
         roomPoke.setReadyNum(0);
-        roomPoke.setRoomStatus(0);
+        roomPoke.setGameStatus(0);
         roomPoke.setIsReadyOver(false);
         roomPoke.setRuningNum(roomPoke.getRuningNum() + 1);
         //如果对局数结束，给所有人发消息，对局结束，如果没有结束则发个消息，继续开始
@@ -101,9 +107,12 @@ public class NiuniuPlay {
      * 倒计时
      */
     protected void countDown(Set<Session> sessions , RoomPoke roomPoke) {
+        //加读锁
+        roomPoke.getLock().readLock().lock();
+        roomPoke.setGameStatus(GameStatusEnum.BEFORE_READY.getCode());
+        roomPoke.getLock().readLock().unlock();
         for (int i = 5; i > 0 ; i--) {
             ReturnMessage<Integer> returnMessage = new ReturnMessage<>(i ,3);
-            //加读锁
             roomPoke.getLock().readLock().lock();
             WebsocketUtil.sendAllBasicMessage(sessions , returnMessage);
             roomPoke.getLock().readLock().unlock();
@@ -541,8 +550,8 @@ public class NiuniuPlay {
     private void fapai_1(RoomPoke roomPoke ,Set<Session> sessions ,List<UserPoke> userPokeList ,NiuniuRoomParameter niuniuRoomParameter){
         userPokeList.forEach(u -> {
             sessions.forEach(session -> {
-                SocketUser socketUser = (SocketUser) session.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
-                if (Objects.equals(u.getUserId() ,socketUser.getId())) {
+                Long userId = (Long) session.getUserProperties().get(WebKeys.WEBSOCKET_USER_ID);
+                if (Objects.equals(u.getUserId() ,userId)) {
                     LaskPokeMessage laskPokeMessage = new LaskPokeMessage();
                     laskPokeMessage.setLastPoke(u.getPokes().get(4));
                     laskPokeMessage.setPaiXing(isNiuNiu(u.getPokes() ,niuniuRoomParameter.getPaiXing() ,niuniuRoomParameter.getRule()).getPaixing());

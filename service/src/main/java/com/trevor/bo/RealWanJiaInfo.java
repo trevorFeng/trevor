@@ -1,16 +1,15 @@
-package com.trevor.websocket.bo;
+package com.trevor.bo;
 
 import lombok.Data;
 
 import java.util.List;
 
 /**
- * 一句话描述该类作用:【返回给前端得用户信息】
  * @author trevor
- * @date 2019/3/4 11:28
+ * @date 06/18/19 12:37
  */
 @Data
-public class SocketUser {
+public class RealWanJiaInfo {
 
     /**
      * id
@@ -23,11 +22,6 @@ public class SocketUser {
     private String name;
 
     /**
-     * 是否是自己的信息
-     */
-    private Boolean isMyself;
-
-    /**
      * 头像
      */
     private String picture;
@@ -38,29 +32,14 @@ public class SocketUser {
     private Boolean isGuanZhong;
 
     /**
-     * 是否是吃瓜群众，不可以参与打牌，只能看
+     * 是否已经准备
      */
-    private Boolean isChiGuaPeople;
-
-    /**
-     * 游戏状态
-     */
-    private Integer status;
-
-    /**
-     * 是否是第一次进入的玩家
-     */
-    private Boolean isNewUser;
+    private Boolean isReady;
 
     /**
      * 分数
      */
     private Integer score;
-
-    /**
-     * 是否准备
-     */
-    private Boolean isReady;
 
     /**
      * 是否是庄家
@@ -77,4 +56,3 @@ public class SocketUser {
      */
     private Boolean isUnconnection;
 }
-

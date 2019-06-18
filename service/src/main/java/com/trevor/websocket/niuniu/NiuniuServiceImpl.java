@@ -89,43 +89,57 @@ public class NiuniuServiceImpl implements NiuniuService {
             WebsocketUtil.sendBasicMessage(session ,returnMessage);
             return;
         }
+        //给所有人发自己加入准备的消息
+        ReturnMessage<Long> returnMessage = new ReturnMessage<>(userId ,2);
+        /**
+         * 加读锁,与open注解标记的方法和onClose的标记的方法互斥
+         */
+        roomPoke.getLock().readLock().lock();
         //是否是玩家
         Optional<RealWanJiaInfo> first = roomPoke.getRealWanJias().stream().filter(r -> Objects.equals(r.getId(), userId)).findFirst();
         if (!first.isPresent()) {
-            ReturnMessage<String> returnMessage = new ReturnMessage<>("你不能准备" ,-1);
-            WebsocketUtil.sendBasicMessage(session ,returnMessage);
+            /**
+             * 加读锁结束
+             */
+            roomPoke.getLock().readLock().unlock();
+            ReturnMessage<String> cannotReady = new ReturnMessage<>("你不能准备" ,-1);
+            WebsocketUtil.sendBasicMessage(session ,cannotReady);
             return;
         }
         Set<Session> sessions = sessionsMap.get(roomId);
-        //给所有人发自己加入准备的消息
-        ReturnMessage<Long> returnMessage = new ReturnMessage<>(userId ,2);
-        //加读锁
-        roomPoke.getLock().readLock().lock();
         //改变realWanJia的值
         roomPoke.getRealWanJias().stream().filter(r -> Objects.equals(r.getId() ,userId)).findFirst().get().setIsReady(Boolean.TRUE);
         WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage);
+        /**
+         * 加读锁结束
+         */
         roomPoke.getLock().readLock().unlock();
 
         String tempRoomId = String.valueOf(roomId).intern();
         synchronized (tempRoomId) {
             //初始化roomPoke
             initReadyMessage(roomPoke ,userId);
-            //是否准备的人数为两人，是则开始自动打牌
-            if (Objects.equals(roomPoke.getReadyNum() ,2)) {
-                executor.execute(() -> {
-                    try {
-                        niuniuPlay.play(roomId);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        log.error("roomId :" + roomId ,e.toString());
-                        ReturnMessage<Long> message = new ReturnMessage<>(MessageCodeEnum.SYSTEM_ERROT);
-                        //加读锁
-                        roomPoke.getLock().readLock().lock();
-                        WebsocketUtil.sendAllBasicMessage(sessions ,message);
-                        roomPoke.getLock().readLock().unlock();
-                    }
-                });
-            }
+        }
+        //是否准备的人数为两人，是则开始自动打牌
+        if (Objects.equals(roomPoke.getReadyNum() ,2)) {
+            executor.execute(() -> {
+                try {
+                    niuniuPlay.play(roomId);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    log.error("运行游戏报错，房间roomId :" + roomId + "，错误信息："+ e.toString());
+                    ReturnMessage<Long> message = new ReturnMessage<>(MessageCodeEnum.SYSTEM_ERROT);
+                    /**
+                     * 加读锁
+                     */
+                    roomPoke.getLock().readLock().lock();
+                    WebsocketUtil.sendAllBasicMessage(sessions ,message);
+                    /**
+                     * 加读锁结束
+                     */
+                    roomPoke.getLock().readLock().unlock();
+                }
+            });
         }
     }
 

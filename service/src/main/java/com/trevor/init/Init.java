@@ -7,6 +7,7 @@ import com.trevor.bo.UserPokesIndex;
 import com.trevor.bo.UserScore;
 import com.trevor.dao.RoomPokeInitMapper;
 import com.trevor.domain.RoomPokeInit;
+import com.trevor.enums.GameStatusEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -51,6 +52,7 @@ public class Init implements ApplicationRunner {
             roomPoke.setUserScores(JSON.parseObject(roomPokeInit.getUserScores() ,new TypeReference<List<UserScore>>(){}));
             roomPoke.setRuningNum(roomPokeInit.getRuningNum());
             roomPoke.setTotalNum(roomPokeInit.getTotalNum());
+            roomPoke.setGameStatus(GameStatusEnum.BEFORE_READY.getCode());
             roomPokeMap.put(roomPokeInit.getRoomRecordId() ,roomPoke);
 
             sessionsMap.put(roomPokeInit.getRoomRecordId(), new HashSet<>());

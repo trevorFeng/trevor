@@ -122,58 +122,6 @@ public class NiuniuServer {
                     realWanJias ,session ,sessions);
         }
         roomPoke.getLock().writeLock().unlock();
-
-
-
-        //检查是否有未删除的session,因为用户网络不好而断开的连接，而session还存在于sessions中
-
-
-        //检查是否是真正的玩家退出浏览器后重新进入的玩家
-
-//        if (!isRepeatUserId && realWanJiaIds.contains(user.getId())) {
-//            //给其他人发一个已经重新连接的消息
-//            ReturnMessage<Object> returnMessage = new ReturnMessage<>(null ,21);
-//            WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage);
-//            //给自己基本信息，分数，手里的牌
-//            if (sessions.isEmpty()) {
-//
-//            }
-//        }
-//        //第一次进来或者是观众
-//        if (!realWanJiaIds.contains(user.getId())) {
-//
-//        }
-//
-//        //网路断开而引发的重连
-//        if (isRepeatUserId) {
-//            //检查该用户是否可以连接
-//            ReturnMessage<SocketUser> returnMessage = niuniuService.onOpenCheck(roomId ,user);
-//            if (returnMessage.getMessageCode() > 0) {
-//                log.info("用户id:" + user.getId() + "加入房间，房间id:" + roomId);
-//                sessions.add(mySession);
-//            }
-//        }else {
-//            //检查该用户是否可以连接
-//            ReturnMessage<SocketUser> returnMessage = niuniuService.onOpenCheck(roomId ,user);
-//            if (returnMessage.getMessageCode() > 0) {
-//                log.info("用户id:" + user.getId() + "加入房间，房间id:" + roomId);
-//                sessions.add(mySession);
-//            }
-//            SocketUser socketUser = returnMessage.getData();
-//            //不能进入房间
-//            if (returnMessage.getMessageCode() < 0) {
-//                WebsocketUtil.sendBasicMessage(mySession ,returnMessage);
-//                roomPoke.getLock().writeLock().unlock();
-//                mySession.close();
-//                //可以进入房间
-//            } else {
-//                //将用户放入mySession中
-//                mySession.getUserProperties().put(WebKeys.WEBSOCKET_USER_ID, socketUser.getId());
-//                sendReadyMessage(roomPoke ,sessions ,socketUser);
-//                roomPoke.getLock().writeLock().unlock();
-//            }
-//        }
-
     }
 
     /**
@@ -419,7 +367,7 @@ public class NiuniuServer {
                 socketUser.setIsUnconnection(r.getIsUnconnection());
             }
             if (Objects.equals(GameStatusEnum.BEFORE_FAPAI_4.getCode() ,roomPoke.getGameStatus())) {
-                socketUser.setIsReady(r.getIsReady() == null ? Boolean.FALSE :Boolean.TRUE);
+                socketUser.setIsReady((r.getIsReady() == null || Objects.equals(r.getIsReady() ,Boolean.FALSE))? Boolean.FALSE :Boolean.TRUE);
             }
             socketUserList.add(socketUser);
 
@@ -428,7 +376,7 @@ public class NiuniuServer {
     }
 
     /**
-     * 处理不是第一次进来的玩家
+     * 处理第一次进来的玩家
      * @param room
      * @param user
      * @param roomId
@@ -453,7 +401,6 @@ public class NiuniuServer {
                 mySession.getUserProperties().put(WebKeys.WEBSOCKET_IS_CHIGUA, Boolean.TRUE);
                 mySession.getUserProperties().put(WebKeys.WEBSOCKET_USER_ID, user.getId());
                 sessions.add(mySession);
-                return;
                 //真正的玩家
             }else {
                 //添加到realWanJias

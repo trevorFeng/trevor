@@ -18,7 +18,6 @@ import com.trevor.util.WebsocketUtil;
 import com.trevor.websocket.bo.NiuNiuPaiXingEnum;
 import com.trevor.websocket.bo.NiuNiuResult;
 import com.trevor.websocket.bo.ReturnMessage;
-import com.trevor.websocket.bo.SocketUser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +39,7 @@ public class NiuniuPlay {
 
     @Resource(name = "sessionsMap")
     private Map<Long ,Set<Session>> sessionsMap;
+2
 
     @Resource(name = "roomPokeMap")
     private Map<Long , RoomPoke> roomPokeMap;
@@ -106,15 +106,21 @@ public class NiuniuPlay {
     /**
      * 倒计时
      */
-    protected void countDown(Set<Session> sessions , RoomPoke roomPoke) {
-        //加读锁
-        roomPoke.getLock().readLock().lock();
-        roomPoke.setGameStatus(GameStatusEnum.BEFORE_READY.getCode());
-        roomPoke.getLock().readLock().unlock();
+    protected void countDown(Set<Session> sessions , RoomPoke roomPoke ,Integer messageCode ,Integer gameStatus) {
+
         for (int i = 5; i > 0 ; i--) {
             ReturnMessage<Integer> returnMessage = new ReturnMessage<>(i ,3);
+            /**
+             * 加读锁
+             */
             roomPoke.getLock().readLock().lock();
+            if (!Objects.equals(roomPoke.getGameStatus() ,GameStatusEnum.BEFORE_FAPAI_4.getCode())) {
+                roomPoke.setGameStatus(GameStatusEnum.BEFORE_READY.getCode());
+            }
             WebsocketUtil.sendAllBasicMessage(sessions , returnMessage);
+            /**
+             * 加读锁结束
+             */
             roomPoke.getLock().readLock().unlock();
             try {
                 Thread.sleep(1000);
@@ -490,8 +496,8 @@ public class NiuniuPlay {
         roomPoke.getLock().readLock().lock();
         userPokeList.forEach(u -> {
             sessions.forEach(session -> {
-                SocketUser socketUser = (SocketUser) session.getUserProperties().get(WebKeys.WEBSOCKET_USER_KEY);
-                if (Objects.equals(u.getUserId() ,socketUser.getId())) {
+                Long userId = (Long) session.getUserProperties().get(WebKeys.WEBSOCKET_USER_ID);
+                if (Objects.equals(u.getUserId() ,userId)) {
                     ReturnMessage<List<String>> returnMessage3 = new ReturnMessage<>(u.getPokes().subList(0,4),4);
                     WebsocketUtil.sendBasicMessage(session ,returnMessage3);
                 }

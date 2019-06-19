@@ -84,7 +84,7 @@ public class NiuniuServiceImpl implements NiuniuService {
     public void dealReadyMessage(Session session ,Long userId ,Long roomId){
         RoomPoke roomPoke = roomPokeMap.get(roomId);
         //是否准备结束
-        if (Objects.equals(roomPoke.getIsReadyOver() ,true)) {
+        if (Objects.equals(roomPoke.getGameStatus() ,)) {
             ReturnMessage<String> returnMessage = new ReturnMessage<>("准备已经结束" ,-1);
             WebsocketUtil.sendBasicMessage(session ,returnMessage);
             return;

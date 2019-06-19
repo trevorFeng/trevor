@@ -21,12 +21,7 @@ public class RoomPoke implements Serializable {
     /**
      * 房间id
      */
-    private Long roomRecordId;
-
-    /**
-     * poke牌
-     */
-    private List<String> pokes;
+    private Long roomId;
 
     /**
      * 每一局的玩家的牌
@@ -54,32 +49,9 @@ public class RoomPoke implements Serializable {
     private Integer totalNum;
 
     /**
-     * 游戏进程
-     * 0 ---- 进入房间-准备倒计时前
-     * 1 ---- 准备倒计时开始-准备倒计时结束
-     * 2 ----
-     */
-    private Integer gameProcess = 0;
-
-    /**
      * 对Set<Session>操作的锁
      */
-    private ReadWriteLock sesionsLock = new ReentrantReadWriteLock();
-
-    /**
-     * 游戏进程的锁，对游戏哪个状态进行加锁
-     */
-    private Lock gameProcessLock = new ReentrantLock();
-
-    /**
-     * 对gameStatus的锁
-     */
-    private Lock gameStatusLock = new ReentrantLock();
-
-    /**
-     * 准备的人数
-     */
-    private volatile Integer readyNum = 0;
+    private ReadWriteLock lock = new ReentrantReadWriteLock();
 
     /**
      * 游戏状态

@@ -1,4 +1,4 @@
-package com.trevor.play;
+package com.trevor.websocket.play;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
@@ -58,20 +58,20 @@ public class NiuniuPlay {
             return;
         }
         //准备的倒计时
-        countDown(sessions ,roomPokeMap.get(roomId));
-        //设置准备结束标识符
+        countDown(sessions ,roomPokeMap.get(roomId) ,3 ,GameStatusEnum.BEFORE_FAPAI_4.getCode());
         try {
             Thread.sleep(500);
         }catch (Exception e) {
             log.error(e.toString());
         }
+        //设置准备结束标识符
         roomPoke.setIsReadyOver(true);
         //先发四张牌
         List<UserPoke> userPokeList = roomPoke.getUserPokes().stream().filter(u -> Objects.equals(u.getIndex(), roomPoke.getRuningNum()))
                 .collect(Collectors.toList()).get(0).getUserPokeList();
         fapai_4(roomPoke ,sessions ,userPokeList ,niuniuRoomParameter);
         //开始抢庄倒计时
-        countDown(sessions ,roomPokeMap.get(roomId));
+        countDown(sessions ,roomPokeMap.get(roomId) ,11 ,GameStatusEnum.BEFORE_QIANGZHUANG_COUNTDOWN.getCode());
         //选取庄家
         selectZhaungJia(roomPoke ,sessions ,userPokeList);
         try {
@@ -109,13 +109,13 @@ public class NiuniuPlay {
     protected void countDown(Set<Session> sessions , RoomPoke roomPoke ,Integer messageCode ,Integer gameStatus) {
 
         for (int i = 5; i > 0 ; i--) {
-            ReturnMessage<Integer> returnMessage = new ReturnMessage<>(i ,3);
+            ReturnMessage<Integer> returnMessage = new ReturnMessage<>(i ,messageCode);
             /**
              * 加读锁
              */
             roomPoke.getLock().readLock().lock();
-            if (!Objects.equals(roomPoke.getGameStatus() ,GameStatusEnum.BEFORE_FAPAI_4.getCode())) {
-                roomPoke.setGameStatus(GameStatusEnum.BEFORE_READY.getCode());
+            if (!Objects.equals(roomPoke.getGameStatus() ,gameStatus)) {
+                roomPoke.setGameStatus(gameStatus);
             }
             WebsocketUtil.sendAllBasicMessage(sessions , returnMessage);
             /**
@@ -492,8 +492,21 @@ public class NiuniuPlay {
             userPoke.setPokes(pokesList.get(j));
         }
         //给每个人发牌
-        //加读锁
+        /**
+         * 加读锁
+         */
         roomPoke.getLock().readLock().lock();
+        roomPoke.setGameStatus(GameStatusEnum.BEFORE_QIANGZHUANG_COUNTDOWN.getCode());
+        //设置realWanJias
+        List<RealWanJiaInfo> realWanJias = roomPoke.getRealWanJias();
+        userPokeList.forEach(u -> {
+            for (RealWanJiaInfo realWanJiaInfo : realWanJias) {
+                if (Objects.equals(u.getUserId() ,realWanJiaInfo.getId())) {
+                    realWanJiaInfo.setPokes(u.getPokes().subList(0,4));
+                    break;
+                }
+            }
+        });
         userPokeList.forEach(u -> {
             sessions.forEach(session -> {
                 Long userId = (Long) session.getUserProperties().get(WebKeys.WEBSOCKET_USER_ID);
@@ -503,6 +516,9 @@ public class NiuniuPlay {
                 }
             });
         });
+        /**
+         * 加读锁结束
+         */
         roomPoke.getLock().readLock().unlock();
     }
 
@@ -543,6 +559,7 @@ public class NiuniuPlay {
         }
         //加读锁
         roomPoke.getLock().readLock().lock();
+        roomPoke.getRealWanJias().stream().filter(r -> Objects.equals(r.getId() ,))
         WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage1);
         roomPoke.getLock().readLock().unlock();
     }

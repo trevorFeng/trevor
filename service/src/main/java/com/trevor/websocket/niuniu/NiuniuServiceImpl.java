@@ -6,7 +6,7 @@ import com.trevor.dao.FriendManageMapper;
 import com.trevor.domain.Room;
 import com.trevor.domain.User;
 import com.trevor.enums.*;
-import com.trevor.play.NiuniuPlay;
+import com.trevor.websocket.play.NiuniuPlay;
 import com.trevor.service.RoomService;
 import com.trevor.service.createRoom.bo.NiuniuRoomParameter;
 import com.trevor.service.user.UserService;
@@ -147,7 +147,22 @@ public class NiuniuServiceImpl implements NiuniuService {
      * 处理抢庄的消息
      */
     @Override
-    public void dealQiangZhuangMessage(Long userId ,Long roomId ,ReceiveMessage receiveMessage){
+    public void dealQiangZhuangMessage(Session mySession ,Long userId ,Long roomId ,ReceiveMessage receiveMessage){
+        RoomPoke roomPoke = roomPokeMap.get(roomId);
+        /**
+         * 加读锁
+         */
+        roomPoke.getLock().readLock().lock();
+        if (!roomPoke.getRealWanJias().stream().filter(r -> Objects.equals(r.getIsReady() ,Boolean.TRUE))
+                .map(RealWanJiaInfo::getId).collect(Collectors.toList()).contains(userId)) {
+            ReturnMessage<String> returnMessage = new ReturnMessage<>("你不能抢庄" ,-1);
+            WebsocketUtil.sendBasicMessage(mySession ,returnMessage);
+        }
+        /**
+         * 加读锁结束
+         */
+        roomPoke.getLock().readLock().unlock();
+
         UserPoke userPoke = getUserPoke(roomId ,userId);
         userPoke.setIsQiangZhuang(Boolean.TRUE);
         userPoke.setQiangZhuangMultiple(receiveMessage.getQiangZhuangMultiple());
@@ -157,10 +172,16 @@ public class NiuniuServiceImpl implements NiuniuService {
         qiangZhuangMessage.setQiangZhuangMultiple(receiveMessage.getQiangZhuangMultiple());
         ReturnMessage<QiangZhuangMessage> returnMessage = new ReturnMessage<>(qiangZhuangMessage ,8);
         Set<Session> sessions = sessionsMap.get(roomId);
-        RoomPoke roomPoke = roomPokeMap.get(roomId);
-        //加读锁
+
+        /**
+         * 加读锁
+         */
         roomPoke.getLock().readLock().lock();
+        roomPoke.getRealWanJias().stream().filter(r -> Objects.equals(r.getId() ,userId)).findFirst().get().setIsQiangZuang(Boolean.TRUE);
         WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage);
+        /**
+         * 加读锁结束
+         */
         roomPoke.getLock().readLock().unlock();
     }
 

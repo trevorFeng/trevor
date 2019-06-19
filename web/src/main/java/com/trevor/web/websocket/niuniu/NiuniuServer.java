@@ -182,7 +182,7 @@ public class NiuniuServer {
         if (Objects.equals(messageCode , 1)) {
             niuniuService.dealReadyMessage(mySession ,userId ,roomId);
         }else if (Objects.equals(messageCode ,2)) {
-            niuniuService.dealQiangZhuangMessage(userId ,roomId ,receiveMessage);
+            niuniuService.dealQiangZhuangMessage(mySession ,userId ,roomId ,receiveMessage);
         }else if (Objects.equals(messageCode ,3)) {
             niuniuService.dealXianJiaXiaZhuMessage(mySession ,userId ,roomId ,receiveMessage);
         }else if (Objects.equals(messageCode ,4)) {
@@ -239,8 +239,14 @@ public class NiuniuServer {
                 }
             }
         }
-        //是真正的玩家，并且已经断开，给所有的人发消息，该玩家已经断开
+        //是真正的玩家，并且已经断开，给所有的人发消息，该玩家已经断开,标记已经断开
         if (!isNormalClose && !isChiGua) {
+            for (RealWanJiaInfo realWanJiaInfo : roomPoke.getRealWanJias()) {
+                if (Objects.equals(realWanJiaInfo.getId() ,userId)) {
+                    realWanJiaInfo.setIsUnconnection(Boolean.TRUE);
+                    break;
+                }
+            }
             ReturnMessage<Long> returnMessage = new ReturnMessage<>(userId ,22);
             WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage);
         }

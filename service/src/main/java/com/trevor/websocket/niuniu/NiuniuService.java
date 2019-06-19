@@ -40,7 +40,7 @@ public interface NiuniuService {
      * @param roomId
      * @param receiveMessage
      */
-    void dealQiangZhuangMessage(Long userId , Long roomId , ReceiveMessage receiveMessage) throws IOException, EncodeException;
+    void dealQiangZhuangMessage(Session mySession ,Long userId , Long roomId , ReceiveMessage receiveMessage) throws IOException, EncodeException;
 
 
     /**

@@ -47,6 +47,11 @@ public class RealWanJiaInfo {
     private Boolean isZhuangJia;
 
     /**
+     * 是否抢庄
+     */
+    private Boolean isQiangZuang;
+
+    /**
      * 玩家的牌
      */
     private List<String> pokes;

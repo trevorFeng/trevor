@@ -84,11 +84,14 @@ public class NiuniuServiceImpl implements NiuniuService {
     public void dealReadyMessage(Session session ,Long userId ,Long roomId){
         RoomPoke roomPoke = roomPokeMap.get(roomId);
         //是否准备结束
-        if (Objects.equals(roomPoke.getGameStatus() ,)) {
-            ReturnMessage<String> returnMessage = new ReturnMessage<>("准备已经结束" ,-1);
+        roomPoke.getGameStatusLock().lock();
+        if (!Objects.equals(roomPoke.getGameStatus() ,GameStatusEnum.BEFORE_FAPAI_4.getCode())) {
+            roomPoke.getGameStatusLock().unlock();
+            ReturnMessage<String> returnMessage = new ReturnMessage<>("你不能准备" ,-1);
             WebsocketUtil.sendBasicMessage(session ,returnMessage);
             return;
         }
+        roomPoke.getGameStatusLock().unlock();
         //给所有人发自己加入准备的消息
         ReturnMessage<Long> returnMessage = new ReturnMessage<>(userId ,2);
         /**
@@ -119,27 +122,27 @@ public class NiuniuServiceImpl implements NiuniuService {
         synchronized (tempRoomId) {
             //初始化roomPoke
             initReadyMessage(roomPoke ,userId);
-        }
-        //是否准备的人数为两人，是则开始自动打牌
-        if (Objects.equals(roomPoke.getReadyNum() ,2)) {
-            executor.execute(() -> {
-                try {
-                    niuniuPlay.play(roomId);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    log.error("运行游戏报错，房间roomId :" + roomId + "，错误信息："+ e.toString());
-                    ReturnMessage<Long> message = new ReturnMessage<>(MessageCodeEnum.SYSTEM_ERROT);
-                    /**
-                     * 加读锁
-                     */
-                    roomPoke.getLock().readLock().lock();
-                    WebsocketUtil.sendAllBasicMessage(sessions ,message);
-                    /**
-                     * 加读锁结束
-                     */
-                    roomPoke.getLock().readLock().unlock();
-                }
-            });
+            //是否准备的人数为两人，是则开始自动打牌
+            if (Objects.equals(roomPoke.getReadyNum() ,2)) {
+                executor.execute(() -> {
+                    try {
+                        niuniuPlay.play(roomId);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        log.error("运行游戏报错，房间roomId :" + roomId + "，错误信息："+ e.toString());
+                        ReturnMessage<Long> message = new ReturnMessage<>(MessageCodeEnum.SYSTEM_ERROT);
+                        /**
+                         * 加读锁
+                         */
+                        roomPoke.getLock().readLock().lock();
+                        WebsocketUtil.sendAllBasicMessage(sessions ,message);
+                        /**
+                         * 加读锁结束
+                         */
+                        roomPoke.getLock().readLock().unlock();
+                    }
+                });
+            }
         }
     }
 
@@ -153,15 +156,25 @@ public class NiuniuServiceImpl implements NiuniuService {
          * 加读锁
          */
         roomPoke.getLock().readLock().lock();
-        if (!roomPoke.getRealWanJias().stream().filter(r -> Objects.equals(r.getIsReady() ,Boolean.TRUE))
-                .map(RealWanJiaInfo::getId).collect(Collectors.toList()).contains(userId)) {
+        roomPoke.getWanJiaLock().lock();
+        if (!Objects.equals(roomPoke.getGameStatus() ,GameStatusEnum.BEFORE_SELECT_ZHUANGJIA)) {
+            roomPoke.getWanJiaLock().unlock();
             ReturnMessage<String> returnMessage = new ReturnMessage<>("你不能抢庄" ,-1);
             WebsocketUtil.sendBasicMessage(mySession ,returnMessage);
+            return;
         }
-        /**
-         * 加读锁结束
-         */
-        roomPoke.getLock().readLock().unlock();
+        roomPoke.getWanJiaLock().unlock();
+        if (!roomPoke.getRealWanJias().stream().filter(r -> Objects.equals(r.getIsReady() ,Boolean.TRUE))
+                .map(RealWanJiaInfo::getId).collect(Collectors.toList()).contains(userId)) {
+            /**
+             * 加读锁结束
+             */
+            roomPoke.getLock().readLock().unlock();
+            ReturnMessage<String> returnMessage = new ReturnMessage<>("你不能抢庄" ,-1);
+            WebsocketUtil.sendBasicMessage(mySession ,returnMessage);
+            return;
+        }
+
 
         UserPoke userPoke = getUserPoke(roomId ,userId);
         userPoke.setIsQiangZhuang(Boolean.TRUE);

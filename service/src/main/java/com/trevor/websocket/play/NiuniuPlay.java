@@ -64,14 +64,16 @@ public class NiuniuPlay {
         }catch (Exception e) {
             log.error(e.toString());
         }
-        //设置准备结束标识符
-        roomPoke.setIsReadyOver(true);
+//        //设置准备结束标识符
+//        roomPoke.getWanJiaLock().lock();
+//        roomPoke.setIsReadyOver(true);
+//        roomPoke.getWanJiaLock().unlock();
         //先发四张牌
         List<UserPoke> userPokeList = roomPoke.getUserPokes().stream().filter(u -> Objects.equals(u.getIndex(), roomPoke.getRuningNum()))
                 .collect(Collectors.toList()).get(0).getUserPokeList();
         fapai_4(roomPoke ,sessions ,userPokeList ,niuniuRoomParameter);
         //开始抢庄倒计时
-        countDown(sessions ,roomPokeMap.get(roomId) ,11 ,GameStatusEnum.BEFORE_QIANGZHUANG_COUNTDOWN.getCode());
+        countDown(sessions ,roomPokeMap.get(roomId) ,11 ,GameStatusEnum.BEFORE_SELECT_ZHUANGJIA.getCode());
         //选取庄家
         selectZhaungJia(roomPoke ,sessions ,userPokeList);
         try {
@@ -94,7 +96,7 @@ public class NiuniuPlay {
         //改变房间状态
         roomPoke.setReadyNum(0);
         roomPoke.setGameStatus(0);
-        roomPoke.setIsReadyOver(false);
+//        roomPoke.setIsReadyOver(false);
         roomPoke.setRuningNum(roomPoke.getRuningNum() + 1);
         //如果对局数结束，给所有人发消息，对局结束，如果没有结束则发个消息，继续开始
 
@@ -107,27 +109,26 @@ public class NiuniuPlay {
      * 倒计时
      */
     protected void countDown(Set<Session> sessions , RoomPoke roomPoke ,Integer messageCode ,Integer gameStatus) {
-
+        /**
+         * 加读锁
+         */
+        roomPoke.getLock().readLock().lock();
+        roomPoke.getWanJiaLock().lock();
+        roomPoke.setGameStatus(gameStatus);
+        roomPoke.getWanJiaLock().unlock();
         for (int i = 5; i > 0 ; i--) {
             ReturnMessage<Integer> returnMessage = new ReturnMessage<>(i ,messageCode);
-            /**
-             * 加读锁
-             */
-            roomPoke.getLock().readLock().lock();
-            if (!Objects.equals(roomPoke.getGameStatus() ,gameStatus)) {
-                roomPoke.setGameStatus(gameStatus);
-            }
             WebsocketUtil.sendAllBasicMessage(sessions , returnMessage);
-            /**
-             * 加读锁结束
-             */
-            roomPoke.getLock().readLock().unlock();
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 log.error(e.toString());
             }
         }
+        /**
+         * 加读锁结束
+         */
+        roomPoke.getLock().readLock().unlock();
     }
 
 
@@ -496,7 +497,9 @@ public class NiuniuPlay {
          * 加读锁
          */
         roomPoke.getLock().readLock().lock();
+        roomPoke.getWanJiaLock().lock();
         roomPoke.setGameStatus(GameStatusEnum.BEFORE_QIANGZHUANG_COUNTDOWN.getCode());
+        roomPoke.getWanJiaLock().unlock();
         //设置realWanJias
         List<RealWanJiaInfo> realWanJias = roomPoke.getRealWanJias();
         userPokeList.forEach(u -> {

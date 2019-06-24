@@ -109,17 +109,102 @@ public class NiuniuServer {
             WebsocketUtil.sendBasicMessage(session ,returnMessage);
             return;
         }
+        roomPoke.getLock().readLock().lock();
+        Boolean isRepeatUserId = checkIsRepeatConnection(sessions ,user);
+        roomPoke.getLock().readLock().unlock();
         //加写锁
         roomPoke.getLock().writeLock().lock();
         List<RealWanJiaInfo> realWanJias = roomPoke.getRealWanJias();
         List<Long> realWanJiaIds = realWanJias.stream().map(realWanJiaInfo -> realWanJiaInfo.getId()).collect(Collectors.toList());
         //是真正的玩家
         if (realWanJiaIds.contains(user.getId())) {
-            processReComing(sessions ,user ,roomPoke ,realWanJias ,session);
+            //检查是否是因为用户网络不好而断开的连接而引发的重连,是的话删除session,给玩家发送游戏状态消息和本人的信息，其他人的基本信息
+            if (isRepeatUserId) {
+                //在session中放入是否是观众信息和玩家id
+                mySession.getUserProperties().put(WebKeys.WEBSOCKET_IS_CHIGUA, Boolean.FALSE);
+                mySession.getUserProperties().put(WebKeys.WEBSOCKET_USER_ID, user.getId());
+                sessions.add(mySession);
+                //给自己发自己，其他人（真正玩家）的基本信息、分数
+                List<SocketUser> socketUserList = generateList(realWanJias ,user ,roomPoke);
+                ReturnMessage<List<SocketUser>> returnMessage = new ReturnMessage<>(socketUserList ,23);
+                WebsocketUtil.sendBasicMessage(session ,returnMessage);
+                return;
+                //是由于关闭浏览器而退出的玩家
+            }else {
+                //给其他玩家发送重新进来的消息
+                ReturnMessage<Long> returnMessage = new ReturnMessage<>(user.getId() ,21);
+                WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage);
+                //给自己发送游戏状态和本人和别人的的信息
+                List<SocketUser> socketUserList = generateList(realWanJias ,user ,roomPoke);
+                ReturnMessage<List<SocketUser>> myReturnMessage = new ReturnMessage<>(socketUserList ,20);
+                WebsocketUtil.sendBasicMessage(session ,myReturnMessage);
+                //在session中放入是否是观众信息和玩家id
+                mySession.getUserProperties().put(WebKeys.WEBSOCKET_IS_CHIGUA, Boolean.FALSE);
+                mySession.getUserProperties().put(WebKeys.WEBSOCKET_USER_ID, user.getId());
+                sessions.add(mySession);
+                return;
+            }
         //是观众或者第一次进来的玩家
         }else {
-            processIsFirstComing(room ,user ,roomId ,roomPoke ,
-                    realWanJias ,session ,sessions);
+            ReturnMessage<SocketUser> onOpenCheck = niuniuService.onOpenCheck(room ,user);
+            if (onOpenCheck.getMessageCode() > 0) {
+                log.info("用户id:" + user.getId() + "加入房间，房间id:" + roomId);
+                SocketUser onOpenCheckUser = onOpenCheck.getData();
+                //吃瓜群众返回真正玩家的信息
+                if (onOpenCheckUser.getIsChiGuaPeople()) {
+                    List<SocketUser> socketUserList = generateList(realWanJias ,user ,roomPoke);
+                    ReturnMessage<List<SocketUser>> returnMessage = new ReturnMessage<>(socketUserList ,24);
+                    WebsocketUtil.sendBasicMessage(session ,returnMessage);
+                    //在session中放入是否是观众信息和玩家id
+                    mySession.getUserProperties().put(WebKeys.WEBSOCKET_IS_CHIGUA, Boolean.TRUE);
+                    mySession.getUserProperties().put(WebKeys.WEBSOCKET_USER_ID, user.getId());
+                    sessions.add(mySession);
+                    //真正的玩家
+                }else {
+                    //添加到realWanJias
+                    RealWanJiaInfo realWanJiaInfo = new RealWanJiaInfo();
+                    realWanJiaInfo.setId(user.getId());
+                    realWanJiaInfo.setName(user.getAppName());
+                    realWanJiaInfo.setPicture(user.getAppPictureUrl());
+                    realWanJiaInfo.setIsGuanZhong(Boolean.FALSE);
+                    realWanJiaInfo.setIsReady(Boolean.FALSE);
+                    realWanJiaInfo.setScore(0);
+                    realWanJiaInfo.setIsZhuangJia(Boolean.FALSE);
+                    realWanJiaInfo.setIsUnconnection(Boolean.FALSE);
+                    roomPoke.getRealWanJias().add(realWanJiaInfo);
+
+                    //给自己发消息
+                    List<SocketUser> socketUserList = generateList(realWanJias ,user ,roomPoke);
+                    SocketUser socketUser = new SocketUser();
+                    socketUser.setIsMyself(Boolean.TRUE);
+                    socketUser.setId(user.getId());
+                    socketUser.setName(user.getAppName());
+                    socketUser.setPicture(user.getAppPictureUrl());
+                    socketUser.setIsChiGuaPeople(Boolean.FALSE);
+                    socketUser.setIsNewUser(Boolean.TRUE);
+                    socketUser.setStatus(roomPoke.getGameStatus());
+                    socketUser.setIsGuanZhong(Boolean.FALSE);
+                    socketUser.setScore(0);
+                    socketUser.setIsUnconnection(Boolean.FALSE);
+                    socketUserList.add(socketUser);
+                    ReturnMessage<List<SocketUser>> myReturnMessage = new ReturnMessage<>(socketUserList ,25);
+                    WebsocketUtil.sendBasicMessage(session ,myReturnMessage);
+
+                    //给别的玩家发消息
+                    socketUser.setIsMyself(null);
+                    ReturnMessage<SocketUser> returnMessage = new ReturnMessage<>(socketUser ,26);
+                    WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage);
+
+                    //在session中放入是否是观众信息和玩家id
+                    mySession.getUserProperties().put(WebKeys.WEBSOCKET_IS_CHIGUA, Boolean.FALSE);
+                    mySession.getUserProperties().put(WebKeys.WEBSOCKET_USER_ID, user.getId());
+                    sessions.add(mySession);
+                }
+            }else {
+                ReturnMessage<String> returnMessage = new ReturnMessage<>(onOpenCheck.getMessage() ,-1);
+                WebsocketUtil.sendBasicMessage(session ,returnMessage);
+                return;
+            }
         }
         roomPoke.getLock().writeLock().unlock();
     }
@@ -392,69 +477,69 @@ public class NiuniuServer {
      * @param sessions
      * @throws IOException
      */
-    private void processIsFirstComing(Room room ,User user ,Long roomId ,RoomPoke roomPoke ,
-                                List<RealWanJiaInfo> realWanJias ,Session session ,Set<Session> sessions) throws IOException {
-        ReturnMessage<SocketUser> onOpenCheck = niuniuService.onOpenCheck(room ,user);
-        if (onOpenCheck.getMessageCode() > 0) {
-            log.info("用户id:" + user.getId() + "加入房间，房间id:" + roomId);
-            SocketUser onOpenCheckUser = onOpenCheck.getData();
-            //吃瓜群众返回真正玩家的信息
-            if (onOpenCheckUser.getIsChiGuaPeople()) {
-                List<SocketUser> socketUserList = generateList(realWanJias ,user ,roomPoke);
-                ReturnMessage<List<SocketUser>> returnMessage = new ReturnMessage<>(socketUserList ,24);
-                WebsocketUtil.sendBasicMessage(session ,returnMessage);
-                //在session中放入是否是观众信息和玩家id
-                mySession.getUserProperties().put(WebKeys.WEBSOCKET_IS_CHIGUA, Boolean.TRUE);
-                mySession.getUserProperties().put(WebKeys.WEBSOCKET_USER_ID, user.getId());
-                sessions.add(mySession);
-                //真正的玩家
-            }else {
-                //添加到realWanJias
-                RealWanJiaInfo realWanJiaInfo = new RealWanJiaInfo();
-                realWanJiaInfo.setId(user.getId());
-                realWanJiaInfo.setName(user.getAppName());
-                realWanJiaInfo.setPicture(user.getAppPictureUrl());
-                realWanJiaInfo.setIsGuanZhong(Boolean.FALSE);
-                realWanJiaInfo.setIsReady(Boolean.FALSE);
-                realWanJiaInfo.setScore(0);
-                realWanJiaInfo.setIsZhuangJia(Boolean.FALSE);
-                realWanJiaInfo.setIsUnconnection(Boolean.FALSE);
-                roomPoke.getRealWanJias().add(realWanJiaInfo);
-
-                //给自己发消息
-                List<SocketUser> socketUserList = generateList(realWanJias ,user ,roomPoke);
-                SocketUser socketUser = new SocketUser();
-                socketUser.setIsMyself(Boolean.TRUE);
-                socketUser.setId(user.getId());
-                socketUser.setName(user.getAppName());
-                socketUser.setPicture(user.getAppPictureUrl());
-                socketUser.setIsChiGuaPeople(Boolean.FALSE);
-                socketUser.setIsNewUser(Boolean.TRUE);
-                socketUser.setStatus(roomPoke.getGameStatus());
-                socketUser.setIsGuanZhong(Boolean.FALSE);
-                socketUser.setScore(0);
-                socketUser.setIsUnconnection(Boolean.FALSE);
-                socketUserList.add(socketUser);
-                ReturnMessage<List<SocketUser>> myReturnMessage = new ReturnMessage<>(socketUserList ,25);
-                WebsocketUtil.sendBasicMessage(session ,myReturnMessage);
-
-                //给别的玩家发消息
-                socketUser.setIsMyself(null);
-                ReturnMessage<SocketUser> returnMessage = new ReturnMessage<>(socketUser ,26);
-                WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage);
-
-                //在session中放入是否是观众信息和玩家id
-                mySession.getUserProperties().put(WebKeys.WEBSOCKET_IS_CHIGUA, Boolean.FALSE);
-                mySession.getUserProperties().put(WebKeys.WEBSOCKET_USER_ID, user.getId());
-                sessions.add(mySession);
-            }
-        }else {
-            ReturnMessage<String> returnMessage = new ReturnMessage<>(onOpenCheck.getMessage() ,-1);
-            WebsocketUtil.sendBasicMessage(session ,returnMessage);
-            return;
-        }
-
-    }
+//    private void processIsFirstComing(Room room ,User user ,Long roomId ,RoomPoke roomPoke ,
+//                                List<RealWanJiaInfo> realWanJias ,Session session ,Set<Session> sessions) throws IOException {
+//        ReturnMessage<SocketUser> onOpenCheck = niuniuService.onOpenCheck(room ,user);
+//        if (onOpenCheck.getMessageCode() > 0) {
+//            log.info("用户id:" + user.getId() + "加入房间，房间id:" + roomId);
+//            SocketUser onOpenCheckUser = onOpenCheck.getData();
+//            //吃瓜群众返回真正玩家的信息
+//            if (onOpenCheckUser.getIsChiGuaPeople()) {
+//                List<SocketUser> socketUserList = generateList(realWanJias ,user ,roomPoke);
+//                ReturnMessage<List<SocketUser>> returnMessage = new ReturnMessage<>(socketUserList ,24);
+//                WebsocketUtil.sendBasicMessage(session ,returnMessage);
+//                //在session中放入是否是观众信息和玩家id
+//                mySession.getUserProperties().put(WebKeys.WEBSOCKET_IS_CHIGUA, Boolean.TRUE);
+//                mySession.getUserProperties().put(WebKeys.WEBSOCKET_USER_ID, user.getId());
+//                sessions.add(mySession);
+//                //真正的玩家
+//            }else {
+//                //添加到realWanJias
+//                RealWanJiaInfo realWanJiaInfo = new RealWanJiaInfo();
+//                realWanJiaInfo.setId(user.getId());
+//                realWanJiaInfo.setName(user.getAppName());
+//                realWanJiaInfo.setPicture(user.getAppPictureUrl());
+//                realWanJiaInfo.setIsGuanZhong(Boolean.FALSE);
+//                realWanJiaInfo.setIsReady(Boolean.FALSE);
+//                realWanJiaInfo.setScore(0);
+//                realWanJiaInfo.setIsZhuangJia(Boolean.FALSE);
+//                realWanJiaInfo.setIsUnconnection(Boolean.FALSE);
+//                roomPoke.getRealWanJias().add(realWanJiaInfo);
+//
+//                //给自己发消息
+//                List<SocketUser> socketUserList = generateList(realWanJias ,user ,roomPoke);
+//                SocketUser socketUser = new SocketUser();
+//                socketUser.setIsMyself(Boolean.TRUE);
+//                socketUser.setId(user.getId());
+//                socketUser.setName(user.getAppName());
+//                socketUser.setPicture(user.getAppPictureUrl());
+//                socketUser.setIsChiGuaPeople(Boolean.FALSE);
+//                socketUser.setIsNewUser(Boolean.TRUE);
+//                socketUser.setStatus(roomPoke.getGameStatus());
+//                socketUser.setIsGuanZhong(Boolean.FALSE);
+//                socketUser.setScore(0);
+//                socketUser.setIsUnconnection(Boolean.FALSE);
+//                socketUserList.add(socketUser);
+//                ReturnMessage<List<SocketUser>> myReturnMessage = new ReturnMessage<>(socketUserList ,25);
+//                WebsocketUtil.sendBasicMessage(session ,myReturnMessage);
+//
+//                //给别的玩家发消息
+//                socketUser.setIsMyself(null);
+//                ReturnMessage<SocketUser> returnMessage = new ReturnMessage<>(socketUser ,26);
+//                WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage);
+//
+//                //在session中放入是否是观众信息和玩家id
+//                mySession.getUserProperties().put(WebKeys.WEBSOCKET_IS_CHIGUA, Boolean.FALSE);
+//                mySession.getUserProperties().put(WebKeys.WEBSOCKET_USER_ID, user.getId());
+//                sessions.add(mySession);
+//            }
+//        }else {
+//            ReturnMessage<String> returnMessage = new ReturnMessage<>(onOpenCheck.getMessage() ,-1);
+//            WebsocketUtil.sendBasicMessage(session ,returnMessage);
+//            return;
+//        }
+//
+//    }
 
     /**
      * 处理不是一次进来的玩家
@@ -465,34 +550,34 @@ public class NiuniuServer {
      * @param session
      * @throws IOException
      */
-    private void processReComing(Set<Session> sessions ,User user ,RoomPoke roomPoke ,List<RealWanJiaInfo> realWanJias ,Session session) throws IOException {
-        Boolean isRepeatUserId = checkIsRepeatConnection(sessions ,user);
-        //检查是否是因为用户网络不好而断开的连接而引发的重连,是的话删除session,给玩家发送游戏状态消息和本人的信息，其他人的基本信息
-        if (isRepeatUserId) {
-            //在session中放入是否是观众信息和玩家id
-            mySession.getUserProperties().put(WebKeys.WEBSOCKET_IS_CHIGUA, Boolean.FALSE);
-            mySession.getUserProperties().put(WebKeys.WEBSOCKET_USER_ID, user.getId());
-            sessions.add(mySession);
-            //给自己发自己，其他人（真正玩家）的基本信息、分数
-            List<SocketUser> socketUserList = generateList(realWanJias ,user ,roomPoke);
-            ReturnMessage<List<SocketUser>> returnMessage = new ReturnMessage<>(socketUserList ,23);
-            WebsocketUtil.sendBasicMessage(session ,returnMessage);
-            return;
-            //是由于关闭浏览器而退出的玩家
-        }else {
-            //给其他玩家发送重新进来的消息
-            ReturnMessage<Long> returnMessage = new ReturnMessage<>(user.getId() ,21);
-            WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage);
-            //给自己发送游戏状态和本人和别人的的信息
-            List<SocketUser> socketUserList = generateList(realWanJias ,user ,roomPoke);
-            ReturnMessage<List<SocketUser>> myReturnMessage = new ReturnMessage<>(socketUserList ,20);
-            WebsocketUtil.sendBasicMessage(session ,myReturnMessage);
-            //在session中放入是否是观众信息和玩家id
-            mySession.getUserProperties().put(WebKeys.WEBSOCKET_IS_CHIGUA, Boolean.FALSE);
-            mySession.getUserProperties().put(WebKeys.WEBSOCKET_USER_ID, user.getId());
-            sessions.add(mySession);
-            return;
-        }
-    }
+//    private void processReComing(Set<Session> sessions ,User user ,RoomPoke roomPoke ,List<RealWanJiaInfo> realWanJias ,Session session) throws IOException {
+//        Boolean isRepeatUserId = checkIsRepeatConnection(sessions ,user);
+//        //检查是否是因为用户网络不好而断开的连接而引发的重连,是的话删除session,给玩家发送游戏状态消息和本人的信息，其他人的基本信息
+//        if (isRepeatUserId) {
+//            //在session中放入是否是观众信息和玩家id
+//            mySession.getUserProperties().put(WebKeys.WEBSOCKET_IS_CHIGUA, Boolean.FALSE);
+//            mySession.getUserProperties().put(WebKeys.WEBSOCKET_USER_ID, user.getId());
+//            sessions.add(mySession);
+//            //给自己发自己，其他人（真正玩家）的基本信息、分数
+//            List<SocketUser> socketUserList = generateList(realWanJias ,user ,roomPoke);
+//            ReturnMessage<List<SocketUser>> returnMessage = new ReturnMessage<>(socketUserList ,23);
+//            WebsocketUtil.sendBasicMessage(session ,returnMessage);
+//            return;
+//            //是由于关闭浏览器而退出的玩家
+//        }else {
+//            //给其他玩家发送重新进来的消息
+//            ReturnMessage<Long> returnMessage = new ReturnMessage<>(user.getId() ,21);
+//            WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage);
+//            //给自己发送游戏状态和本人和别人的的信息
+//            List<SocketUser> socketUserList = generateList(realWanJias ,user ,roomPoke);
+//            ReturnMessage<List<SocketUser>> myReturnMessage = new ReturnMessage<>(socketUserList ,20);
+//            WebsocketUtil.sendBasicMessage(session ,myReturnMessage);
+//            //在session中放入是否是观众信息和玩家id
+//            mySession.getUserProperties().put(WebKeys.WEBSOCKET_IS_CHIGUA, Boolean.FALSE);
+//            mySession.getUserProperties().put(WebKeys.WEBSOCKET_USER_ID, user.getId());
+//            sessions.add(mySession);
+//            return;
+//        }
+//    }
 
 }

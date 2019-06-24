@@ -38,6 +38,8 @@ public class RoomPoke implements Serializable {
      */
     private List<UserScore> userScores = new ArrayList<>(2<<4);
 
+    private Integer readyNum;
+
     /**
      * 默认为0，开到第几局了
      */
@@ -52,6 +54,10 @@ public class RoomPoke implements Serializable {
      * 对Set<Session>操作的锁
      */
     private ReadWriteLock lock = new ReentrantReadWriteLock();
+
+    private Lock realWanJiaLock = new ReentrantLock();
+
+    private Lock gameStatusLock = new ReentrantLock();
 
     /**
      * 游戏状态

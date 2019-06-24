@@ -82,7 +82,7 @@ public class NiuniuPlay {
             log.error(e.toString());
         }
         //闲家下注倒计时
-        countDown(sessions ,roomPokeMap.get(roomId));
+        countDown(sessions ,roomPokeMap.get(roomId) ,12 ,GameStatusEnum.BEFORE_LAST_POKE.getCode());
         //再发一张牌
         fapai_1(roomPoke ,sessions ,userPokeList ,niuniuRoomParameter);
         //准备摊牌倒计时
@@ -113,9 +113,9 @@ public class NiuniuPlay {
          * 加读锁
          */
         roomPoke.getLock().readLock().lock();
-        roomPoke.getWanJiaLock().lock();
+        roomPoke.getGameStatusLock().lock();
         roomPoke.setGameStatus(gameStatus);
-        roomPoke.getWanJiaLock().unlock();
+        roomPoke.getGameStatusLock().unlock();
         for (int i = 5; i > 0 ; i--) {
             ReturnMessage<Integer> returnMessage = new ReturnMessage<>(i ,messageCode);
             WebsocketUtil.sendAllBasicMessage(sessions , returnMessage);
@@ -497,10 +497,13 @@ public class NiuniuPlay {
          * 加读锁
          */
         roomPoke.getLock().readLock().lock();
-        roomPoke.getWanJiaLock().lock();
+
+        roomPoke.getGameStatusLock().lock();
         roomPoke.setGameStatus(GameStatusEnum.BEFORE_QIANGZHUANG_COUNTDOWN.getCode());
-        roomPoke.getWanJiaLock().unlock();
+        roomPoke.getGameStatusLock().unlock();
+
         //设置realWanJias
+        roomPoke.getRealWanJiaLock().lock();
         List<RealWanJiaInfo> realWanJias = roomPoke.getRealWanJias();
         userPokeList.forEach(u -> {
             for (RealWanJiaInfo realWanJiaInfo : realWanJias) {
@@ -510,15 +513,23 @@ public class NiuniuPlay {
                 }
             }
         });
-        userPokeList.forEach(u -> {
-            sessions.forEach(session -> {
-                Long userId = (Long) session.getUserProperties().get(WebKeys.WEBSOCKET_USER_ID);
-                if (Objects.equals(u.getUserId() ,userId)) {
-                    ReturnMessage<List<String>> returnMessage3 = new ReturnMessage<>(u.getPokes().subList(0,4),4);
-                    WebsocketUtil.sendBasicMessage(session ,returnMessage3);
-                }
-            });
-        });
+        roomPoke.getRealWanJiaLock().unlock();
+
+        Map<Long ,List<String>> pokeMap = Maps.newHashMap();
+        for (UserPoke userPoke : userPokeList) {
+            pokeMap.put(userPoke.getUserId() ,userPoke.getPokes());
+        }
+        ReturnMessage< Map<Long ,List<String>>> returnMessage3 = new ReturnMessage<>(pokeMap,4);
+        WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage3);
+//        userPokeList.forEach(u -> {
+//            sessions.forEach(session -> {
+//                Long userId = (Long) session.getUserProperties().get(WebKeys.WEBSOCKET_USER_ID);
+//                if (Objects.equals(u.getUserId() ,userId)) {
+//
+//                    WebsocketUtil.sendBasicMessage(session ,returnMessage3);
+//                }
+//            });
+//        });
         /**
          * 加读锁结束
          */
@@ -555,14 +566,24 @@ public class NiuniuPlay {
             });
         }
         ReturnMessage<Long> returnMessage1;
+        Long zhuangJiaUserId;
         if (qiangZhuangUserIds.isEmpty()) {
-            returnMessage1 = new ReturnMessage<>(userPokeList.get(randNum).getUserId() ,5);
+            zhuangJiaUserId =userPokeList.get(randNum).getUserId();
+            returnMessage1 = new ReturnMessage<>(zhuangJiaUserId ,5);
         }else {
-            returnMessage1 = new ReturnMessage<>(qiangZhuangUserIds.get(randNum) ,5);
+            zhuangJiaUserId = qiangZhuangUserIds.get(randNum);
+            returnMessage1 = new ReturnMessage<>(zhuangJiaUserId ,5);
         }
-        //加读锁
         roomPoke.getLock().readLock().lock();
-        roomPoke.getRealWanJias().stream().filter(r -> Objects.equals(r.getId() ,))
+
+        roomPoke.getGameStatusLock().lock();
+        roomPoke.setGameStatus(GameStatusEnum.BEFORE_XIANJIA_XIAZHU.getCode());
+        roomPoke.getGameStatusLock().unlock();
+
+        roomPoke.getRealWanJiaLock().lock();
+        roomPoke.getRealWanJias().stream().filter(r -> Objects.equals(r.getId() ,zhuangJiaUserId)).findFirst().get().setIsZhuangJia(Boolean.TRUE);
+        roomPoke.getRealWanJiaLock().unlock();
+
         WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage1);
         roomPoke.getLock().readLock().unlock();
     }

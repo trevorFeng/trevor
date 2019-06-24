@@ -109,9 +109,11 @@ public class NiuniuServer {
             WebsocketUtil.sendBasicMessage(session ,returnMessage);
             return;
         }
+        //对sessions操作，加读锁
         roomPoke.getLock().readLock().lock();
         Boolean isRepeatUserId = checkIsRepeatConnection(sessions ,user);
         roomPoke.getLock().readLock().unlock();
+
         //加写锁
         roomPoke.getLock().writeLock().lock();
         List<RealWanJiaInfo> realWanJias = roomPoke.getRealWanJias();

@@ -1,6 +1,5 @@
 package com.trevor.bo;
 
-import com.trevor.websocket.bo.SocketUser;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -55,8 +54,14 @@ public class RoomPoke implements Serializable {
      */
     private ReadWriteLock lock = new ReentrantReadWriteLock();
 
+    /**
+     * 对realWanJias的锁
+     */
     private Lock realWanJiaLock = new ReentrantLock();
 
+    /**
+     * 对gameStatus的锁
+     */
     private Lock gameStatusLock = new ReentrantLock();
 
     /**

@@ -157,7 +157,7 @@ public class NiuniuServiceImpl implements NiuniuService {
     @Override
     public void dealQiangZhuangMessage(Session mySession ,Long userId ,Long roomId ,ReceiveMessage receiveMessage){
         RoomPoke roomPoke = roomPokeMap.get(roomId);
-        UserPoke userPoke = getUserPoke(roomId ,userId);
+        //UserPoke userPoke = getUserPoke(roomId ,userId);
         /**
          * 加读锁
          */
@@ -232,10 +232,28 @@ public class NiuniuServiceImpl implements NiuniuService {
      * 处理摊牌的消息
      */
     @Override
-    public void dealTanPaiMessage(Long userId ,Long roomId){
+    public void dealTanPaiMessage(Session mySession ,Long userId ,Long roomId){
+        RoomPoke roomPoke = roomPokeMap.get(roomId);
+
+        roomPoke.getLock().readLock().lock();
+        roomPoke.getGameStatusLock().lock();
+        if (Objects.equals(roomPoke.getGameStatus() ,GameStatusEnum.BEFORE_CALRESULT.getCode())) {
+            roomPoke.getGameStatusLock().unlock();
+            /**
+             * 加读锁结束
+             */
+            roomPoke.getLock().readLock().unlock();
+            ReturnMessage<String> returnMessage = new ReturnMessage<>("你不能摊牌" ,-1);
+            WebsocketUtil.sendBasicMessage(mySession ,returnMessage);
+            return;
+        }
+        roomPoke.getGameStatusLock().unlock();
+
+        if ()
+
+
         Room room = roomService.findOneById(roomId);
         NiuniuRoomParameter niuniuRoomParameter = JSON.parseObject(room.getRoomConfig() ,NiuniuRoomParameter.class);
-        RoomPoke roomPoke = roomPokeMap.get(roomId);
         UserPoke userPoke = getUserPoke(roomId ,userId);
         TanPaiMessage tanPaiMessage = new TanPaiMessage();
         tanPaiMessage.setUserId(userId);
@@ -247,6 +265,9 @@ public class NiuniuServiceImpl implements NiuniuService {
         Set<Session> sessions = sessionsMap.get(roomId);
         //加读锁
         roomPoke.getLock().readLock().lock();
+
+        roomPoke.getGameStatusLock().lock();
+        roomPoke.setGameStatus(GameStatusEnum.);
         WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage);
         roomPoke.getLock().readLock().unlock();
     }

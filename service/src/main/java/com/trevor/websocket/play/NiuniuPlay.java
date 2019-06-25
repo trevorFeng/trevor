@@ -86,7 +86,7 @@ public class NiuniuPlay {
         //再发一张牌
         fapai_1(roomPoke ,sessions ,userPokeList ,niuniuRoomParameter);
         //准备摊牌倒计时
-        countDown(sessions ,roomPokeMap.get(roomId));
+        countDown(sessions ,roomPokeMap.get(roomId) ,13 ,GameStatusEnum.BEFORE_CALRESULT.getCode());
         //计算/设置本局玩家的分数
         setScore(roomPoke ,userPokeList ,niuniuRoomParameter);
         //保存roomPoke
@@ -521,15 +521,6 @@ public class NiuniuPlay {
         }
         ReturnMessage< Map<Long ,List<String>>> returnMessage3 = new ReturnMessage<>(pokeMap,4);
         WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage3);
-//        userPokeList.forEach(u -> {
-//            sessions.forEach(session -> {
-//                Long userId = (Long) session.getUserProperties().get(WebKeys.WEBSOCKET_USER_ID);
-//                if (Objects.equals(u.getUserId() ,userId)) {
-//
-//                    WebsocketUtil.sendBasicMessage(session ,returnMessage3);
-//                }
-//            });
-//        });
         /**
          * 加读锁结束
          */
@@ -595,6 +586,24 @@ public class NiuniuPlay {
      * @param userPokeList
      */
     private void fapai_1(RoomPoke roomPoke ,Set<Session> sessions ,List<UserPoke> userPokeList ,NiuniuRoomParameter niuniuRoomParameter){
+        roomPoke.getLock().readLock().lock();
+
+        roomPoke.getGameStatusLock().lock();
+        roomPoke.setGameStatus(GameStatusEnum.BEFORE_TABPAI_COUNTDOWN.getCode());
+        roomPoke.getGameStatusLock().unlock();
+
+        roomPoke.getRealWanJiaLock().lock();
+        List<RealWanJiaInfo> realWanJiaInfos = roomPoke.getRealWanJias();
+        for (UserPoke userPoke : userPokeList) {
+            for (RealWanJiaInfo realWanJiaInfo : realWanJiaInfos) {
+                if (Objects.equals(userPoke.getUserId() ,realWanJiaInfo.getId())) {
+                    realWanJiaInfo.getPokes().add(userPoke.getPokes().get(4));
+                    break;
+                }
+            }
+        }
+        roomPoke.getRealWanJiaLock().unlock();
+
         userPokeList.forEach(u -> {
             sessions.forEach(session -> {
                 Long userId = (Long) session.getUserProperties().get(WebKeys.WEBSOCKET_USER_ID);
@@ -604,12 +613,11 @@ public class NiuniuPlay {
                     laskPokeMessage.setPaiXing(isNiuNiu(u.getPokes() ,niuniuRoomParameter.getPaiXing() ,niuniuRoomParameter.getRule()).getPaixing());
                     ReturnMessage<LaskPokeMessage> returnMessage3 = new ReturnMessage<>(laskPokeMessage,6);
 
-                    roomPoke.getLock().readLock().lock();
                     WebsocketUtil.sendBasicMessage(session ,returnMessage3);
-                    roomPoke.getLock().readLock().unlock();
                 }
             });
         });
+        roomPoke.getLock().readLock().unlock();
     }
 
     /**

@@ -37,12 +37,12 @@ public class RoomPoke implements Serializable {
      */
     private List<UserScore> userScores = new ArrayList<>(2<<4);
 
-    private Integer readyNum;
+    private volatile Integer readyNum;
 
     /**
      * 默认为0，开到第几局了
      */
-    private Integer runingNum = 0;
+    private volatile Integer runingNum = 0;
 
     /**
      * 总局数
@@ -52,7 +52,11 @@ public class RoomPoke implements Serializable {
     /**
      * 对Set<Session>操作的锁
      */
-    private ReadWriteLock lock = new ReentrantReadWriteLock();
+    private ReadWriteLock leaderLock = new ReentrantReadWriteLock();
+
+    private Lock leaderReadLock = leaderLock.readLock();
+
+    private Lock leaderWriteLock = leaderLock.writeLock();
 
     /**
      * 对realWanJias的锁
@@ -62,12 +66,21 @@ public class RoomPoke implements Serializable {
     /**
      * 对gameStatus的锁
      */
-    private Lock gameStatusLock = new ReentrantLock();
+    private ReadWriteLock gameStatusLock = new ReentrantReadWriteLock();
+
+    private Lock gameStatusReadLock = gameStatusLock.readLock();
+
+    private Lock gameStatusWriteLock = gameStatusLock.writeLock();
 
     /**
      * 游戏状态
      */
     private volatile Integer gameStatus;
+
+    /**
+     * 0-表示可以开始打牌，1-表示在进行中，不能准备，2-表示房间已经结束
+     */
+    private volatile Integer processFlag;
 
 
 }

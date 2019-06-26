@@ -57,6 +57,11 @@ public class RealWanJiaInfo {
     private List<String> pokes;
 
     /**
+     * 是否已经摊牌
+     */
+    private Boolean isTanPai;
+
+    /**
      * 是否离线
      */
     private Boolean isUnconnection;

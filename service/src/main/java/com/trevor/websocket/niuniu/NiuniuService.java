@@ -50,5 +50,5 @@ public interface NiuniuService {
      */
     void dealXianJiaXiaZhuMessage(Session session ,Long userId , Long roomId , ReceiveMessage receiveMessage) throws IOException, EncodeException;
 
-    void dealTanPaiMessage(Long userId , Long roomId) throws IOException, EncodeException;
+    void dealTanPaiMessage(Session mySession ,Long userId , Long roomId) throws IOException, EncodeException;
 }

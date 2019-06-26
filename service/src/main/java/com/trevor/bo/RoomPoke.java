@@ -77,10 +77,10 @@ public class RoomPoke implements Serializable {
      */
     private volatile Integer gameStatus;
 
-    /**
-     * 0-表示可以开始打牌，1-表示在进行中，不能准备，2-表示房间已经结束
-     */
-    private volatile Integer processFlag;
+//    /**
+//     * 0-表示可以开始打牌，1-表示在进行中，不能准备，2-表示房间已经结束
+//     */
+//    private volatile Integer processFlag;
 
 
 }

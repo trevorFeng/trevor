@@ -41,7 +41,7 @@ public class NiuniuPlay {
 
     @Resource(name = "sessionsMap")
     private Map<Long ,Set<Session>> sessionsMap;
-2
+
 
     @Resource(name = "roomPokeMap")
     private Map<Long , RoomPoke> roomPokeMap;
@@ -88,22 +88,31 @@ public class NiuniuPlay {
         //准备摊牌倒计时
         countDown(sessions ,roomPokeMap.get(roomId) ,13 ,GameStatusEnum.BEFORE_CALRESULT.getCode());
 
-        //给玩家发返回计算的结果
-        returnResultToUser(sessions ,roomPoke ,userPokeList ,niuniuRoomParameter);
         //计算/设置本局玩家的分数
         setScore(roomPoke ,userPokeList ,niuniuRoomParameter);
+        //给玩家发返回计算的结果
+        returnResultToUser(sessions ,roomPoke ,userPokeList ,niuniuRoomParameter);
+
         //保存roomPoke
         saveRoomPoke(roomPoke);
-        //改变房间状态
-        roomPoke.setReadyNum(0);
-        roomPoke.setGameStatus(GameStatusEnum.BEFORE_READY.getCode());
-        roomPoke.setRuningNum(roomPoke.getRuningNum() + 1);
         //保存结果
         saveResult(roomId ,roomPoke ,userPokeList);
         //如果对局数结束，给所有人发消息，对局结束，如果没有结束则发个消息，继续开始
         Lock leaderReadLock = roomPoke.getLeaderReadLock();
         leaderReadLock.lock();
-        roomPoke.setProcessFlag(0);
+        //改变房间状态
+        roomPoke.setReadyNum(0);
+        roomPoke.setGameStatus(GameStatusEnum.BEFORE_READY.getCode());
+        roomPoke.setRuningNum(roomPoke.getRuningNum() + 1);
+        //初始化realWanjias
+        List<RealWanJiaInfo> realWanJiaInfos = roomPoke.getRealWanJias();
+        for (RealWanJiaInfo realWanJiaInfo : realWanJiaInfos) {
+            realWanJiaInfo.setIsZhuangJia(null);
+            realWanJiaInfo.setIsReady(null);
+            realWanJiaInfo.setIsTanPai(null);
+            realWanJiaInfo.setPokes(null);
+            realWanJiaInfo.setIsQiangZuang(null);
+        }
         if (Objects.equals(roomPoke.getRuningNum() ,roomPoke.getTotalNum())) {
             ReturnMessage<Integer> returnMessage = new ReturnMessage<>(roomPoke.getRuningNum(),14);
             WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage);
@@ -872,7 +881,7 @@ public class NiuniuPlay {
      */
     private void saveRoomPoke(RoomPoke roomPoke){
         RoomPokeInit roomPokeInit = new RoomPokeInit();
-        roomPokeInit.setRoomRecordId(roomPoke.getRoomRecordId());
+        roomPokeInit.setRoomRecordId(roomPoke.getRoomId());
         roomPokeInit.setUserPokes(JSON.toJSONString(roomPoke.getUserPokes()));
         roomPokeInit.setUserScores(JSON.toJSONString(roomPoke.getUserScores()));
         roomPokeInit.setRuningNum(roomPoke.getRuningNum());
@@ -909,6 +918,11 @@ public class NiuniuPlay {
         gameStatusWriteLock.lock();
         roomPoke.setGameStatus(GameStatusEnum.BEFORE_NEXT_START.getCode());
         gameStatusWriteLock.unlock();
+
+        List<RealWanJiaInfo> realWanJias = roomPoke.getRealWanJias();
+        for (RealWanJiaInfo realWanJiaInfo : realWanJias) {
+            realWanJiaInfo.setScore(scoreMap.get(realWanJiaInfo.getId()));
+        }
 
         WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage3);
         leaderReadLock.unlock();

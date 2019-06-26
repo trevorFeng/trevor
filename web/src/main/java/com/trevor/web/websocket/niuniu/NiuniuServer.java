@@ -26,6 +26,8 @@ import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
 import java.util.stream.Collectors;
 
 
@@ -110,12 +112,14 @@ public class NiuniuServer {
             return;
         }
         //对sessions操作，加读锁
-        roomPoke.getLock().readLock().lock();
+        Lock leaderReadLock = roomPoke.getLeaderReadLock();
+        leaderReadLock.lock();
         Boolean isRepeatUserId = checkIsRepeatConnection(sessions ,user);
-        roomPoke.getLock().readLock().unlock();
+        leaderReadLock.unlock();
 
         //加写锁
-        roomPoke.getLock().writeLock().lock();
+        Lock leaderWriteLock = roomPoke.getLeaderWriteLock();
+        leaderWriteLock.lock();
         List<RealWanJiaInfo> realWanJias = roomPoke.getRealWanJias();
         List<Long> realWanJiaIds = realWanJias.stream().map(realWanJiaInfo -> realWanJiaInfo.getId()).collect(Collectors.toList());
         //是真正的玩家
@@ -208,7 +212,7 @@ public class NiuniuServer {
                 return;
             }
         }
-        roomPoke.getLock().writeLock().unlock();
+        leaderWriteLock.unlock();
     }
 
     /**
@@ -273,7 +277,7 @@ public class NiuniuServer {
         }else if (Objects.equals(messageCode ,3)) {
             niuniuService.dealXianJiaXiaZhuMessage(mySession ,userId ,roomId ,receiveMessage);
         }else if (Objects.equals(messageCode ,4)) {
-            niuniuService.dealTanPaiMessage(userId ,roomId);
+            niuniuService.dealTanPaiMessage(mySession ,userId ,roomId);
         }else if (Objects.equals(messageCode ,200)) {
             ReturnMessage<XianJiaXiaZhuMessage> returnMessage = new ReturnMessage<>(null ,200);
             mySession.getAsyncRemote().sendObject(returnMessage);
@@ -296,7 +300,8 @@ public class NiuniuServer {
             return;
         }
         //加写锁
-        roomPoke.getLock().writeLock().lock();
+        Lock leaderWriteLock = roomPoke.getLeaderWriteLock();
+        leaderWriteLock.lock();
         Iterator<Session> itrSession = sessions.iterator();
         Long userId = 0L;
         Boolean isNormalClose = Boolean.TRUE;
@@ -337,7 +342,7 @@ public class NiuniuServer {
             ReturnMessage<Long> returnMessage = new ReturnMessage<>(userId ,22);
             WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage);
         }
-        roomPoke.getLock().writeLock().unlock();
+        leaderWriteLock.unlock();
     }
 
     /**

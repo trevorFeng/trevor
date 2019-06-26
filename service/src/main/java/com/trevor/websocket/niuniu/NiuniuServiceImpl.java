@@ -85,8 +85,7 @@ public class NiuniuServiceImpl implements NiuniuService {
     public void dealReadyMessage(Session session ,Long userId ,Long roomId){
         RoomPoke roomPoke = roomPokeMap.get(roomId);
 
-        //给所有人发自己加入准备的消息
-        ReturnMessage<Long> returnMessage = new ReturnMessage<>(userId ,2);
+
 
         Lock leaderReadLock = roomPoke.getLeaderReadLock();
         leaderReadLock.lock();
@@ -125,6 +124,8 @@ public class NiuniuServiceImpl implements NiuniuService {
         roomPoke.getRealWanJias().stream().filter(r -> Objects.equals(r.getId() ,userId)).findFirst().get().setIsReady(Boolean.TRUE);
         realWanJiaLock.unlock();
 
+        //给所有人发自己加入准备的消息
+        ReturnMessage<Long> returnMessage = new ReturnMessage<>(userId ,2);
         Set<Session> sessions = sessionsMap.get(roomId);
         WebsocketUtil.sendAllBasicMessage(sessions ,returnMessage);
 
@@ -132,33 +133,24 @@ public class NiuniuServiceImpl implements NiuniuService {
 
         String tempRoomId = String.valueOf(roomId).intern();
         synchronized (tempRoomId) {
-            if (Objects.equals(roomPoke.getProcessFlag() ,0)) {
-                //初始化roomPoke
-                initReadyMessage(roomPoke ,userId);
-                //是否准备的人数为两人，是则开始自动打牌
-                if (Objects.equals(roomPoke.getReadyNum() ,2)) {
-                    executor.execute(() -> {
-                        try {
-                            niuniuPlay.play(roomId);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            log.error("运行游戏报错，房间roomId :" + roomId + "，错误信息："+ e.toString());
-                            ReturnMessage<Long> message = new ReturnMessage<>(MessageCodeEnum.SYSTEM_ERROT);
+            //初始化roomPoke
+            initReadyMessage(roomPoke ,userId);
+            //是否准备的人数为两人，是则开始自动打牌
+            if (Objects.equals(roomPoke.getReadyNum() ,2)) {
+                executor.execute(() -> {
+                    try {
+                        niuniuPlay.play(roomId);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        log.error("运行游戏报错，房间roomId :" + roomId + "，错误信息："+ e.toString());
+                        ReturnMessage<Long> message = new ReturnMessage<>(MessageCodeEnum.SYSTEM_ERROT);
 
-                            Lock leaderReadLock1 = roomPoke.getLeaderReadLock();
-                            leaderReadLock1.lock();
-                            WebsocketUtil.sendAllBasicMessage(sessions ,message);
-                            leaderReadLock1.unlock();
-                        }
-                    });
-                }
-            }else if (Objects.equals(roomPoke.getProcessFlag() ,1)){
-                ReturnMessage<Long> message = new ReturnMessage<>(MessageCodeEnum.SYSTEM_ERROT);
-
-                Lock leaderReadLock1 = roomPoke.getLeaderReadLock();
-                leaderReadLock1.lock();
-                WebsocketUtil.sendAllBasicMessage(sessions ,message);
-                leaderReadLock1.unlock();
+                        Lock leaderReadLock1 = roomPoke.getLeaderReadLock();
+                        leaderReadLock1.lock();
+                        WebsocketUtil.sendAllBasicMessage(sessions ,message);
+                        leaderReadLock1.unlock();
+                    }
+                });
             }
         }
     }

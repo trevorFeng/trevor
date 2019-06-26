@@ -47,7 +47,7 @@ public class Init implements ApplicationRunner {
         List<RoomPokeInit> roomPokeInits = roomPokeInitMapper.findStatus_0();
         for (RoomPokeInit roomPokeInit : roomPokeInits) {
             RoomPoke roomPoke = new RoomPoke();
-            roomPoke.setRoomRecordId(roomPokeInit.getRoomRecordId());
+            roomPoke.setRoomId(roomPokeInit.getRoomRecordId());
             roomPoke.setUserPokes(JSON.parseObject(roomPokeInit.getUserPokes() ,new TypeReference<List<UserPokesIndex>>(){}));
             roomPoke.setUserScores(JSON.parseObject(roomPokeInit.getUserScores() ,new TypeReference<List<UserScore>>(){}));
             roomPoke.setRuningNum(roomPokeInit.getRuningNum());

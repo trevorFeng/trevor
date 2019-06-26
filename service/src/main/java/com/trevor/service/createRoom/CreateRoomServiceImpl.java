@@ -80,7 +80,7 @@ public class CreateRoomServiceImpl implements CreateRoomService{
 
         //生成roomPoke放入roomPokeMap
         RoomPoke roomPoke = new RoomPoke();
-        roomPoke.setRoomRecordId(room.getId());
+        roomPoke.setRoomId(room.getId());
         if (niuniuRoomParameter.getConsumCardNum() == 1) {
             roomPoke.setTotalNum(12);
         }else if (niuniuRoomParameter.getConsumCardNum() == 2) {
